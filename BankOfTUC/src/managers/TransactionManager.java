@@ -10,14 +10,14 @@ import users.Customer;
 public class TransactionManager {
     private static final TransactionManager instance = new TransactionManager();
 
-    private TransactionManager() {
-    }
+    private TransactionManager() {}
 
     public static TransactionManager getInstance() {
         return instance;
     }
 
-    public static void registerTransaction(Transaction transaction) {
+    // ✅ non-static: ο manager (ως Singleton) είναι ο μοναδικός executor
+    public void registerTransaction(Transaction transaction) {
         try {
             transaction.execute();
             StatementManager.getInstance().registerStatements(transaction);
@@ -26,18 +26,23 @@ public class TransactionManager {
         }
     }
 
-    public void newTranfer(Customer transactor, BankAccount fromAccount, BankAccount toAccount, String reasonFrom,
-            String reasonTo,
-            double amount) {
-        Transaction transfer = new Transfer(transactor, fromAccount, toAccount, amount, reasonTo);
-        registerTransaction(transfer);
+    public void newTransfer(Customer transactor,
+                            BankAccount fromAccount,
+                            BankAccount toAccount,
+                            String reasonFrom,
+                            String reasonTo,
+                            double amount) {
+
+        Transaction transfer = new Transfer(transactor, fromAccount, toAccount, reasonFrom, reasonTo, amount);
+        registerTransaction(transfer); // same instance method
     }
 
-    public void eofInterestPayment(BankAccount toAccount, double ammount) {
+    public void eofInterestPayment(BankAccount toAccount, double amount) {
         MasterAccount bm = MasterAccount.getInstance();
         String reasonTo = "Interest payment from bank";
         String reasonFrom = "Interest payment to " + toAccount.getIban();
-        Transaction transfer = new Transfer(bm.getPrimaryHolder(), bm, toAccount, reasonFrom, reasonTo, ammount);
+
+        Transaction transfer = new Transfer(bm.getPrimaryHolder(), bm, toAccount, reasonFrom, reasonTo, amount);
         registerTransaction(transfer);
     }
 
@@ -45,9 +50,15 @@ public class TransactionManager {
         MasterAccount bm = MasterAccount.getInstance();
         String reasonFrom = "Maintenance fee";
         String reasonTo = "Maintenance fee from " + fromAccount.getIban();
-        Transaction transfer = new Transfer(fromAccount.getPrimaryHolder(), fromAccount, bm, reasonFrom, reasonTo,
-                BusinessAccount.getMaintenaceFee());
+
+        Transaction transfer = new Transfer(
+            fromAccount.getPrimaryHolder(),
+            fromAccount,
+            bm,
+            reasonFrom,
+            reasonTo,
+            BusinessAccount.getMaintenaceFee()
+        );
         registerTransaction(transfer);
     }
-
 }

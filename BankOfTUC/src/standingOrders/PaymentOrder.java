@@ -1,11 +1,10 @@
 package standingOrders;
 
-import managers.AccountManager;
 import java.time.LocalDate;
 
 import accounts.BankAccount;
-import accounts.MasterAccount;
 import bank.storage.UnMarshalingException;
+import managers.AccountManager;
 import managers.BillManager;
 import managers.TransactionManager;
 import managers.UserManager;
@@ -18,89 +17,112 @@ public class PaymentOrder extends StandingOrder {
     private double maxAmount;
 
     public PaymentOrder(Customer customer, String id, String title, String description,
-            BankAccount fromAccount, String rfCode, double maxAmount,
-            LocalDate startDate, LocalDate endDate, double fee) {
+                        BankAccount fromAccount, String rfCode, double maxAmount,
+                        LocalDate startDate, LocalDate endDate, double fee) {
         super(customer, id, title, description, startDate, endDate, fee);
         this.fromAccount = fromAccount;
         this.rfCode = rfCode;
         this.maxAmount = maxAmount;
     }
 
-    public PaymentOrder() {
-
-    }
+    public PaymentOrder() {}
 
     @Override
     public boolean isDue(LocalDate today) {
-        try {
-            return isActive(today) && BillManager.getInstance().isBillDueToday(rfCode, today);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false; // <- πρόσθεσέ το για να μην έχεις compile error
+        // due if active and there is an unpaid bill for this RF
+        return isActive(today) && BillManager.getInstance().isBillDueToday(rfCode, today);
     }
 
     @Override
     public void execute(LocalDate today) {
-        Bill bill = null;
         try {
-            bill = BillManager.getInstance().getUnpaidBill(rfCode, today);
+            Bill bill = BillManager.getInstance().getUnpaidBill(rfCode, today);
+
+            if (bill == null || bill.getAmount() > maxAmount) {
+                // use onAttemptFailure(today) if you added it, otherwise registerFailure()
+                onAttemptFailure(today);
+                return;
+            }
+
+            if (customer == null || fromAccount == null) {
+                onAttemptFailure(today);
+                return;
+            }
+
+            // payer = customer's chosen account
+            BankAccount payer = this.fromAccount;
+
+            // payee = issuer company's business account
+            BankAccount payee = AccountManager.getInstance().findBusinessAccountByVat(bill.getIssuerVAT());
+            if (payee == null) {
+                onAttemptFailure(today);
+                return;
+            }
+
+            // access check (important)
+            if (!AccountManager.getInstance().hasAccessToAccount(customer, payer)) {
+                onAttemptFailure(today);
+                return;
+            }
+
+            // execute Payment transaction (this will debit/credit + statements)
+            TransactionManager.getInstance().registerTransaction(
+                new Payment(
+                    customer,
+                    payer,
+                    payee,
+                    "Πληρωμή λογαριασμού RF: " + rfCode,
+                    "Είσπραξη λογαριασμού RF: " + rfCode,
+                    bill.getAmount() + fee
+                )
+            );
+
+            bill.markAsPaid();
+            // optional: reset failures on success
+            // failedAttempts = 0;
+
         } catch (Exception e) {
-            e.printStackTrace();
+            onAttemptFailure(today);
         }
-        if (bill == null || bill.getAmount() > maxAmount) {
-            registerFailure();
-            return;
-        }
-
-        BankAccount fromAccount = MasterAccount.getInstance();
-        // BankAccount toAccount = AccountManager.getInstance().getPrimaryAccountOfUser(bill.getId());
-        BankAccount toAccount = AccountManager.getInstance().findBusinessAccountByVat(bill.getIssuerVAT());
-        Customer bank = MasterAccount.getInstance().getPrimaryHolder();
-
-        TransactionManager.registerTransaction(new Payment(
-                bank,
-                fromAccount,
-                toAccount,
-                "Πληρωμή λογαριασμού RF: " + rfCode,
-                "Είσπραξη λογαριασμού RF: " + rfCode,
-                bill.getAmount() + fee));
-
-        bill.markAsPaid();
-
     }
 
     @Override
     public String marshal() {
-        // type, orderId, paymentCode, title, description, customer, maxAmount,
-        // startDate, endDate, fee, chargeAccount
+        String customerVat = (customer != null) ? customer.getVatNumber() : "";
+        String chargeIban = (fromAccount != null) ? fromAccount.getIban() : "";
+
         return String.join(",",
-                "type:PaymentOrder",
-                "orderId:" + id,
-                "paymentCode:" + rfCode,
-                "title:" + title,
-                "description:" + description,
-                "customer:" + fromAccount.getPrimaryHolder().getVatNumber(),
-                "maxAmount:" + maxAmount,
-                "startDate:" + startDate,
-                "endDate:" + endDate,
-                "fee:" + fee,
-                "chargeAccount:" + fromAccount.getIban());
+            "type:PaymentOrder",
+            "orderId:" + id,
+            "paymentCode:" + rfCode,
+            "title:" + title,
+            "description:" + description,
+            "customer:" + customerVat,
+            "maxAmount:" + maxAmount,
+            "startDate:" + startDate,
+            "endDate:" + endDate,
+            "fee:" + fee,
+            "failedAttempts:" + failedAttempts,
+            "chargeAccount:" + chargeIban
+        );
     }
 
     @Override
     public void unmarshal(String data) throws UnMarshalingException {
         String[] parts = data.split(",");
-        if (!parts[0].equals("type:PaymentOrder")) {
+        if (parts.length == 0 || !parts[0].equals("type:PaymentOrder")) {
             throw new UnMarshalingException("Not a PaymentOrder: " + data);
         }
 
         for (String p : parts) {
+            if (p.isBlank()) continue;
+
             String[] kv = p.split(":", 2);
-            if (kv.length != 2) {
-                throw new UnMarshalingException("Bad field: " + p);
-            }
+            if (kv.length != 2) throw new UnMarshalingException("Bad field: " + p);
+
             switch (kv[0]) {
+                case "type":
+                    break;
                 case "orderId":
                     id = kv[1];
                     break;
@@ -114,7 +136,6 @@ public class PaymentOrder extends StandingOrder {
                     description = kv[1];
                     break;
                 case "customer":
-                    // ensure customer exists
                     customer = UserManager.getInstance().findCustomerByVat(kv[1]);
                     break;
                 case "maxAmount":
@@ -129,15 +150,21 @@ public class PaymentOrder extends StandingOrder {
                 case "fee":
                     fee = Double.parseDouble(kv[1]);
                     break;
+                case "failedAttempts":
+                    failedAttempts = Integer.parseInt(kv[1]);
+                    break;
                 case "chargeAccount":
                     fromAccount = AccountManager.getInstance().findByIban(kv[1]);
-                    if (fromAccount == null)
-                        throw new UnMarshalingException("Unknown IBAN: " + kv[1]);
+                    if (fromAccount == null) throw new UnMarshalingException("Unknown IBAN: " + kv[1]);
                     break;
                 default:
-                    // ignore type or any extra fields
+                    // ignore
                     break;
             }
+        }
+
+        if (customer == null) {
+            throw new UnMarshalingException("Unknown customer for PaymentOrder " + id);
         }
     }
 }

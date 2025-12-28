@@ -55,7 +55,9 @@ public class StorableList<T extends Storable> extends ArrayList<T> implements St
 					inst = new TransferOrder();
 					break;
 				case "PaymentOrder":
-					inst = new PaymentOrder();
+                    inst = new PaymentOrder();
+                    break;   
+
 				case "MasterAccount":
 					inst = MasterAccount.getInstance();
 					break;

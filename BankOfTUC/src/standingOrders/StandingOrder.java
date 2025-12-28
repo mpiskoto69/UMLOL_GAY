@@ -5,24 +5,39 @@ import java.time.LocalDate;
 import bank.storage.Storable;
 import users.Customer;
 
+/**
+ * Standing order base class.
+ * - Tracks failures per due-date attempt (3 failures => skip this attempt)
+ * - Does NOT kill the order permanently; next cycle can attempt again.
+ */
 public abstract class StandingOrder implements Storable {
-    // public static enum Status {
-    //     ACTIVE, EXPIRED, FAILED
-    // }
 
     protected String id;
     protected String title;
     protected String description;
     protected LocalDate startDate;
     protected LocalDate endDate;
+
+    // Failure policy
     protected int failedAttempts = 0;
     protected static final int MAX_ATTEMPTS = 3;
+
+    /**
+     * Tracks which scheduled attempt the failures belong to.
+     * If the order becomes due for a NEW cycle/date, failures reset.
+     */
+    protected LocalDate failureBucketDate = null;
+
     protected double fee;
     protected Customer customer;
-    // protected Status status = Status.ACTIVE;
 
-    public StandingOrder(Customer customer, String id, String title, String description, LocalDate startDate, LocalDate endDate,
-            double fee) {
+    protected StandingOrder(Customer customer,
+                            String id,
+                            String title,
+                            String description,
+                            LocalDate startDate,
+                            LocalDate endDate,
+                            double fee) {
         this.customer = customer;
         this.id = id;
         this.title = title;
@@ -32,56 +47,79 @@ public abstract class StandingOrder implements Storable {
         this.fee = fee;
     }
 
-    public StandingOrder() {
+    protected StandingOrder() { }
 
-    }
+    public String getId() { return id; }
+    public String getTitle() { return title; }
+    public String getDescription() { return description; }
+    public LocalDate getStartDate() { return startDate; }
+    public LocalDate getEndDate() { return endDate; }
+    public double getFee() { return fee; }
+    public Customer getCustomer() { return customer; }
 
-    public int getFailedAttempts() {
-        return failedAttempts;
-    }
+    public int getFailedAttempts() { return failedAttempts; }
+    public void setFailedAttempts(int failedAttempts) { this.failedAttempts = failedAttempts; }
 
-    public void setFailedAttempts(int failedAttempts) {
-        this.failedAttempts = failedAttempts;
-    }
+    public LocalDate getFailureBucketDate() { return failureBucketDate; }
+    public void setFailureBucketDate(LocalDate d) { this.failureBucketDate = d; }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
-    public static int getMaxAttempts() {
-        return MAX_ATTEMPTS;
-    }
+    public static int getMaxAttempts() { return MAX_ATTEMPTS; }
 
     public boolean isActive(LocalDate today) {
-        return !today.isBefore(startDate) && !today.isAfter(endDate);
+        return today != null
+            && startDate != null
+            && endDate != null
+            && !today.isBefore(startDate)
+            && !today.isAfter(endDate);
     }
 
+    /**
+     * Returns true if the order should be attempted on 'today' (based on schedule).
+     */
     public abstract boolean isDue(LocalDate today);
 
+    /**
+     * Performs the action for today's scheduled attempt.
+     * Implementations should call onAttemptFailure(today) when failing.
+     */
     public abstract void execute(LocalDate today);
 
-    public void registerFailure() {
+    /**
+     * Call this when an attempt FAILS.
+     * Keeps failures per due-date attempt; resets automatically when due-date changes.
+     */
+    public void onAttemptFailure(LocalDate today) {
+        if (today == null) {
+            failedAttempts++;
+            return;
+        }
+
+        // If failures were tracked for a different attempt date, reset for this new attempt
+        if (failureBucketDate == null || !failureBucketDate.equals(today)) {
+            failureBucketDate = today;
+            failedAttempts = 0;
+        }
+
         failedAttempts++;
     }
 
-    public boolean hasExceededMaxFailures() {
+    /**
+     * Returns true if we should skip the attempt for this specific due-date.
+     */
+    public boolean hasExceededMaxFailuresFor(LocalDate today) {
+        if (today == null) return failedAttempts >= MAX_ATTEMPTS;
+
+        // If the bucket is not today, failures do not apply to today's attempt
+        if (failureBucketDate == null || !failureBucketDate.equals(today)) return false;
+
         return failedAttempts >= MAX_ATTEMPTS;
     }
 
+    /**
+     * Backward compatible method: "ever exceeded" (used by storage splitting).
+     * NOTE: Prefer hasExceededMaxFailuresFor(today) for runtime decisions.
+     */
+    public boolean hasExceededMaxFailures() {
+        return failedAttempts >= MAX_ATTEMPTS;
+    }
 }
