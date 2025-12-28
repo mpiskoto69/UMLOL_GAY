@@ -1,74 +1,90 @@
 package transactions;
 
+import javax.naming.InsufficientResourcesException;
+import java.util.UUID;
+
 import accounts.BankAccount;
 import users.Customer;
 
-import java.util.ArrayList;
-import java.util.Random;
-
-import javax.naming.InsufficientResourcesException;
-
+/**
+ * Abstract base class for all banking transactions (Transfer, Payment, Deposit, Withdrawal).
+ * Acts as a Command in the Command pattern.
+ */
 public abstract class Transaction {
-	protected String id;
-	protected Customer transactor;
-	protected BankAccount account1;
-	protected BankAccount account2;
-	protected String reason1;
-	protected String reason2;
-	private static ArrayList<String> usedIds = new ArrayList<>();
-	private static Random random = new Random();
 
-	// CONSTRUCTOR
-	public Transaction(Customer transactor, BankAccount account1, BankAccount account2, String reason1,
-			String reason2) {
-		this.id = generateId(); // αν έχεις μέθοδο για ID
-		this.transactor = transactor;
-		this.account1 = account1;
-		this.account2 = account2;
-		this.reason1 = reason1;
-		this.reason2 = reason2;
-	}
+    protected final String id;
+    protected final Customer transactor;
+    protected final BankAccount account1; // source / primary
+    protected final BankAccount account2; // target / counterparty (can be MasterAccount)
+    protected final String reason1;        // reason for account1
+    protected final String reason2;        // reason for account2
 
-	protected String getId() {
-		return id;
-	}
+    /**
+     * Constructor used when loading from persistent storage (stable ID).
+     */
+    protected Transaction(String id,
+                          Customer transactor,
+                          BankAccount account1,
+                          BankAccount account2,
+                          String reason1,
+                          String reason2) {
 
-	public static String generateId() {
-		for (int attempt = 0; attempt < 1000; attempt++) { // αποφυγή άπειρου loop
-			int length = random.nextInt(20) + 1;
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < length; i++) {
-				sb.append(random.nextInt(10)); // 0-9
-			}
-			String id = sb.toString();
-			if (!usedIds.contains(id)) {
-				usedIds.add(id);
-				return id;
-			}
-		}
-		throw new RuntimeException("Failed to generate unique Transaction ID after many attempts");
-	}
+        this.id = id;
+        this.transactor = transactor;
+        this.account1 = account1;
+        this.account2 = account2;
+        this.reason1 = reason1;
+        this.reason2 = reason2;
+    }
 
-	protected Customer getTransactor() {
-		return transactor;
-	}
+    /**
+     * Constructor used for runtime creation of new transactions.
+     */
+    protected Transaction(Customer transactor,
+                          BankAccount account1,
+                          BankAccount account2,
+                          String reason1,
+                          String reason2) {
 
-	public BankAccount getAccount1() {
-		return account1;
-	}
+        this(generateId(), transactor, account1, account2, reason1, reason2);
+    }
 
-	public BankAccount getAccount2() {
-		return account2;
-	}
+    // ---------------- getters ----------------
 
-	protected String getReason1() {
-		return reason1;
-	}
+    public String getId() {
+        return id;
+    }
 
-	protected String getReason2() {
-		return reason2;
-	}
+    public Customer getTransactor() {
+        return transactor;
+    }
 
-	public abstract void execute() throws IllegalAccessException, InsufficientResourcesException;
+    public BankAccount getAccount1() {
+        return account1;
+    }
 
+    public BankAccount getAccount2() {
+        return account2;
+    }
+
+    public String getReason1() {
+        return reason1;
+    }
+
+    public String getReason2() {
+        return reason2;
+    }
+
+    // ---------------- helpers ----------------
+
+    protected static String generateId() {
+        return UUID.randomUUID().toString();
+    }
+
+    /**
+     * Executes the transaction.
+     * All balance changes and statement creation MUST happen here.
+     */
+    public abstract void execute()
+            throws IllegalAccessException, InsufficientResourcesException;
 }

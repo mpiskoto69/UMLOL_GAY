@@ -77,15 +77,14 @@ public class TransferOrder extends StandingOrder {
             // Business choice:
             // Here we charge the sender amount + fee in the same transfer.
             // If you want strict baseline alignment, do a 2nd transaction for the fee to MasterAccount.
-       TransactionManager.getInstance().registerTransaction(
-    new Transfer(
-        customer,
-        fromAccount,
-        toAccount,
-        "Πάγια Εντολή Μεταφοράς",        // reasonFrom
-        "Πάγια Εντολή Μεταφοράς",        // reasonTo
-        amount + fee
-    )
+         TransactionManager.getInstance().registerTransaction(
+         Transfer.builder()
+        .transactor(customer)
+        .from(fromAccount)
+        .to(toAccount)
+        .reason("Πάγια Εντολή Μεταφοράς")
+        .amount(amount + fee)
+        .build()
 );
 
 

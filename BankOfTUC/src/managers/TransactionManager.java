@@ -26,39 +26,54 @@ public class TransactionManager {
         }
     }
 
-    public void newTransfer(Customer transactor,
-                            BankAccount fromAccount,
-                            BankAccount toAccount,
-                            String reasonFrom,
-                            String reasonTo,
-                            double amount) {
+public void newTransfer(Customer transactor,
+                        BankAccount fromAccount,
+                        BankAccount toAccount,
+                        String reasonFrom,
+                        String reasonTo,
+                        double amount) {
 
-        Transaction transfer = new Transfer(transactor, fromAccount, toAccount, reasonFrom, reasonTo, amount);
-        registerTransaction(transfer); // same instance method
-    }
+    Transaction transfer = Transfer.builder()
+        .transactor(transactor)
+        .from(fromAccount)
+        .to(toAccount)
+        .reasonFrom(reasonFrom)
+        .reasonTo(reasonTo)
+        .amount(amount)
+        .build();
+
+    registerTransaction(transfer);
+}
 
     public void eofInterestPayment(BankAccount toAccount, double amount) {
-        MasterAccount bm = MasterAccount.getInstance();
-        String reasonTo = "Interest payment from bank";
-        String reasonFrom = "Interest payment to " + toAccount.getIban();
+    MasterAccount bm = MasterAccount.getInstance();
 
-        Transaction transfer = new Transfer(bm.getPrimaryHolder(), bm, toAccount, reasonFrom, reasonTo, amount);
-        registerTransaction(transfer);
-    }
+    Transaction transfer = Transfer.builder()
+        .transactor(bm.getPrimaryHolder())
+        .from(bm)
+        .to(toAccount)
+        .reasonFrom("Interest payment to " + toAccount.getIban())
+        .reasonTo("Interest payment from bank")
+        .amount(amount)
+        .build();
 
-    public void chargeMaintenanceFee(BusinessAccount fromAccount) {
-        MasterAccount bm = MasterAccount.getInstance();
-        String reasonFrom = "Maintenance fee";
-        String reasonTo = "Maintenance fee from " + fromAccount.getIban();
+    registerTransaction(transfer);
+}
 
-        Transaction transfer = new Transfer(
-            fromAccount.getPrimaryHolder(),
-            fromAccount,
-            bm,
-            reasonFrom,
-            reasonTo,
-            BusinessAccount.getMaintenaceFee()
-        );
-        registerTransaction(transfer);
-    }
+public void chargeMaintenanceFee(BusinessAccount fromAccount) {
+    MasterAccount bm = MasterAccount.getInstance();
+
+        Transaction transfer = Transfer.builder()
+        .transactor(fromAccount.getPrimaryHolder())
+        .from(fromAccount)
+        .to(bm)
+        .reasonFrom("Maintenance fee")
+        .reasonTo("Maintenance fee from " + fromAccount.getIban())
+        .amount(BusinessAccount.getMaintenaceFee())
+        .build();
+
+    registerTransaction(transfer);
+}
+
+   
 }

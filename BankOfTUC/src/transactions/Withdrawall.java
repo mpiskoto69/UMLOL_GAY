@@ -8,30 +8,48 @@ import managers.AccountManager;
 import users.Customer;
 
 public class Withdrawall extends Transaction {
-	private double amount;
+    private final double amount;
 
-	public Withdrawall(Customer transactor, BankAccount account, String reason, double amount) {
-		super(transactor, account, null, reason, null);
-		this.amount = amount;
-	}
+ public Withdrawall(Customer transactor, BankAccount account, String reason, double amount) {
+    super(transactor, account, MasterAccount.getInstance(), reason, "Cash withdrawal");
+    this.amount = amount;
+}
 
-	@Override
-	public void execute() throws IllegalAccessException, InsufficientResourcesException, IllegalArgumentException {
 
-		if (!AccountManager.getInstance().hasAccessToAccount(transactor, account1))
-			throw new IllegalAccessException("You don't have access to this account!");
+  @Override
+public void execute() throws IllegalAccessException, InsufficientResourcesException, IllegalArgumentException {
 
-		getAccount1().debit(amount);
-		MasterAccount.getInstance().credit(amount);
-		AccountStatement statement = new AccountStatement(getId(), getTransactor().getUsername(), // όνομα εκτελεστή
-				getAccount1().getIban(), // IBAN λογαριασμού
-				null, // κανένας άλλος λογαριασμός
-				getReason1(), // αιτιολογία
-				amount, getAccount1().getBalance(), // νέο υπόλοιπο
-				AccountStatement.MovementType.DEBIT // τύπος κίνησης
-		);
+    if (!AccountManager.getInstance().hasAccessToAccount(transactor, account1))
+        throw new IllegalAccessException("You don't have access to this account!");
 
-		getAccount1().addStatement(statement);
-	}
+    // 1) Move money: customer -> bank
+    getAccount1().debit(amount);
+    getAccount2().credit(amount);
 
+    // 2) DEBIT statement on customer
+    AccountStatement debitStmt = new AccountStatement(
+        getId(),
+        getTransactor().getUsername(),
+        getAccount1().getIban(),
+        getAccount2().getIban(),
+        getReason1(),
+        amount,
+        getAccount1().getBalance(),
+        AccountStatement.MovementType.DEBIT
+    );
+    getAccount1().addStatement(debitStmt);
+
+    // 3) CREDIT statement on bank
+    AccountStatement creditStmt = new AccountStatement(
+        getId(),
+        getTransactor().getUsername(),
+        getAccount2().getIban(),   // bank IBAN
+        getAccount1().getIban(),   // customer IBAN
+        getReason2(),              // e.g. "Cash withdrawal"
+        amount,
+        getAccount2().getBalance(),
+        AccountStatement.MovementType.CREDIT
+    );
+    getAccount2().addStatement(creditStmt);
+}
 }
