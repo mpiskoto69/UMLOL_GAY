@@ -1,8 +1,7 @@
 package accounts;
 
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
 
 import bank.storage.UnMarshalingException;
 import managers.TransactionManager;
@@ -12,14 +11,13 @@ import users.Customer;
 
 public class BusinessAccount extends BankAccount {
     protected static final double MAINTENANCE_FEE = 10.00;
-    protected LocalDate dateCreated;
 
-    public BusinessAccount(Company holder,
-            double interestRate,
-            LocalDate dateCreated) {
-        super(holder, interestRate, "200");
-        this.dateCreated = dateCreated;
-    }
+  public BusinessAccount(Company holder, double interestRate, LocalDate dateCreated) {
+    super(holder, interestRate, "200");
+    this.dateCreated = dateCreated; 
+}
+
+
 
     public BusinessAccount() {
         super();
@@ -29,14 +27,19 @@ public class BusinessAccount extends BankAccount {
     public void endOfMonth() {
         // Interest
         TransactionManager tm = TransactionManager.getInstance();
-        tm.eofInterestPayment(this, thisMonthsInterest);
+        if (thisMonthsInterest > 0) {
+         tm.eofInterestPayment(this, thisMonthsInterest);
+           resetMonthsInterest();
+           }
+          tm.chargeMaintenanceFee(this);
+
         System.out.print("Interest paid ");
         System.out.printf("%.2f", thisMonthsInterest);
         System.out.println(" euros for " + iban);
         resetMonthsInterest();
 
         // Maintenace Fee
-        tm.chargeMaintenanceFee(this);
+    
         System.out.print("Maintenance fee paid ");
         System.out.printf("%.2f", MAINTENANCE_FEE);
         System.out.println(" euros from " + iban);

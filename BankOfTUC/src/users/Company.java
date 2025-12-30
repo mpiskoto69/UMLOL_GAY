@@ -23,7 +23,7 @@ public class Company extends Customer {
 		if (accounts.isEmpty()) {
 			accounts.add(acc);
 		} else {
-			System.out.println("the companies are allowed to have only one account");
+		throw new IllegalStateException("Company can have only one account");
 		}
 	}
 

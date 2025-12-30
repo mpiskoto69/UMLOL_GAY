@@ -1,6 +1,6 @@
 package bank.storage.dao;
 
-import standingOrders.Bill;
+import bank.storage.Bill;
 
 import java.io.*;
 import java.nio.file.*;

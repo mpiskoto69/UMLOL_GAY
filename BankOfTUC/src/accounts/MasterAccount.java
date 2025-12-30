@@ -1,9 +1,6 @@
 package accounts;
 
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import bank.storage.UnMarshalingException;
 import managers.AccountManager;
 import managers.UserManager;
@@ -40,34 +37,7 @@ public class MasterAccount extends BusinessAccount {
                 "balance:" + balance);
     }
 
-    // @Override
-    // public void unmarshal(String data) throws UnMarshalingException {
-    // String[] parts = data.split(",");
-    // if (parts.length != 6 || !parts[0].equals("type:MasterAccount"))
-    // throw new UnMarshalingException("Bad BusinessAccount line: " + data);
-
-    // Map<String, String> map = new LinkedHashMap<>();
-    // for (String p : parts) {
-    // String[] kv = p.split(":", 2);
-    // if (kv.length != 2)
-    // throw new UnMarshalingException("Bad field: " + p);
-    // map.put(kv[0], kv[1]);
-    // }
-
-    // // lookup primary holder
-    // String vat = map.get("primaryOwner");
-    // Customer cust = UserManager.getInstance().findCustomerByVat(vat);
-    // if (!(cust instanceof Company))
-    // throw new UnMarshalingException("No Company for VAT " + vat);
-    // this.primaryHolder = (Company) cust;
-    // this.primaryHolder.addAccount(this);
-
-    // // set rest
-    // this.iban = map.get("iban");
-    // this.dateCreated = LocalDate.parse(map.get("dateCreated"));
-    // this.interestRate = Double.parseDouble(map.get("rate"));
-    // this.balance = Double.parseDouble(map.get("balance"));
-    // }
+    
 
     @Override
     public void unmarshal(String data) throws UnMarshalingException {

@@ -26,30 +26,30 @@ public void execute() throws IllegalAccessException, InsufficientResourcesExcept
     getAccount1().debit(amount);
     getAccount2().credit(amount);
 
-    // 2) DEBIT statement on customer
-    AccountStatement debitStmt = new AccountStatement(
-        getId(),
-        getTransactor().getUsername(),
-        getAccount1().getIban(),
-        getAccount2().getIban(),
-        getReason1(),
-        amount,
-        getAccount1().getBalance(),
-        AccountStatement.MovementType.DEBIT
-    );
-    getAccount1().addStatement(debitStmt);
+  // 2) DEBIT statement on customer
+AccountStatement debitStmt = AccountStatement.builder()
+    .transactionId(getId())
+    .transactor(getTransactor().getUsername())
+    .account(getAccount1().getIban())
+    .counterparty(getAccount2().getIban())
+    .reason(getReason1())
+    .amount(amount)
+    .balanceAfter(getAccount1().getBalance())
+    .type(AccountStatement.MovementType.DEBIT)
+    .build();
+getAccount1().addStatement(debitStmt);
 
-    // 3) CREDIT statement on bank
-    AccountStatement creditStmt = new AccountStatement(
-        getId(),
-        getTransactor().getUsername(),
-        getAccount2().getIban(),   // bank IBAN
-        getAccount1().getIban(),   // customer IBAN
-        getReason2(),              // e.g. "Cash withdrawal"
-        amount,
-        getAccount2().getBalance(),
-        AccountStatement.MovementType.CREDIT
-    );
-    getAccount2().addStatement(creditStmt);
+// 3) CREDIT statement on bank
+AccountStatement creditStmt = AccountStatement.builder()
+    .transactionId(getId())
+    .transactor(getTransactor().getUsername())
+    .account(getAccount2().getIban())
+    .counterparty(getAccount1().getIban())
+    .reason(getReason2())
+    .amount(amount)
+    .balanceAfter(getAccount2().getBalance())
+    .type(AccountStatement.MovementType.CREDIT)
+    .build();
+getAccount2().addStatement(creditStmt);
 }
 }

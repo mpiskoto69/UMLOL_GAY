@@ -10,7 +10,7 @@ import managers.TransactionManager;
 import managers.UserManager;
 import transactions.Payment;
 import users.Customer;
-
+import bank.storage.Bill;
 public class PaymentOrder extends StandingOrder {
     private BankAccount fromAccount;
     private String rfCode;

@@ -23,7 +23,7 @@ public abstract class Customer extends User {
 	}
 
 	public void addAccount(BankAccount acc) {
-		accounts.add(acc);
-	}
+    if (!accounts.contains(acc)) accounts.add(acc);
+}
 
 }

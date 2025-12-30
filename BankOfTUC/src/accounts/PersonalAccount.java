@@ -2,10 +2,7 @@ package accounts;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+
 
 import bank.storage.UnMarshalingException;
 import managers.TransactionManager;
@@ -36,12 +33,14 @@ public class PersonalAccount extends BankAccount {
 
     @Override
     public void endOfMonth() {
-        TransactionManager tm = TransactionManager.getInstance();
-        tm.eofInterestPayment(this, thisMonthsInterest);
+        
         System.out.print("Interest paid ");
         System.out.printf("%.2f", thisMonthsInterest);
         System.out.println(" euros for " + iban);
+        if (thisMonthsInterest > 0) {
+        TransactionManager.getInstance().eofInterestPayment(this, thisMonthsInterest);
         resetMonthsInterest();
+    }
     }
 
     @Override

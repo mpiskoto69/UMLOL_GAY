@@ -4,7 +4,7 @@ import javax.naming.InsufficientResourcesException;
 
 import accounts.BankAccount;
 import managers.AccountManager;
-import standingOrders.Bill;
+import bank.storage.Bill;
 import users.Customer;
 
 public class Payment extends Transaction {
@@ -33,18 +33,30 @@ public class Payment extends Transaction {
 		getAccount2().credit(amount);
 
 		// 2) DEBIT statement on the payer
-		AccountStatement debitStmt = new AccountStatement(getId(), getTransactor().getUsername(),
-				getAccount1().getIban(), // payer’s IBAN
-				getAccount2().getIban(), // business’s IBAN
-				getReason1(), amount, getAccount1().getBalance(), AccountStatement.MovementType.DEBIT);
-		getAccount1().addStatement(debitStmt);
+AccountStatement debitStmt = AccountStatement.builder()
+    .transactionId(getId())
+    .transactor(getTransactor().getUsername())
+    .account(getAccount1().getIban())
+    .counterparty(getAccount2().getIban())
+    .reason(getReason1())
+    .amount(amount)
+    .balanceAfter(getAccount1().getBalance())
+    .type(AccountStatement.MovementType.DEBIT)
+    .build();
+getAccount1().addStatement(debitStmt);
 
-		// 3) CREDIT statement on the business
-		AccountStatement creditStmt = new AccountStatement(getId(), getTransactor().getUsername(),
-				getAccount2().getIban(), // business’s IBAN
-				getAccount1().getIban(), // payer’s IBAN
-				getReason2(), amount, getAccount2().getBalance(), AccountStatement.MovementType.CREDIT);
-		getAccount2().addStatement(creditStmt);
+// 3) CREDIT statement on the business
+AccountStatement creditStmt = AccountStatement.builder()
+    .transactionId(getId())
+    .transactor(getTransactor().getUsername())
+    .account(getAccount2().getIban())
+    .counterparty(getAccount1().getIban())
+    .reason(getReason2())
+    .amount(amount)
+    .balanceAfter(getAccount2().getBalance())
+    .type(AccountStatement.MovementType.CREDIT)
+    .build();
+getAccount2().addStatement(creditStmt);
 
 		System.out.println(
 				"Payment of " + amount + "euros by " + transactor.getLegalName() + ", from " + getAccount1().getIban()

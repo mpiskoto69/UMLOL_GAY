@@ -35,22 +35,26 @@ public abstract class BankAccount implements Storable{
 
     }
 
-    private String generateIban(String typeCode) {
-        String countryCode = "GR";
-        Random random = new Random();
-        StringBuilder unique = new StringBuilder();
-        boolean exists = true;
-        while (exists) {
-            unique = new StringBuilder();
-            for (int i = 0; i < 15; i++) {
-                int digit = random.nextInt(10);
-                unique.append(digit);
-            }
-            exists = AccountManager.getInstance().existsIban(unique.toString());
+    private static final Random RANDOM = new Random();
+
+private String generateIban(String typeCode) {
+    String countryCode = "GR";
+    String uniquePart;
+
+    do {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 15; i++) {
+            sb.append(RANDOM.nextInt(10)); // 0-9
         }
-        AccountManager.getInstance().existsIban(unique.toString());
-        return countryCode + typeCode + unique.toString();
-    }
+        uniquePart = sb.toString();
+    } while (AccountManager.getInstance().existsIban(uniquePart));
+
+
+    AccountManager.getInstance().addIban(uniquePart);
+
+    return countryCode + typeCode + uniquePart;
+}
+
 
     public String getIban() {
         return iban;

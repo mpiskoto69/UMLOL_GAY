@@ -57,14 +57,6 @@ public class AccountManager {
         return null;
     }
 
-    public BankAccount getBankAccount() {
-        for (BankAccount acc : accounts) {
-            if (acc.getPrimaryHolder().getUsername().equals("BANK")) {
-                return acc;
-            }
-        }
-        throw new IllegalStateException("Bank account not found");
-    }
 
     public ArrayList<BankAccount> getAllAccountsOfUser(String userId) {
         ArrayList<BankAccount> accountsList = new ArrayList<>();
@@ -183,4 +175,9 @@ public class AccountManager {
         }
         return null;
     }
+public void clearAll() {
+    accounts.clear();
+    ibanList.clear();
+}
+
 }

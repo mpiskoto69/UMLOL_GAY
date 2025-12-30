@@ -55,5 +55,8 @@ public class UserManager {
     public void addUsers(StorableList<User> users) {
         this.users.addAll(users);
     }
+public void clearAll() {
+    users.clear();
+}
 
 }

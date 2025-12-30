@@ -22,8 +22,9 @@ public abstract class User implements Storable {
 	}
 
 	public boolean login(String inputPassword) {
-		return this.password.equals(inputPassword);
-	}
+    return password != null && password.equals(inputPassword);
+}
+
 
 	public String getPassword() {
 		return password;

@@ -17,7 +17,6 @@ import managers.BillManager;
 import managers.StandingOrderManager;
 import managers.UserManager;
 
-import standingOrders.Bill;
 import standingOrders.StandingOrder;
 import transactions.AccountStatement;
 
@@ -41,14 +40,18 @@ public class StorageManager {
 
     // --- Load ---
     public void loadAll() {
-        loadUsers("users/users.csv");
-        loadAccounts("accounts/accounts.csv");
+    UserManager.getInstance().clearAll();
+    AccountManager.getInstance().clearAll();
+    BillManager.getInstance().clearAll();
+    StandingOrderManager.getInstance().clearAll();
 
-        loadBills();      // bills/issued.csv + bills/paid.csv
-        loadOrders();     // orders/active.csv + orders/expired.csv + orders/failed.csv
+    loadUsers("users/users.csv");
+    loadAccounts("accounts/accounts.csv");
+    loadBills();
+    loadOrders();
+    loadAllStatements("statements");
+}
 
-        loadAllStatements("statements"); // your existing method is OK
-    }
 
     public void loadUsers(String fileName) {
 		StorableList<User> users = new StorableList<>();

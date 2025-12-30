@@ -42,7 +42,7 @@ public class StandingOrderManager {
         for (StandingOrder order : standingOrders) {
             if (order == null) continue;
 
-            if (order.isDue(today) && !order.hasExceededMaxFailuresFor(today)) {
+            if (order.isDue(today) && !order.hasExceededMaxFailures()) {
                 due.add(order);
             }
         }
@@ -57,4 +57,8 @@ public class StandingOrderManager {
             order.execute(today);
         }
     }
+public void clearAll() {
+    standingOrders.clear();
+}
+
 }

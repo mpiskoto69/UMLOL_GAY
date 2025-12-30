@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 import bank.storage.StorableList;
-import standingOrders.Bill;
+import bank.storage.Bill;
 
 public class BillManager {
     private static final BillManager instance = new BillManager();
@@ -36,13 +36,13 @@ public class BillManager {
     }
 
     public Bill getUnpaidBill(String rfCode, LocalDate today) {
-        for (Bill b : bills) {
-            if (b.getRfCode().equals(rfCode) && !b.isPaid() ) {
-                return b;
-            }
+    for (Bill b : bills) {
+        if (b.getRfCode().equals(rfCode) && b.isDue(today)) {
+            return b;
         }
-        return null;
     }
+    return null;
+}
 
     public ArrayList<Bill> getPaidBills() {
         ArrayList<Bill> paidBills = new ArrayList<>();
@@ -54,9 +54,10 @@ public class BillManager {
         return paidBills;
     }
 
-    public boolean isBillDueToday(String rfCode, LocalDate today) {
-        return getUnpaidBill(rfCode, today) != null;
-    }
+   public boolean isBillDueToday(String rfCode, LocalDate today) {
+    return getUnpaidBill(rfCode, today) != null;
+}
+
 
     public void addRFcode(String rf) {
         RFcodes.add(rf);
@@ -85,5 +86,10 @@ public class BillManager {
     public void addBills(StorableList<Bill> bills) {
         this.bills.addAll(bills);
     }
+public void clearAll() {
+    bills.clear();
+    RFcodes.clear();
+    billIDs.clear();
+}
 
 }
