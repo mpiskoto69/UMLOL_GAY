@@ -1,6 +1,7 @@
 package gui.panels;
 
 import app.BankingFacade;
+import gui.dialogs.WithdrawDialog;
 import accounts.BankAccount;
 import users.Customer;
 
@@ -20,7 +21,7 @@ public class AccountsPanel extends JPanel {
     private final JLabel dateLabel = new JLabel(" ");
 
     private final JButton refreshBtn = new JButton("Refresh");
-    private final JButton nextDayBtn = new JButton("Next day");
+    private final JButton withdrawBtn = new JButton("Withdraw");
 
     public AccountsPanel(BankingFacade facade) {
         this.facade = facade;
@@ -36,18 +37,14 @@ public class AccountsPanel extends JPanel {
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT));
         actions.add(refreshBtn);
-        actions.add(nextDayBtn);
+        actions.add(withdrawBtn);
 
         add(top, BorderLayout.NORTH);
         add(new JScrollPane(list), BorderLayout.CENTER);
         add(actions, BorderLayout.SOUTH);
 
-        // events
         refreshBtn.addActionListener(e -> refresh());
-        nextDayBtn.addActionListener(e -> {
-            facade.nextDay();
-            refresh();
-        });
+        withdrawBtn.addActionListener(e -> onWithdraw());
 
         updateDate();
     }
@@ -57,6 +54,27 @@ public class AccountsPanel extends JPanel {
         refresh();
     }
 
+    private void onWithdraw() {
+        if (customer == null) return;
+
+        WithdrawDialog dlg = new WithdrawDialog(
+                SwingUtilities.getWindowAncestor(this),
+                customer,
+                facade.accountsFor(customer)
+        );
+
+        WithdrawDialog.Result res = dlg.showDialog();
+        if (res == null) return;
+
+        try {
+            facade.withdraw(customer, res.fromIban, res.amount, res.reason);
+            refresh();
+            JOptionPane.showMessageDialog(this, "Withdrawal completed.", "OK", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Withdraw failed", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     public void refresh() {
         if (customer == null) return;
 
@@ -64,13 +82,12 @@ public class AccountsPanel extends JPanel {
         List<BankAccount> accs = facade.accountsFor(customer);
 
         for (BankAccount a : accs) {
-            String line = String.format(
-                "%s | Balance: %.2f€ | Owner VAT: %s",
-                a.getIban(),
-                a.getBalance(),
-                a.getPrimaryHolder().getVatNumber()
-            );
-            model.addElement(line);
+            model.addElement(String.format(
+                    "%s | Balance: %.2f€ | Owner VAT: %s",
+                    a.getIban(),
+                    a.getBalance(),
+                    a.getPrimaryHolder().getVatNumber()
+            ));
         }
 
         if (accs.isEmpty()) {

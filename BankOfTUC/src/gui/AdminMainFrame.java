@@ -2,7 +2,9 @@ package gui;
 
 import app.BankingFacade;
 import users.Admin;
-
+import gui.panels.CustomersPanel;
+import gui.panels.AccountsAdminPanel;
+import gui.panels.SimulationPanel;
 import javax.swing.*;
 import java.awt.*;
 
@@ -11,26 +13,83 @@ public class AdminMainFrame extends JFrame {
     private final BankingFacade facade;
     private final Admin user;
 
+    private final JLabel welcomeLabel = new JLabel();
+    private final JLabel dateLabel = new JLabel();
+    private final JLabel statusLabel = new JLabel(" ");
+
+    private CustomersPanel customersPanel;
+    private AccountsAdminPanel accountsPanel;
+    private SimulationPanel simulationPanel;
+
     public AdminMainFrame(BankingFacade facade, Admin user) {
         super("Admin - " + user.getLegalName());
-
         this.facade = facade;
         this.user = user;
 
         buildUI();
+        refreshHeader();
+        refreshAll();
     }
 
     private void buildUI() {
-        setSize(700, 450);
-        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(900, 560);
+        setLocationRelativeTo(null);
 
-        JLabel label = new JLabel(
-            "Admin panel – " + user.getLegalName(),
-            SwingConstants.CENTER
-        );
-        label.setFont(new Font("Arial", Font.BOLD, 18));
+        // Header
+        JPanel header = new JPanel(new BorderLayout(10, 10));
+        header.setBorder(BorderFactory.createEmptyBorder(12, 12, 6, 12));
 
-        add(label, BorderLayout.CENTER);
+        welcomeLabel.setFont(welcomeLabel.getFont().deriveFont(Font.BOLD, 18f));
+        dateLabel.setFont(dateLabel.getFont().deriveFont(Font.PLAIN, 14f));
+        dateLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+
+        header.add(welcomeLabel, BorderLayout.WEST);
+        header.add(dateLabel, BorderLayout.EAST);
+
+        // Tabs
+        JTabbedPane tabs = new JTabbedPane();
+
+        customersPanel = new CustomersPanel(facade);
+        accountsPanel  = new AccountsAdminPanel(facade);
+
+        simulationPanel = new SimulationPanel(facade, () -> {
+            refreshHeader();
+            refreshAll();
+            setStatus("Advanced to: " + facade.getCurrentDate());
+        });
+
+        tabs.addTab("Customers", customersPanel);
+        tabs.addTab("Accounts", accountsPanel);
+        tabs.addTab("Simulation", simulationPanel);
+
+        // Status bar
+        JPanel statusBar = new JPanel(new BorderLayout());
+        statusBar.setBorder(BorderFactory.createEmptyBorder(6, 12, 10, 12));
+        statusLabel.setForeground(new Color(70, 70, 70));
+        statusBar.add(statusLabel, BorderLayout.WEST);
+
+        // Root
+        JPanel root = new JPanel(new BorderLayout());
+        root.add(header, BorderLayout.NORTH);
+        root.add(tabs, BorderLayout.CENTER);
+        root.add(statusBar, BorderLayout.SOUTH);
+
+        setContentPane(root);
+    }
+
+    private void refreshHeader() {
+        welcomeLabel.setText("Admin panel – " + user.getLegalName());
+        dateLabel.setText("Today: " + facade.getCurrentDate());
+    }
+
+    private void refreshAll() {
+        if (customersPanel != null) customersPanel.refresh();
+        if (accountsPanel != null) accountsPanel.refresh();
+        if (simulationPanel != null) simulationPanel.refresh();
+    }
+
+    private void setStatus(String msg) {
+        statusLabel.setText(msg);
     }
 }
