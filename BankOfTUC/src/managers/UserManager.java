@@ -20,14 +20,17 @@ public class UserManager {
     public void addUser(User user) {
         users.add(user);
     }
-
-    public User findUserByUsername(String username) {
-        for (User u : users) {
-            if (u.getUsername().equals(username))
-                return u;
+public User findUserByUsername(String username) {
+    for (User u : users) {
+        String un = u.getUsername();
+        if (un != null && un.trim().equals(username.trim())) {
+            return u;
         }
-        return null;
     }
+    return null;
+}
+
+
 
     public StorableList<User> getAllUsers() {
         return users;

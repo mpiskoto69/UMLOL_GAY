@@ -22,7 +22,25 @@ import transactions.AccountStatement;
 
 public class StorageManager {
     private static final StorageManager instance = new StorageManager();
-    private String storagePath = "./data/";
+ private String storagePath = resolveDataPath();
+
+private String resolveDataPath() {
+    // 1) try ./data
+    File d1 = new File("./data");
+    if (d1.exists() && d1.isDirectory()) return "./data/";
+
+    // 2) try ../data (common when running from bin/)
+    File d2 = new File("../data");
+    if (d2.exists() && d2.isDirectory()) return "../data/";
+
+    // 3) try BankOfTUC/data (if launched from workspace root)
+    File d3 = new File("./BankOfTUC/data");
+    if (d3.exists() && d3.isDirectory()) return "./BankOfTUC/data/";
+
+    // fallback: keep default, but you'll get the same "Could not open file"
+    return "./data/";
+}
+
 
     private StorageManager() {}
 
@@ -40,6 +58,8 @@ public class StorageManager {
 
     // --- Load ---
     public void loadAll() {
+    System.out.println("Storage path=" + storagePath);
+
     UserManager.getInstance().clearAll();
     AccountManager.getInstance().clearAll();
     BillManager.getInstance().clearAll();

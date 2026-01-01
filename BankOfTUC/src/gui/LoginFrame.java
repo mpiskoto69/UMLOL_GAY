@@ -31,7 +31,13 @@ public class LoginFrame extends JFrame {
 
         // load data once at startup
         try {
-            facade.loadAll();
+            facade.loadAll();System.out.println("=== USERS DUMP ===");
+for (users.User u : managers.UserManager.getInstance().getAllUsers()) {
+    System.out.println("role=" + u.getRole() + " username=[" + u.getUsername() + "]");
+}
+System.out.println("==================");
+
+            
             statusLabel.setText("Data loaded.");
         } catch (Exception ex) {
             statusLabel.setText("Load failed.");

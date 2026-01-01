@@ -31,14 +31,22 @@ public class BankingFacade {
         StorageManager.getInstance().saveAll(currentDate);
     }
 
-    // --- auth ---
-    public User login(String username, String password) {
-        User u = UserManager.getInstance().findUserByUsername(username);
-        if (u == null || !u.login(password)) {
-            throw new IllegalArgumentException("Λάθος username ή password");
-        }
-        return u;
+  public User login(String username, String password) {
+    User u = UserManager.getInstance().findUserByUsername(username);
+
+    System.out.println("LOGIN attempt username='" + username + "' found=" + (u != null));
+    if (u != null) {
+        System.out.println("stored username='" + u.getUsername() + "'");
+        System.out.println("stored password='" + u.getPassword() + "'");
+        System.out.println("pass ok? " + u.login(password));
     }
+
+    if (u == null || !u.login(password)) {
+        throw new IllegalArgumentException("Λάθος username ή password");
+    }
+    return u;
+}
+
 
     // --- queries ---
     public List<BankAccount> accountsFor(Customer c) {
