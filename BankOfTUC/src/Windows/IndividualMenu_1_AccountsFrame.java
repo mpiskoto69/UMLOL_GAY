@@ -12,7 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
-public class IndividualMenuAccountsFrame extends JFrame implements ActionListener {
+public class IndividualMenu_1_AccountsFrame extends JFrame implements ActionListener {
 
     private final JButton btnLogout = new JButton("log out");
 
@@ -45,7 +45,7 @@ public class IndividualMenuAccountsFrame extends JFrame implements ActionListene
     // Right-side index
     private final JLabel idx1 = new JLabel("1]");
 
-    public IndividualMenuAccountsFrame() {
+    public IndividualMenu_1_AccountsFrame() {
         // Frame
         setTitle("Bank of TUC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

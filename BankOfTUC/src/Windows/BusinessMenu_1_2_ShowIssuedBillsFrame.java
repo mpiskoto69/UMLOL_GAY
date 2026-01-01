@@ -10,20 +10,20 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
-public class BusinessMenuShowPaidBillsFrame extends JFrame implements ActionListener {
+public class BusinessMenu_1_2_ShowIssuedBillsFrame extends JFrame implements ActionListener {
 
     private final JButton btnLogout = new JButton("log out");
 
-    private final JLabel title = new JLabel("Business Menu 1.3");
-    private final JLabel subtitle = new JLabel("Show paid Bills");
+    private final JLabel title = new JLabel("Business Menu 1.2");
+    private final JLabel subtitle = new JLabel("Show Issued Bills");
 
     // Headers
     private final JLabel hCustomer = new JLabel("Customer's account");
-    private final JLabel hExecDate = new JLabel("execution date");
+    private final JLabel hDates = new JLabel("issue date - due date");
     private final JLabel hAmount = new JLabel("amount €");
     private final JLabel hRf = new JLabel("RF code");
 
-    public BusinessMenuShowPaidBillsFrame() {
+    public BusinessMenu_1_2_ShowIssuedBillsFrame() {
         // Frame
         setTitle("Bank of TUC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -58,31 +58,31 @@ public class BusinessMenuShowPaidBillsFrame extends JFrame implements ActionList
         int headerY = 210;
 
         int col1X = 120; // Customer's account
-        int col2X = 410; // execution date
+        int col2X = 360; // issue date - due date
         int col3X = 640; // amount
         int col4X = 820; // RF code
 
         Font headerFont = new Font("SansSerif", Font.PLAIN, 14);
 
         hCustomer.setFont(headerFont);
-        hExecDate.setFont(headerFont);
+        hDates.setFont(headerFont);
         hAmount.setFont(headerFont);
         hRf.setFont(headerFont);
 
         hCustomer.setBounds(col1X, headerY, 220, 25);
-        hExecDate.setBounds(col2X, headerY, 200, 25);
+        hDates.setBounds(col2X, headerY, 240, 25);
         hAmount.setBounds(col3X, headerY, 120, 25);
         hRf.setBounds(col4X, headerY, 120, 25);
 
         add(hCustomer);
-        add(hExecDate);
+        add(hDates);
         add(hAmount);
         add(hRf);
 
         // Dots κάτω για "continuation"
         int dotsY = 290;
         addDots(col1X + 80, dotsY);
-        addDots(col2X + 70, dotsY);
+        addDots(col2X + 90, dotsY);
         addDots(col3X + 30, dotsY);
         addDots(col4X + 25, dotsY);
 

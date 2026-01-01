@@ -13,7 +13,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
-public class IndividualMenuCreateStandingOrderFrame extends JFrame implements ActionListener {
+public class IndividualMenu_4_1_CreateStandingOrderFrame extends JFrame implements ActionListener {
 
     private final JButton btnLogout = new JButton("log out");
 
@@ -32,7 +32,7 @@ public class IndividualMenuCreateStandingOrderFrame extends JFrame implements Ac
     private final JLabel lblPaymentDate = new JLabel("enter payment date");
     private final JTextField txtPaymentDate = new JTextField();
 
-    public IndividualMenuCreateStandingOrderFrame() {
+    public IndividualMenu_4_1_CreateStandingOrderFrame() {
         // Frame
         setTitle("Bank of TUC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

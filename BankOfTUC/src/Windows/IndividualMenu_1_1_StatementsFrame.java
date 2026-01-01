@@ -10,12 +10,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
-public class BusinessMenuStatementsFrame extends JFrame implements ActionListener {
+public class IndividualMenu_1_1_StatementsFrame extends JFrame implements ActionListener {
 
     private final JButton btnLogout = new JButton("log out");
 
-    private final JLabel title = new JLabel("Business Menu 3");
-    private final JLabel subtitle = new JLabel("Statements");
+    private final JLabel title = new JLabel("Individual Menu 1.1");
+    private final JLabel accountTitle = new JLabel("Bank account X");
 
     private final JLabel sectionTitle = new JLabel("statements");
 
@@ -25,7 +25,7 @@ public class BusinessMenuStatementsFrame extends JFrame implements ActionListene
     private final JLabel hReason  = new JLabel("Reason");
     private final JLabel hDate    = new JLabel("date");
 
-    // Example rows (3 όπως στο sketch)
+    // Example rows (3 rows όπως στο sketch)
     private final JLabel r1Parties = new JLabel("sender b.a. - recipient b.a.");
     private final JLabel r1Amount  = new JLabel("amount €");
     private final JLabel r1Reason  = new JLabel("Reason");
@@ -41,7 +41,7 @@ public class BusinessMenuStatementsFrame extends JFrame implements ActionListene
     private final JLabel r3Reason  = new JLabel("Reason");
     private final JLabel r3Date    = new JLabel("date");
 
-    public BusinessMenuStatementsFrame() {
+    public IndividualMenu_1_1_StatementsFrame() {
         // Frame
         setTitle("Bank of TUC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -52,33 +52,33 @@ public class BusinessMenuStatementsFrame extends JFrame implements ActionListene
         // Optional icon
         // setIconImage(new ImageIcon("TUC.gif").getImage());
 
-        // Logout
+        // Logout (top-left)
         btnLogout.setBounds(20, 20, 90, 35);
         btnLogout.setFocusable(false);
         btnLogout.setMargin(new Insets(2, 6, 2, 6));
         btnLogout.addActionListener(this);
         add(btnLogout);
 
-        // Title
-        title.setBounds(0, 55, 1080, 55);
+        // Main title
+        title.setBounds(0, 55, 1080, 50);
         title.setHorizontalAlignment(SwingConstants.CENTER);
         title.setVerticalAlignment(SwingConstants.CENTER);
-        title.setFont(new Font("SansSerif", Font.PLAIN, 32));
+        title.setFont(new Font("SansSerif", Font.PLAIN, 30));
         add(title);
 
-        // Subtitle
-        subtitle.setBounds(0, 110, 1080, 35);
-        subtitle.setHorizontalAlignment(SwingConstants.CENTER);
-        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        add(subtitle);
+        // Account label under title
+        accountTitle.setBounds(0, 105, 1080, 35);
+        accountTitle.setHorizontalAlignment(SwingConstants.CENTER);
+        accountTitle.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        add(accountTitle);
 
-        // Section title (left-ish)
+        // Section title "statements" (left-ish)
         sectionTitle.setBounds(210, 190, 200, 25);
         sectionTitle.setHorizontalAlignment(SwingConstants.LEFT);
         sectionTitle.setFont(new Font("SansSerif", Font.PLAIN, 16));
         add(sectionTitle);
 
-        // Table column positions (approx like sketch)
+        // Column layout positions (approx like sketch)
         int tableY = 235;
         int rowH = 35;
 
@@ -111,7 +111,7 @@ public class BusinessMenuStatementsFrame extends JFrame implements ActionListene
         placeRow(r2Parties, r2Amount, r2Reason, r2Date, 2, tableY, rowH, col1X, col2X, col3X, col4X, rowFont);
         placeRow(r3Parties, r3Amount, r3Reason, r3Date, 3, tableY, rowH, col1X, col2X, col3X, col4X, rowFont);
 
-        // Dots (continuation)
+        // Dots κάτω για "continuation" (όπως το sketch)
         int dotsY = tableY + 6 * rowH;
         addDots(col1X + 150, dotsY);
         addDots(col2X + 40,  dotsY);
@@ -157,19 +157,18 @@ public class BusinessMenuStatementsFrame extends JFrame implements ActionListene
         d2.setFont(new Font("SansSerif", Font.PLAIN, 22));
         d2.setBounds(x, y + 20, 20, 25);
         add(d2);
-
-        JLabel d3 = new JLabel(":");
-        d3.setForeground(Color.DARK_GRAY);
-        d3.setFont(new Font("SansSerif", Font.PLAIN, 22));
-        d3.setBounds(x, y + 40, 20, 25);
-        add(d3);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == btnLogout) {
             System.out.println("Logout clicked");
-            // dispose(); ή επιστροφή στο προηγούμενο frame
+            // π.χ. dispose(); ή επιστροφή στο προηγούμενο frame
         }
+    }
+
+    // Αν θες να αλλάζεις δυναμικά το X:
+    public void setBankAccountTitle(String accountName) {
+        accountTitle.setText(accountName);
     }
 }

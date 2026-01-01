@@ -5,28 +5,23 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.Border;
 
-public class BusinessMenuTransferFrame extends JFrame implements ActionListener {
+public class IndividualMenu_3_2_WithdrawalFrame extends JFrame implements ActionListener {
 
     private final JButton btnLogout = new JButton("log out");
 
-    private final JLabel title = new JLabel("Business Menu 2.3");
-    private final JLabel subtitle = new JLabel("Transfer");
+    private final JLabel title = new JLabel("Individual Menu 3.2");
+    private final JLabel subtitle = new JLabel("Withdrawal");
 
-    private final JLabel lblAmount = new JLabel("enter transfer amount");
+    private final JLabel lblAmount = new JLabel("enter withdrawal amount");
     private final JTextField txtAmount = new JTextField();
 
-    private final JLabel lblOtherAccount = new JLabel("enter other bank account");
-    private final JTextField txtOtherAccount = new JTextField();
+    private final JLabel lblAccount = new JLabel("enter your bank account");
+    private final JTextField txtAccount = new JTextField();
 
-    public BusinessMenuTransferFrame() {
+    public IndividualMenu_3_2_WithdrawalFrame() {
         // Frame
         setTitle("Bank of TUC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -37,7 +32,7 @@ public class BusinessMenuTransferFrame extends JFrame implements ActionListener 
         // Optional icon
         // setIconImage(new ImageIcon("TUC.gif").getImage());
 
-        // Logout
+        // Logout (top-left)
         btnLogout.setBounds(20, 20, 90, 35);
         btnLogout.setFocusable(false);
         btnLogout.setMargin(new Insets(2, 6, 2, 6));
@@ -66,16 +61,16 @@ public class BusinessMenuTransferFrame extends JFrame implements ActionListener 
         int lblH = 25;
         int lblX = (1080 - lblW) / 2;
 
-        int y1Label = 230;
-        int y1Field = 260;
+        int y1Label = 250;
+        int y1Field = 280;
 
-        int y2Label = 330;
-        int y2Field = 360;
+        int y2Label = 350;
+        int y2Field = 380;
 
         Font labelFont = new Font("SansSerif", Font.PLAIN, 14);
         Border thinBorder = BorderFactory.createLineBorder(Color.DARK_GRAY);
 
-        // Amount
+        // Amount label + field
         lblAmount.setBounds(lblX, y1Label, lblW, lblH);
         lblAmount.setHorizontalAlignment(SwingConstants.CENTER);
         lblAmount.setFont(labelFont);
@@ -86,16 +81,16 @@ public class BusinessMenuTransferFrame extends JFrame implements ActionListener 
         txtAmount.setFont(new Font("SansSerif", Font.PLAIN, 14));
         add(txtAmount);
 
-        // Other account
-        lblOtherAccount.setBounds(lblX, y2Label, lblW, lblH);
-        lblOtherAccount.setHorizontalAlignment(SwingConstants.CENTER);
-        lblOtherAccount.setFont(labelFont);
-        add(lblOtherAccount);
+        // Account label + field
+        lblAccount.setBounds(lblX, y2Label, lblW, lblH);
+        lblAccount.setHorizontalAlignment(SwingConstants.CENTER);
+        lblAccount.setFont(labelFont);
+        add(lblAccount);
 
-        txtOtherAccount.setBounds(fieldX, y2Field, fieldW, fieldH);
-        txtOtherAccount.setBorder(thinBorder);
-        txtOtherAccount.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        add(txtOtherAccount);
+        txtAccount.setBounds(fieldX, y2Field, fieldW, fieldH);
+        txtAccount.setBorder(thinBorder);
+        txtAccount.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        add(txtAccount);
 
         setVisible(true);
     }
@@ -104,15 +99,15 @@ public class BusinessMenuTransferFrame extends JFrame implements ActionListener 
         return txtAmount.getText().trim();
     }
 
-    public String getOtherAccountText() {
-        return txtOtherAccount.getText().trim();
+    public String getAccountText() {
+        return txtAccount.getText().trim();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == btnLogout) {
             System.out.println("Logout clicked");
-            // dispose(); ή επιστροφή στο προηγούμενο frame
+            // π.χ. dispose(); ή επιστροφή στο προηγούμενο frame
         }
     }
 }

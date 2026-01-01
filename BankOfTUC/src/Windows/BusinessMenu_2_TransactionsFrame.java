@@ -12,20 +12,24 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
-public class IndividualMenuStandingOrdersFrame extends JFrame implements ActionListener {
+public class BusinessMenu_2_TransactionsFrame extends JFrame implements ActionListener {
 
     private final JButton btnLogout = new JButton("log out");
 
-    private final JLabel title = new JLabel("Individual Menu 4");
-    private final JLabel subtitle = new JLabel("Standing order");
+    private final JLabel title = new JLabel("Business Menu 2");
+    private final JLabel subtitle = new JLabel("Transactions");
 
     private final JLabel n1 = new JLabel("1]");
     private final JLabel n2 = new JLabel("2]");
+    private final JLabel n3 = new JLabel("3]");
+    private final JLabel n4 = new JLabel("4]");
 
-    private final JButton btnCreate = new JButton("Create Standing Order");
-    private final JButton btnManage = new JButton("Manage Standing Orders");
+    private final JButton btnDeposit = new JButton("deposit");
+    private final JButton btnWithdrawal = new JButton("withdrawal");
+    private final JButton btnTransfer = new JButton("transfer");
+    private final JButton btnPayment = new JButton("payment");
 
-    public IndividualMenuStandingOrdersFrame() {
+    public BusinessMenu_2_TransactionsFrame() {
         // Frame
         setTitle("Bank of TUC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -36,7 +40,7 @@ public class IndividualMenuStandingOrdersFrame extends JFrame implements ActionL
         // Optional icon
         // setIconImage(new ImageIcon("TUC.gif").getImage());
 
-        // Logout (top-left)
+        // Logout
         btnLogout.setBounds(20, 20, 90, 35);
         btnLogout.setFocusable(false);
         btnLogout.setMargin(new Insets(2, 6, 2, 6));
@@ -58,39 +62,51 @@ public class IndividualMenuStandingOrdersFrame extends JFrame implements ActionL
 
         // Styles
         Border thinBorder = BorderFactory.createLineBorder(Color.DARK_GRAY);
-        Font btnFont = new Font("SansSerif", Font.PLAIN, 16);
+        Font btnFont = new Font("SansSerif", Font.PLAIN, 18);
         Font numFont = new Font("SansSerif", Font.PLAIN, 16);
 
         styleNum(n1, numFont);
         styleNum(n2, numFont);
+        styleNum(n3, numFont);
+        styleNum(n4, numFont);
 
-        styleBtn(btnCreate, btnFont, thinBorder);
-        styleBtn(btnManage, btnFont, thinBorder);
+        styleBtn(btnDeposit, btnFont, thinBorder);
+        styleBtn(btnWithdrawal, btnFont, thinBorder);
+        styleBtn(btnTransfer, btnFont, thinBorder);
+        styleBtn(btnPayment, btnFont, thinBorder);
 
-        // Layout (approx like sketch)
-        int btnW = 240;
-        int btnH = 55;
-        int btnX = (1080 - btnW) / 2;
+        btnDeposit.addActionListener(this);
+        btnWithdrawal.addActionListener(this);
+        btnTransfer.addActionListener(this);
+        btnPayment.addActionListener(this);
 
-        int numX = btnX - 70;
-        int numW = 40;
-        int numH = btnH;
+        // Layout like the sketch
+        int btnX = 410, btnW = 220, btnH = 55;
+        int numX = btnX - 70, numW = 40, numH = btnH;
 
-        int startY = 250;
-        int gapY = 90;
+        int startY = 200;
+        int gapY = 85;
 
         // Row 1
-        n1.setBounds(numX, startY, numW, numH);
-        btnCreate.setBounds(btnX, startY, btnW, btnH);
+        n1.setBounds(numX, startY + 0 * gapY, numW, numH);
+        btnDeposit.setBounds(btnX, startY + 0 * gapY, btnW, btnH);
 
         // Row 2
-        n2.setBounds(numX, startY + gapY, numW, numH);
-        btnManage.setBounds(btnX, startY + gapY, btnW, btnH);
+        n2.setBounds(numX, startY + 1 * gapY, numW, numH);
+        btnWithdrawal.setBounds(btnX, startY + 1 * gapY, btnW, btnH);
 
-        add(n1);
-        add(btnCreate);
-        add(n2);
-        add(btnManage);
+        // Row 3
+        n3.setBounds(numX, startY + 2 * gapY, numW, numH);
+        btnTransfer.setBounds(btnX, startY + 2 * gapY, btnW, btnH);
+
+        // Row 4
+        n4.setBounds(numX, startY + 3 * gapY, numW, numH);
+        btnPayment.setBounds(btnX, startY + 3 * gapY, btnW, btnH);
+
+        add(n1); add(btnDeposit);
+        add(n2); add(btnWithdrawal);
+        add(n3); add(btnTransfer);
+        add(n4); add(btnPayment);
 
         setVisible(true);
     }
@@ -116,10 +132,9 @@ public class IndividualMenuStandingOrdersFrame extends JFrame implements ActionL
             return;
         }
 
-        if (src == btnCreate) {
-            System.out.println("Create Standing Order clicked");
-        } else if (src == btnManage) {
-            System.out.println("Manage Standing Orders clicked");
-        }
+        if (src == btnDeposit) System.out.println("Deposit clicked");
+        if (src == btnWithdrawal) System.out.println("Withdrawal clicked");
+        if (src == btnTransfer) System.out.println("Transfer clicked");
+        if (src == btnPayment) System.out.println("Payment clicked");
     }
 }

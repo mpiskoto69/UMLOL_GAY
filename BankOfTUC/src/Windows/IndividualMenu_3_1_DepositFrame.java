@@ -13,17 +13,20 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
-public class BusinessMenuWithdrawalFrame extends JFrame implements ActionListener {
+public class IndividualMenu_3_1_DepositFrame extends JFrame implements ActionListener {
 
     private final JButton btnLogout = new JButton("log out");
 
-    private final JLabel title = new JLabel("Business Menu 2.2");
-    private final JLabel subtitle = new JLabel("Withdrawal");
+    private final JLabel title = new JLabel("Individual Menu 3.1");
+    private final JLabel subtitle = new JLabel("Deposite"); // όπως στο sketch (με το typo)
 
-    private final JLabel lblAmount = new JLabel("enter withdrawal amount");
+    private final JLabel lblAmount = new JLabel("enter deposite amount");
     private final JTextField txtAmount = new JTextField();
 
-    public BusinessMenuWithdrawalFrame() {
+    private final JLabel lblAccount = new JLabel("enter your bank account");
+    private final JTextField txtAccount = new JTextField();
+
+    public IndividualMenu_3_1_DepositFrame() {
         // Frame
         setTitle("Bank of TUC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -34,7 +37,7 @@ public class BusinessMenuWithdrawalFrame extends JFrame implements ActionListene
         // Optional icon
         // setIconImage(new ImageIcon("TUC.gif").getImage());
 
-        // Logout
+        // Logout (top-left)
         btnLogout.setBounds(20, 20, 90, 35);
         btnLogout.setFocusable(false);
         btnLogout.setMargin(new Insets(2, 6, 2, 6));
@@ -57,29 +60,44 @@ public class BusinessMenuWithdrawalFrame extends JFrame implements ActionListene
         // Center form positions
         int fieldW = 220;
         int fieldH = 40;
-        int fieldX = (1080 - fieldW) / 2;
+        int fieldX = (1080 - fieldW) / 2;  // centered horizontally
 
         int lblW = 260;
         int lblH = 25;
         int lblX = (1080 - lblW) / 2;
 
-        int yLabel = 260;
-        int yField = 290;
+        int y1Label = 250;
+        int y1Field = 280;
+
+        int y2Label = 350;
+        int y2Field = 380;
 
         Font labelFont = new Font("SansSerif", Font.PLAIN, 14);
+
+        // Borders similar to sketch
         Border thinBorder = BorderFactory.createLineBorder(Color.DARK_GRAY);
 
-        // Label
-        lblAmount.setBounds(lblX, yLabel, lblW, lblH);
+        // Amount label + field
+        lblAmount.setBounds(lblX, y1Label, lblW, lblH);
         lblAmount.setHorizontalAlignment(SwingConstants.CENTER);
         lblAmount.setFont(labelFont);
         add(lblAmount);
 
-        // Text field
-        txtAmount.setBounds(fieldX, yField, fieldW, fieldH);
+        txtAmount.setBounds(fieldX, y1Field, fieldW, fieldH);
         txtAmount.setBorder(thinBorder);
         txtAmount.setFont(new Font("SansSerif", Font.PLAIN, 14));
         add(txtAmount);
+
+        // Account label + field
+        lblAccount.setBounds(lblX, y2Label, lblW, lblH);
+        lblAccount.setHorizontalAlignment(SwingConstants.CENTER);
+        lblAccount.setFont(labelFont);
+        add(lblAccount);
+
+        txtAccount.setBounds(fieldX, y2Field, fieldW, fieldH);
+        txtAccount.setBorder(thinBorder);
+        txtAccount.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        add(txtAccount);
 
         setVisible(true);
     }
@@ -88,11 +106,15 @@ public class BusinessMenuWithdrawalFrame extends JFrame implements ActionListene
         return txtAmount.getText().trim();
     }
 
+    public String getAccountText() {
+        return txtAccount.getText().trim();
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == btnLogout) {
             System.out.println("Logout clicked");
-            // dispose(); ή επιστροφή στο προηγούμενο frame
+            // π.χ. dispose(); ή επιστροφή στο προηγούμενο frame
         }
     }
 }

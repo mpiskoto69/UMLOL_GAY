@@ -12,18 +12,20 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
-public class IndividualMenuCreateAccountFrame extends JFrame implements ActionListener {
+public class IndividualMenu_4_StandingOrdersFrame extends JFrame implements ActionListener {
 
     private final JButton btnLogout = new JButton("log out");
 
-    private final JLabel title = new JLabel("Individual Menu 2");
-    private final JLabel subtitle = new JLabel("Create new account");
-    private final JLabel info = new JLabel("Choose what type you want your back account to be:");
+    private final JLabel title = new JLabel("Individual Menu 4");
+    private final JLabel subtitle = new JLabel("Standing order");
 
-    private final JButton btnSavings = new JButton("savings account");
-    private final JButton btnCurrent = new JButton("current account");
+    private final JLabel n1 = new JLabel("1]");
+    private final JLabel n2 = new JLabel("2]");
 
-    public IndividualMenuCreateAccountFrame() {
+    private final JButton btnCreate = new JButton("Create Standing Order");
+    private final JButton btnManage = new JButton("Manage Standing Orders");
+
+    public IndividualMenu_4_StandingOrdersFrame() {
         // Frame
         setTitle("Bank of TUC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -34,7 +36,7 @@ public class IndividualMenuCreateAccountFrame extends JFrame implements ActionLi
         // Optional icon
         // setIconImage(new ImageIcon("TUC.gif").getImage());
 
-        // Logout button (top-left)
+        // Logout (top-left)
         btnLogout.setBounds(20, 20, 90, 35);
         btnLogout.setFocusable(false);
         btnLogout.setMargin(new Insets(2, 6, 2, 6));
@@ -54,33 +56,55 @@ public class IndividualMenuCreateAccountFrame extends JFrame implements ActionLi
         subtitle.setFont(new Font("SansSerif", Font.PLAIN, 18));
         add(subtitle);
 
-        // Info line
-        info.setBounds(0, 185, 1080, 30);
-        info.setHorizontalAlignment(SwingConstants.CENTER);
-        info.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        add(info);
-
-        // Buttons style
+        // Styles
         Border thinBorder = BorderFactory.createLineBorder(Color.DARK_GRAY);
         Font btnFont = new Font("SansSerif", Font.PLAIN, 16);
+        Font numFont = new Font("SansSerif", Font.PLAIN, 16);
 
-        styleChoiceButton(btnSavings, btnFont, thinBorder);
-        styleChoiceButton(btnCurrent, btnFont, thinBorder);
+        styleNum(n1, numFont);
+        styleNum(n2, numFont);
 
-        // Buttons positions (like the sketch)
-        btnSavings.setBounds(260, 290, 180, 55);
-        btnCurrent.setBounds(620, 290, 180, 55);
+        styleBtn(btnCreate, btnFont, thinBorder);
+        styleBtn(btnManage, btnFont, thinBorder);
 
-        add(btnSavings);
-        add(btnCurrent);
+        // Layout (approx like sketch)
+        int btnW = 240;
+        int btnH = 55;
+        int btnX = (1080 - btnW) / 2;
+
+        int numX = btnX - 70;
+        int numW = 40;
+        int numH = btnH;
+
+        int startY = 250;
+        int gapY = 90;
+
+        // Row 1
+        n1.setBounds(numX, startY, numW, numH);
+        btnCreate.setBounds(btnX, startY, btnW, btnH);
+
+        // Row 2
+        n2.setBounds(numX, startY + gapY, numW, numH);
+        btnManage.setBounds(btnX, startY + gapY, btnW, btnH);
+
+        add(n1);
+        add(btnCreate);
+        add(n2);
+        add(btnManage);
 
         setVisible(true);
     }
 
-    private static void styleChoiceButton(JButton b, Font f, Border border) {
+    private static void styleBtn(JButton b, Font f, Border border) {
         b.setFont(f);
         b.setBorder(border);
         b.setFocusable(false);
+    }
+
+    private static void styleNum(JLabel l, Font f) {
+        l.setFont(f);
+        l.setHorizontalAlignment(SwingConstants.RIGHT);
+        l.setVerticalAlignment(SwingConstants.CENTER);
     }
 
     @Override
@@ -89,18 +113,13 @@ public class IndividualMenuCreateAccountFrame extends JFrame implements ActionLi
 
         if (src == btnLogout) {
             System.out.println("Logout clicked");
-            // dispose(); ή επιστροφή στο προηγούμενο frame
             return;
         }
 
-        if (src == btnSavings) {
-            System.out.println("Savings account selected");
-            // εδώ μπορείς να ανοίξεις επόμενο frame ή να καλέσεις service
-        }
-
-        if (src == btnCurrent) {
-            System.out.println("Current account selected");
-            // εδώ μπορείς να ανοίξεις επόμενο frame ή να καλέσεις service
+        if (src == btnCreate) {
+            System.out.println("Create Standing Order clicked");
+        } else if (src == btnManage) {
+            System.out.println("Manage Standing Orders clicked");
         }
     }
 }

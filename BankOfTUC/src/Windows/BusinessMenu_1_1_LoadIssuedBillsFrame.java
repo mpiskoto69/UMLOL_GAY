@@ -9,7 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
-public class BusinessMenuLoadIssuedBillsFrame extends JFrame implements ActionListener {
+public class BusinessMenu_1_1_LoadIssuedBillsFrame extends JFrame implements ActionListener {
 
     private final JButton btnLogout = new JButton("log out");
 
@@ -24,7 +24,7 @@ public class BusinessMenuLoadIssuedBillsFrame extends JFrame implements ActionLi
     private final JLabel msg2 = new JLabel("\"Load Bills failed\"");
     private final JLabel msg3 = new JLabel("\"There were no Bills to Load\"");
 
-    public BusinessMenuLoadIssuedBillsFrame() {
+    public BusinessMenu_1_1_LoadIssuedBillsFrame() {
         // Frame
         setTitle("Bank of TUC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

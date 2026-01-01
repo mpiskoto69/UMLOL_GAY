@@ -13,17 +13,20 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
-public class BusinessMenuDepositFrame extends JFrame implements ActionListener {
+public class BusinessMenu_2_3_TransferFrame extends JFrame implements ActionListener {
 
     private final JButton btnLogout = new JButton("log out");
 
-    private final JLabel title = new JLabel("Business Menu 2.1");
-    private final JLabel subtitle = new JLabel("Deposite"); // όπως στο sketch
+    private final JLabel title = new JLabel("Business Menu 2.3");
+    private final JLabel subtitle = new JLabel("Transfer");
 
-    private final JLabel lblAmount = new JLabel("enter deposite amount");
+    private final JLabel lblAmount = new JLabel("enter transfer amount");
     private final JTextField txtAmount = new JTextField();
 
-    public BusinessMenuDepositFrame() {
+    private final JLabel lblOtherAccount = new JLabel("enter other bank account");
+    private final JTextField txtOtherAccount = new JTextField();
+
+    public BusinessMenu_2_3_TransferFrame() {
         // Frame
         setTitle("Bank of TUC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -63,29 +66,46 @@ public class BusinessMenuDepositFrame extends JFrame implements ActionListener {
         int lblH = 25;
         int lblX = (1080 - lblW) / 2;
 
-        int yLabel = 260;
-        int yField = 290;
+        int y1Label = 230;
+        int y1Field = 260;
+
+        int y2Label = 330;
+        int y2Field = 360;
 
         Font labelFont = new Font("SansSerif", Font.PLAIN, 14);
         Border thinBorder = BorderFactory.createLineBorder(Color.DARK_GRAY);
 
-        // Label
-        lblAmount.setBounds(lblX, yLabel, lblW, lblH);
+        // Amount
+        lblAmount.setBounds(lblX, y1Label, lblW, lblH);
         lblAmount.setHorizontalAlignment(SwingConstants.CENTER);
         lblAmount.setFont(labelFont);
         add(lblAmount);
 
-        // Text field
-        txtAmount.setBounds(fieldX, yField, fieldW, fieldH);
+        txtAmount.setBounds(fieldX, y1Field, fieldW, fieldH);
         txtAmount.setBorder(thinBorder);
         txtAmount.setFont(new Font("SansSerif", Font.PLAIN, 14));
         add(txtAmount);
+
+        // Other account
+        lblOtherAccount.setBounds(lblX, y2Label, lblW, lblH);
+        lblOtherAccount.setHorizontalAlignment(SwingConstants.CENTER);
+        lblOtherAccount.setFont(labelFont);
+        add(lblOtherAccount);
+
+        txtOtherAccount.setBounds(fieldX, y2Field, fieldW, fieldH);
+        txtOtherAccount.setBorder(thinBorder);
+        txtOtherAccount.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        add(txtOtherAccount);
 
         setVisible(true);
     }
 
     public String getAmountText() {
         return txtAmount.getText().trim();
+    }
+
+    public String getOtherAccountText() {
+        return txtOtherAccount.getText().trim();
     }
 
     @Override

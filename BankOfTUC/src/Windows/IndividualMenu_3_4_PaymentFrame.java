@@ -13,23 +13,23 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
-public class IndividualMenuTransferFrame extends JFrame implements ActionListener {
+public class IndividualMenu_3_4_PaymentFrame extends JFrame implements ActionListener {
 
     private final JButton btnLogout = new JButton("log out");
 
-    private final JLabel title = new JLabel("Individual Menu 3.3");
-    private final JLabel subtitle = new JLabel("Transfer");
+    private final JLabel title = new JLabel("Individual Menu 3.4");
+    private final JLabel subtitle = new JLabel("Payments");
 
     private final JLabel lblAmount = new JLabel("enter transfer amount");
     private final JTextField txtAmount = new JTextField();
 
-    private final JLabel lblOtherAccount = new JLabel("enter other bank account");
-    private final JTextField txtOtherAccount = new JTextField();
+    private final JLabel lblBusinessAccount = new JLabel("enter bussiness bank account");
+    private final JTextField txtBusinessAccount = new JTextField();
 
     private final JLabel lblYourAccount = new JLabel("enter your bank account");
     private final JTextField txtYourAccount = new JTextField();
 
-    public IndividualMenuTransferFrame() {
+    public IndividualMenu_3_4_PaymentFrame() {
         // Frame
         setTitle("Bank of TUC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -60,23 +60,23 @@ public class IndividualMenuTransferFrame extends JFrame implements ActionListene
         subtitle.setFont(new Font("SansSerif", Font.PLAIN, 18));
         add(subtitle);
 
-        // Center form positions
-        int fieldW = 200;
+        // Center form layout
+        int fieldW = 220;
         int fieldH = 40;
         int fieldX = (1080 - fieldW) / 2;
 
-        int lblW = 260;
+        int lblW = 300;
         int lblH = 25;
         int lblX = (1080 - lblW) / 2;
 
-        int y1Label = 220;
-        int y1Field = 250;
+        int y1Label = 230;
+        int y1Field = 260;
 
-        int y2Label = 320;
-        int y2Field = 350;
+        int y2Label = 330;
+        int y2Field = 360;
 
-        int y3Label = 420;
-        int y3Field = 450;
+        int y3Label = 430;
+        int y3Field = 460;
 
         Font labelFont = new Font("SansSerif", Font.PLAIN, 14);
         Border thinBorder = BorderFactory.createLineBorder(Color.DARK_GRAY);
@@ -92,16 +92,16 @@ public class IndividualMenuTransferFrame extends JFrame implements ActionListene
         txtAmount.setFont(new Font("SansSerif", Font.PLAIN, 14));
         add(txtAmount);
 
-        // Other account
-        lblOtherAccount.setBounds(lblX, y2Label, lblW, lblH);
-        lblOtherAccount.setHorizontalAlignment(SwingConstants.CENTER);
-        lblOtherAccount.setFont(labelFont);
-        add(lblOtherAccount);
+        // Business account
+        lblBusinessAccount.setBounds(lblX, y2Label, lblW, lblH);
+        lblBusinessAccount.setHorizontalAlignment(SwingConstants.CENTER);
+        lblBusinessAccount.setFont(labelFont);
+        add(lblBusinessAccount);
 
-        txtOtherAccount.setBounds(fieldX, y2Field, fieldW, fieldH);
-        txtOtherAccount.setBorder(thinBorder);
-        txtOtherAccount.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        add(txtOtherAccount);
+        txtBusinessAccount.setBounds(fieldX, y2Field, fieldW, fieldH);
+        txtBusinessAccount.setBorder(thinBorder);
+        txtBusinessAccount.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        add(txtBusinessAccount);
 
         // Your account
         lblYourAccount.setBounds(lblX, y3Label, lblW, lblH);
@@ -121,8 +121,8 @@ public class IndividualMenuTransferFrame extends JFrame implements ActionListene
         return txtAmount.getText().trim();
     }
 
-    public String getOtherAccountText() {
-        return txtOtherAccount.getText().trim();
+    public String getBusinessAccountText() {
+        return txtBusinessAccount.getText().trim();
     }
 
     public String getYourAccountText() {

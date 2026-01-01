@@ -12,7 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
-public class IndividualMenuManageStandingOrdersFrame extends JFrame implements ActionListener {
+public class IndividualMenu_4_2_ManageStandingOrdersFrame extends JFrame implements ActionListener {
 
     private final JButton btnLogout = new JButton("log out");
 
@@ -40,7 +40,7 @@ public class IndividualMenuManageStandingOrdersFrame extends JFrame implements A
     private final JLabel r3Date   = new JLabel("date");
     private final JButton r3Delete = new JButton("delete");
 
-    public IndividualMenuManageStandingOrdersFrame() {
+    public IndividualMenu_4_2_ManageStandingOrdersFrame() {
         // Frame
         setTitle("Bank of TUC");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
