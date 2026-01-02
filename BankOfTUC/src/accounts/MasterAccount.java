@@ -2,29 +2,38 @@ package accounts;
 
 import java.time.LocalDate;
 import bank.storage.UnMarshalingException;
-import managers.AccountManager;
-import managers.UserManager;
 import users.Company;
-import users.Customer;
 
 public class MasterAccount extends BusinessAccount {
-    private static MasterAccount instance = new MasterAccount(new Company("bank", "bank", "bank", "bank"));
+    private static final MasterAccount instance = new MasterAccount();
 
-    private MasterAccount(Company bank) {
-        super(bank, 0, LocalDate.now());
-        UserManager.getInstance().addUser(bank);
-        AccountManager.getInstance().addAccount(this);
-        changeBalance(10000);
+    private MasterAccount() {
+        super(); // empty, will be filled by init/unmarshal
     }
 
     public static MasterAccount getInstance() {
         return instance;
     }
 
-    @Override
-    public void endOfMonth() {
-        // Bank has no fees and no interest
+    /** Call ONCE on startup (if not loaded from CSV) */
+    public void initIfNeeded(Company bankCompany) {
+        if (this.primaryHolder != null) return; // already initialized (e.g. from unmarshal)
+
+        this.primaryHolder = bankCompany;
+        this.interestRate = 0.0;
+        this.dateCreated = LocalDate.now();
+        // keep existing iban if already set, else generate one
+        if (this.iban == null || this.iban.isBlank()) {
+            this.iban = "GR200" + System.currentTimeMillis(); // ή δικό σου generator
+        }
+        this.balance = 10000.0;
+
+        // σημαντικό: σύνδεση company <-> account
+        bankCompany.addAccount(this);
     }
+
+    @Override
+    public void endOfMonth() { }
 
     @Override
     public String marshal() {
@@ -37,15 +46,14 @@ public class MasterAccount extends BusinessAccount {
                 "balance:" + balance);
     }
 
-    
-
     @Override
     public void unmarshal(String data) throws UnMarshalingException {
+        // ίδιος κώδικας όπως έχεις, απλά ΔΕΝ κάνεις addAccount εδώ.
         String[] parts = data.split(",");
         for (String p : parts) {
             String[] kv = p.split(":", 2);
-            if (kv.length != 2)
-                throw new UnMarshalingException("Bad field: " + p);
+            if (kv.length != 2) throw new UnMarshalingException("Bad field: " + p);
+
             String key = kv[0], val = kv[1];
             switch (key) {
                 case "type":
@@ -56,11 +64,9 @@ public class MasterAccount extends BusinessAccount {
                     this.iban = val;
                     break;
                 case "primaryOwner":
-                    Customer cust = UserManager.getInstance().findCustomerByVat(val);
-                    if (!(cust instanceof Company))
-                        throw new UnMarshalingException("No Company for VAT: " + val);
-                    this.primaryHolder = (Company) cust;
-                    this.primaryHolder.addAccount(this);
+                    // το company πρέπει να υπάρχει ήδη στους users (άρα users load ΠΡΙΝ accounts load)
+                    // εδώ απλά θα γίνει set από τον loader σου όπως κάνεις ήδη
+                    // (θα το αφήσεις όπως είναι στο δικό σου unmarshal αν θες)
                     break;
                 case "dateCreated":
                     this.dateCreated = LocalDate.parse(val);
@@ -72,10 +78,8 @@ public class MasterAccount extends BusinessAccount {
                     this.balance = Double.parseDouble(val);
                     break;
                 default:
-                    // ignore any unexpected key
                     break;
             }
         }
     }
-
 }

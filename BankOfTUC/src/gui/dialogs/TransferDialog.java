@@ -9,17 +9,23 @@ import java.util.List;
 
 public class TransferDialog extends JDialog {
 
+    public enum Network {
+        INTRA, SEPA, SWIFT
+    }
+
     public static class Result {
         public final String fromIban;
         public final String toIban;
         public final double amount;
         public final String reason;
+        public final Network network;
 
-        public Result(String fromIban, String toIban, double amount, String reason) {
+        public Result(String fromIban, String toIban, double amount, String reason, Network network) {
             this.fromIban = fromIban;
             this.toIban = toIban;
             this.amount = amount;
             this.reason = reason;
+            this.network = network;
         }
     }
 
@@ -30,42 +36,50 @@ public class TransferDialog extends JDialog {
     private final JTextField amountField = new JTextField(10);
     private final JTextField reasonField = new JTextField(20);
 
-    public TransferDialog(Window owner, Customer customer, List<BankAccount> accounts) {
+    private final JComboBox<Network> networkCombo = new JComboBox<>(Network.values());
+
+    public TransferDialog(Window owner, Customer customer, List<BankAccount> accounts, String preselectedIban) {
         super(owner, "Transfer", ModalityType.APPLICATION_MODAL);
-        buildUI(accounts);
+
+        for (BankAccount a : accounts) {
+            fromCombo.addItem(a.getIban());
+        }
+        if (preselectedIban != null) {
+            fromCombo.setSelectedItem(preselectedIban);
+        }
+
+        buildUI();
         pack();
         setLocationRelativeTo(owner);
     }
 
-    private void buildUI(List<BankAccount> accounts) {
+    public Result showDialog() {
+        setVisible(true);
+        return result;
+    }
+
+    private void buildUI() {
         JPanel form = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(6,6,6,6);
         c.anchor = GridBagConstraints.WEST;
 
-        for (BankAccount a : accounts) {
-            fromCombo.addItem(a.getIban());
-        }
+        int y = 0;
 
-        c.gridx=0; c.gridy=0;
-        form.add(new JLabel("From account:"), c);
-        c.gridx=1;
-        form.add(fromCombo, c);
+        c.gridx=0; c.gridy=y; form.add(new JLabel("From account:"), c);
+        c.gridx=1; form.add(fromCombo, c); y++;
 
-        c.gridx=0; c.gridy++;
-        form.add(new JLabel("To IBAN:"), c);
-        c.gridx=1;
-        form.add(toIbanField, c);
+        c.gridx=0; c.gridy=y; form.add(new JLabel("To IBAN:"), c);
+        c.gridx=1; form.add(toIbanField, c); y++;
 
-        c.gridx=0; c.gridy++;
-        form.add(new JLabel("Amount (€):"), c);
-        c.gridx=1;
-        form.add(amountField, c);
+        c.gridx=0; c.gridy=y; form.add(new JLabel("Amount (€):"), c);
+        c.gridx=1; form.add(amountField, c); y++;
 
-        c.gridx=0; c.gridy++;
-        form.add(new JLabel("Reason:"), c);
-        c.gridx=1;
-        form.add(reasonField, c);
+        c.gridx=0; c.gridy=y; form.add(new JLabel("Reason:"), c);
+        c.gridx=1; form.add(reasonField, c); y++;
+
+        c.gridx=0; c.gridy=y; form.add(new JLabel("Network:"), c);
+        c.gridx=1; form.add(networkCombo, c); y++;
 
         JButton cancelBtn = new JButton("Cancel");
         JButton okBtn = new JButton("Transfer");
@@ -80,6 +94,8 @@ public class TransferDialog extends JDialog {
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(form, BorderLayout.CENTER);
         getContentPane().add(buttons, BorderLayout.SOUTH);
+
+        getRootPane().setDefaultButton(okBtn);
     }
 
     private void onOk() {
@@ -88,26 +104,29 @@ public class TransferDialog extends JDialog {
             String to = toIbanField.getText().trim();
             double amount = Double.parseDouble(amountField.getText().trim());
             String reason = reasonField.getText().trim();
+            Network network = (Network) networkCombo.getSelectedItem();
 
-            if (from == null || to.isEmpty() || amount <= 0) {
-                throw new IllegalArgumentException("Invalid input");
-            }
+            if (from == null || from.isBlank())
+                throw new IllegalArgumentException("Select source account.");
+            if (to.isEmpty())
+                throw new IllegalArgumentException("Target IBAN is required.");
+            if (amount <= 0)
+                throw new IllegalArgumentException("Amount must be > 0.");
+            if (network == null)
+                network = Network.INTRA;
 
-            result = new Result(from, to, amount, reason.isBlank() ? "Transfer" : reason);
+            if (reason.isBlank()) reason = "Transfer";
+
+            result = new Result(from, to, amount, reason, network);
             dispose();
 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(
-                this,
-                "Invalid data. Check IBAN / amount.",
-                "Validation error",
-                JOptionPane.ERROR_MESSAGE
+                    this,
+                    ex.getMessage(),
+                    "Validation error",
+                    JOptionPane.ERROR_MESSAGE
             );
         }
-    }
-
-    public Result showDialog() {
-        setVisible(true);
-        return result;
     }
 }

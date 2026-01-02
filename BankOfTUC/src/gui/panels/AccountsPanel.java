@@ -5,6 +5,10 @@ import gui.dialogs.DepositDialog;
 import gui.dialogs.PayBillDialog;
 import gui.dialogs.TransferDialog;
 import gui.dialogs.WithdrawDialog;
+import transactions.protocol.IntraBankProtocol;
+import transactions.protocol.SepaTransferProtocol;
+import transactions.protocol.SwiftTransferProtocol;
+import transactions.protocol.TransferProtocol;
 import accounts.BankAccount;
 import users.Customer;
 
@@ -16,7 +20,8 @@ public class AccountsPanel extends JPanel {
 
     private final BankingFacade facade;
     private Customer customer;
-
+    private String selectedIban = null;
+    
     private final DefaultListModel<String> model = new DefaultListModel<>();
     private final JList<String> list = new JList<>(model);
 
@@ -55,6 +60,12 @@ public class AccountsPanel extends JPanel {
 
         add(top, BorderLayout.NORTH);
         add(new JScrollPane(list), BorderLayout.CENTER);
+        list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+list.addListSelectionListener(e -> {
+    if (e.getValueIsAdjusting()) return;
+    selectedIban = parseIbanFromLine(list.getSelectedValue());
+});
+
         add(actions, BorderLayout.SOUTH);
 
         refreshBtn.addActionListener(e -> refresh());
@@ -154,31 +165,45 @@ public class AccountsPanel extends JPanel {
         updateDate();
     }
 
-    private void onTransfer() {
+private void onTransfer() {
     if (customer == null) return;
 
     TransferDialog dlg = new TransferDialog(
-        SwingUtilities.getWindowAncestor(this),
-        customer,
-        facade.accountsFor(customer)
+            SwingUtilities.getWindowAncestor(this),
+            customer,
+            facade.accountsFor(customer),
+            selectedIban
     );
 
     TransferDialog.Result res = dlg.showDialog();
     if (res == null) return;
 
     try {
-        facade.transfer(customer, res.fromIban, res.toIban, res.amount, res.reason);
+        TransferProtocol protocol;
+        switch (res.network) {
+            case SEPA -> protocol = new SepaTransferProtocol();
+            case SWIFT -> protocol = new SwiftTransferProtocol();
+            default -> protocol = new IntraBankProtocol();
+        }
+
+        facade.transfer(customer, res.fromIban, res.toIban, res.amount, res.reason, protocol);
+
         refresh();
-        JOptionPane.showMessageDialog(this, "Transfer completed.", "OK",
-                JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Transfer completed.", "OK", JOptionPane.INFORMATION_MESSAGE);
+
     } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, ex.getMessage(),
-                "Transfer failed", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, ex.getMessage(), "Transfer failed", JOptionPane.ERROR_MESSAGE);
     }
 }
-
 
     private void updateDate() {
         dateLabel.setText("Today: " + facade.getCurrentDate());
     }
+    private String parseIbanFromLine(String line) {
+    if (line == null) return null;
+    int idx = line.indexOf(" |");
+    if (idx <= 0) return null;
+    return line.substring(0, idx).trim();
+}
+
 }

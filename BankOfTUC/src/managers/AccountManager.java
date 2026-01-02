@@ -40,13 +40,13 @@ public class AccountManager {
     }
 
     public BankAccount findByIban(String iban) {
-        for (BankAccount acc : accounts) {
-            if (acc.getIban().equals(iban)) {
-                return acc;
-            }
+    for (BankAccount acc : accounts) {
+        if (acc != null && iban != null && iban.equals(acc.getIban())) {
+            return acc;
         }
-        throw new IllegalArgumentException("Δεν βρέθηκε λογαριασμός με IBAN: " + iban);
     }
+    return null;
+}
 
     public BankAccount getPrimaryAccountOfUser(String userId) {
         for (BankAccount acc : accounts) {
@@ -128,6 +128,11 @@ public class AccountManager {
         }
         return false;
     }
+public BankAccount requireByIban(String iban) {
+    BankAccount a = findByIban(iban);
+    if (a == null) throw new IllegalArgumentException("Δεν βρέθηκε λογαριασμός με IBAN: " + iban);
+    return a;
+}
 
     public void createPersonalAccount(String vat, double interestRate, double balance) {
         Customer ind = UserManager.getInstance().findCustomerByVat(vat);
@@ -160,9 +165,55 @@ public class AccountManager {
         }
     }
 
-    public void addAccounts(StorableList<BankAccount> accounts) {
-        this.accounts.addAll(accounts);
+  public void addAccounts(StorableList<BankAccount> loaded) {
+    if (loaded == null) return;
+
+    for (BankAccount a : loaded) {
+        if (a == null) continue;
+
+        // 1) Skip duplicate MasterAccount (singleton)
+        if (a instanceof MasterAccount) {
+            boolean already = false;
+            for (BankAccount existing : this.accounts) {
+                if (existing instanceof MasterAccount) { already = true; break; }
+            }
+            if (already) continue; // ignore duplicates
+        }
+
+        // 2) Skip duplicate IBAN (safety)
+        if (findByIban(a.getIban()) != null) {
+            continue;
+        }
+
+        // 3) Enforce "company only one account" rule during load too
+        if (a instanceof BusinessAccount) {
+            String vat = a.getPrimaryHolder() != null ? a.getPrimaryHolder().getVatNumber() : null;
+            if (vat != null) {
+                boolean companyAlreadyHas = false;
+                for (BankAccount existing : this.accounts) {
+                    if (existing instanceof BusinessAccount
+                            && existing.getPrimaryHolder() != null
+                            && vat.equals(existing.getPrimaryHolder().getVatNumber())) {
+                        companyAlreadyHas = true;
+                        break;
+                    }
+                }
+                if (companyAlreadyHas) continue; // ignore extra business accounts
+            }
+        }
+
+        // 4) Add + register IBAN unique part for future generation
+        this.accounts.add(a);
+        try {
+            String iban = a.getIban();
+            if (iban != null && iban.length() >= 15) {
+                String uniquePart = iban.substring(iban.length() - 15);
+                if (!existsIban(uniquePart)) addIban(uniquePart);
+            }
+        } catch (Exception ignored) {}
     }
+}
+
 
     public BusinessAccount findBusinessAccountByVat(String vat) {
         for (BankAccount acc : accounts) {

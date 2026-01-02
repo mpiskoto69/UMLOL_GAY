@@ -14,6 +14,7 @@ import transactions.Deposit;
 import transactions.Payment;
 import transactions.Transfer;
 import transactions.Withdrawall;
+import transactions.protocol.TransferProtocol;
 import bank.storage.Bill;  
 import users.*;
 
@@ -209,18 +210,38 @@ public void withdraw(Customer customer, String fromIban, double amount, String r
     );
 }
 
-public void transfer(Customer customer, String fromIban,String toIban,double amount, String reason) {
+public void transfer(Customer customer,
+                     String fromIban,
+                     String toIban,
+                     double amount,
+                     String reason,
+                     TransferProtocol protocol) {
 
-    var from = AccountManager.getInstance().findByIban(fromIban);
-    var to = AccountManager.getInstance().findByIban(toIban);
+    if (customer == null) throw new IllegalArgumentException("Customer is required");
+    if (amount <= 0) throw new IllegalArgumentException("Amount must be > 0");
+    if (reason == null || reason.isBlank()) reason = "Transfer";
 
-    if (from == null || to == null)
-        throw new IllegalArgumentException("Unknown IBAN");
+    BankAccount from;
+    BankAccount to;
+
+    try {
+        from = AccountManager.getInstance().findByIban(fromIban);
+        to   = AccountManager.getInstance().findByIban(toIban);
+    } catch (IllegalArgumentException ex) {
+        // μήνυμα από findByIban
+        throw ex;
+    }
+
+    // access check (ΣΗΜΑΝΤΙΚΟ)
+    if (!AccountManager.getInstance().hasAccessToAccount(customer, from))
+        throw new IllegalArgumentException("No access to source account");
 
     TransactionManager.getInstance().registerTransaction(
-        new Transfer(customer, from, to, reason, reason, amount)
+        new Transfer(customer, from, to, reason, reason, amount, protocol)
     );
 }
+
+
 public void payBill(Customer customer, String fromIban, String rfCode) {
     if (customer == null) throw new IllegalArgumentException("Customer is required");
     if (fromIban == null || fromIban.isBlank()) throw new IllegalArgumentException("From IBAN is required");
