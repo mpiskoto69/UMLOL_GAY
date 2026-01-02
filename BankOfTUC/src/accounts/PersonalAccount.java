@@ -32,16 +32,18 @@ public class PersonalAccount extends BankAccount {
     }
 
     @Override
-    public void endOfMonth() {
-        
-        System.out.print("Interest paid ");
-        System.out.printf("%.2f", thisMonthsInterest);
-        System.out.println(" euros for " + iban);
-        if (thisMonthsInterest > 0) {
+   
+public void endOfMonth() {
+    System.out.print("Interest paid ");
+    System.out.printf("%.2f", thisMonthsInterest);
+    System.out.println(" euros for " + iban);
+
+    if (thisMonthsInterest > 0) {
         TransactionManager.getInstance().eofInterestPayment(this, thisMonthsInterest);
-        resetMonthsInterest();
     }
-    }
+    resetMonthsInterest(); // πάντα reset
+}
+
 
     @Override
     public String marshal() {

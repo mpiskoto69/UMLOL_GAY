@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import accounts.BankAccount;
+import accounts.MasterAccount;
 import bank.storage.StorageManager;
 import managers.*;
 import standingOrders.PaymentOrder;
@@ -34,7 +35,17 @@ public class BankingFacade {
         BillManager.getInstance().clearAll();
         StandingOrderManager.getInstance().clearAll();
         StorageManager.getInstance().loadAll();
+        Customer bank = UserManager.getInstance().findCustomerByVat("bank");
+if (bank == null) {
+    Company bankCo = new Company("bank", "bank", "bank", "Bank");
+    UserManager.getInstance().addUser(bankCo);
+}
 
+// Ensure master has holder
+if (MasterAccount.getInstance().getPrimaryHolder() == null) {
+    Company bankCo = (Company) UserManager.getInstance().findCustomerByVat("bank");
+    MasterAccount.getInstance().initIfNeeded(bankCo);
+}
     }
     public void saveAll() {
         StorageManager.getInstance().saveAll(currentDate);
@@ -302,6 +313,22 @@ public List<Bill> billsToPayFor(Company c) {
     return BillManager.getInstance().getBillsToPayBy(c.getVatNumber());
 }
     // --- simulation ---
+    public StandingOrderManager.ExecutionReport nextDayWithReport() {
+    currentDate = currentDate.plusDays(1);
+
+    AccountManager.getInstance().applyDailyInterestToAllAccounts();
+
+    StandingOrderManager.ExecutionReport rep =
+            StandingOrderManager.getInstance().executeDueOrdersWithReport(currentDate);
+
+    if (currentDate.getDayOfMonth() == currentDate.lengthOfMonth()) {
+        for (BankAccount a : AccountManager.getInstance().getAllAccounts()) {
+            a.endOfMonth();
+        }
+    }
+    return rep;
+}
+
     public void nextDay() {
         currentDate = currentDate.plusDays(1);
 

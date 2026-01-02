@@ -2,7 +2,9 @@ package accounts;
 
 import java.time.LocalDate;
 import bank.storage.UnMarshalingException;
+import managers.UserManager;
 import users.Company;
+import users.Customer;
 
 public class MasterAccount extends BusinessAccount {
     private static final MasterAccount instance = new MasterAccount();
@@ -63,11 +65,18 @@ public class MasterAccount extends BusinessAccount {
                 case "iban":
                     this.iban = val;
                     break;
-                case "primaryOwner":
-                    // το company πρέπει να υπάρχει ήδη στους users (άρα users load ΠΡΙΝ accounts load)
-                    // εδώ απλά θα γίνει set από τον loader σου όπως κάνεις ήδη
-                    // (θα το αφήσεις όπως είναι στο δικό σου unmarshal αν θες)
-                    break;
+               case "primaryOwner":
+    Customer cust = UserManager.getInstance().findCustomerByVat(val);
+    if (cust == null) {
+        throw new UnMarshalingException("No customer found for MasterAccount primaryOwner: " + val);
+    }
+    if (!(cust instanceof Company)) {
+        throw new UnMarshalingException("MasterAccount primaryOwner must be Company, got: " + cust.getClass().getSimpleName());
+    }
+    this.primaryHolder = (Company) cust;
+    this.primaryHolder.addAccount(this);
+    break;
+
                 case "dateCreated":
                     this.dateCreated = LocalDate.parse(val);
                     break;

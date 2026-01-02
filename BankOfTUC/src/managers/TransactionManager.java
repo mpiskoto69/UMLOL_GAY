@@ -22,7 +22,7 @@ public class TransactionManager {
             transaction.execute();
             StatementManager.getInstance().registerStatements(transaction);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+           e.printStackTrace(); // για να βλέπεις τι έγινε σε fail
         }
     }
 
@@ -45,20 +45,24 @@ public void newTransfer(Customer transactor,
     registerTransaction(transfer);
 }
 
-    public void eofInterestPayment(BankAccount toAccount, double amount) {
-    MasterAccount bm = MasterAccount.getInstance();
+   public void eofInterestPayment(BankAccount toAccount, double amount) {
+    if (toAccount == null) return;
+    if (amount <= 0) return;
 
-    Transaction transfer = Transfer.builder()
-        .transactor(bm.getPrimaryHolder())
-        .from(bm)
-        .to(toAccount)
-        .reasonFrom("Interest payment to " + toAccount.getIban())
-        .reasonTo("Interest payment from bank")
-        .amount(amount)
-        .build();
+    Customer bank = (Customer) MasterAccount.getInstance().getPrimaryHolder();
 
-    registerTransaction(transfer);
+    Transaction t = Transfer.builder()
+            .transactor(bank)                     // η τράπεζα
+            .from(MasterAccount.getInstance())    // πληρώνει
+            .to(toAccount)                        // ο πελάτης λαμβάνει
+            .reasonFrom("Monthly interest")       // statement στο Master
+            .reasonTo("Monthly interest")         // statement στον πελάτη
+            .amount(amount)
+            .build();
+
+    registerTransaction(t);
 }
+
 
 public void chargeMaintenanceFee(BusinessAccount fromAccount) {
     MasterAccount bm = MasterAccount.getInstance();

@@ -1,4 +1,3 @@
-type:MasterAccount,iban:GR200806976972677734,primaryOwner:bank,dateCreated:2026-01-02,rate:0.0,balance:10030.0
 type:PersonalAccount,iban:GR100202503111546001,primaryOwner:067688302,dateCreated:2025-03-01,rate:0.02,balance:970.0,coOwner:067688304
 type:PersonalAccount,iban:GR100202503111546002,primaryOwner:067688303,dateCreated:2025-03-01,rate:0.02,balance:2000.0
 type:PersonalAccount,iban:GR100202503111546003,primaryOwner:067688304,dateCreated:2025-03-01,rate:0.02,balance:3050.0
@@ -10,3 +9,4 @@ type:BusinessAccount,iban:GR200202503131719401,primaryOwner:090800700,dateCreate
 type:BusinessAccount,iban:GR200202503131719402,primaryOwner:090800800,dateCreated:2025-03-01,rate:0.03,balance:20500.0
 type:BusinessAccount,iban:GR200202503131719403,primaryOwner:090800900,dateCreated:2025-03-01,rate:0.03,balance:100000.0
 type:BusinessAccount,iban:GR200202503131719404,primaryOwner:090800600,dateCreated:2025-03-01,rate:0.03,balance:7230.0
+

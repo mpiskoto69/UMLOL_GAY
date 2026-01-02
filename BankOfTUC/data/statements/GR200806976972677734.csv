@@ -1,2 +1,0 @@
-type:Statement,timestamp:2026-01-02T16:39:03.705519700,transactionId:399ccdda-dbb0-4b7b-a36f-8c092d4cb248,transactor:ngioldasis,accountIban:GR200806976972677734,counterpartyIban:GR100202503111546001,reason:Cash withdrawal,amount:20.0,balanceAfter:10020.0,movementType:CREDIT
-type:Statement,timestamp:2026-01-02T17:24:42.263680100,transactionId:5ad00367-267d-4b59-8525-ad3674f1b67a,transactor:ngioldasis,accountIban:GR200806976972677734,counterpartyIban:GR100202503111546001,reason:Cash withdrawal,amount:10.0,balanceAfter:10030.0,movementType:CREDIT

@@ -57,6 +57,52 @@ public class StandingOrderManager {
             order.execute(today);
         }
     }
+public static class ExecutionReport {
+    public final LocalDate date;
+    public final List<String> success = new ArrayList<>();
+    public final List<String> failed = new ArrayList<>();
+    public ExecutionReport(LocalDate date) { this.date = date; }
+}
+public ExecutionReport executeDueOrdersWithReport(LocalDate today) {
+    ExecutionReport rep = new ExecutionReport(today);
+    if (today == null) return rep;
+
+    List<StandingOrder> due = new ArrayList<>();
+    for (StandingOrder order : standingOrders) {
+        if (order == null) continue;
+
+        // ΣΗΜΑΝΤΙΚΟ: χρησιμοποίησε το "for today"
+        if (order.isDue(today) && !order.hasExceededMaxFailuresFor(today)) {
+            due.add(order);
+        }
+    }
+
+    due.sort(Comparator
+        .comparing(StandingOrder::getStartDate, Comparator.nullsLast(Comparator.naturalOrder()))
+        .thenComparing(StandingOrder::getId, Comparator.nullsLast(Comparator.naturalOrder())));
+
+    for (StandingOrder order : due) {
+        int beforeFails = order.getFailedAttempts();
+        LocalDate beforeBucket = order.getFailureBucketDate();
+
+        order.execute(today);
+
+        boolean failedNow =
+            order.getFailureBucketDate() != null
+            && order.getFailureBucketDate().equals(today)
+            && order.getFailedAttempts() > beforeFails;
+
+        String label = order.getClass().getSimpleName()
+                + " | id=" + order.getId()
+                + " | " + order.getTitle();
+
+        if (failedNow) rep.failed.add(label);
+        else rep.success.add(label);
+    }
+
+    return rep;
+}
+
 public void clearAll() {
     standingOrders.clear();
 }

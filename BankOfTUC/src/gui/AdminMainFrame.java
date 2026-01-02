@@ -37,15 +37,27 @@ public class AdminMainFrame extends JFrame {
         setLocationRelativeTo(null);
 
         // Header
-        JPanel header = new JPanel(new BorderLayout(10, 10));
-        header.setBorder(BorderFactory.createEmptyBorder(12, 12, 6, 12));
+       // Header
+JPanel header = new JPanel(new BorderLayout(10, 10));
+header.setBorder(BorderFactory.createEmptyBorder(12, 12, 6, 12));
 
-        welcomeLabel.setFont(welcomeLabel.getFont().deriveFont(Font.BOLD, 18f));
-        dateLabel.setFont(dateLabel.getFont().deriveFont(Font.PLAIN, 14f));
-        dateLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+welcomeLabel.setFont(welcomeLabel.getFont().deriveFont(Font.BOLD, 18f));
+dateLabel.setFont(dateLabel.getFont().deriveFont(Font.PLAIN, 14f));
+dateLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 
-        header.add(welcomeLabel, BorderLayout.WEST);
-        header.add(dateLabel, BorderLayout.EAST);
+JButton logoutBtn = new JButton("Logout");
+logoutBtn.addActionListener(e -> {
+    try { facade.saveAll(); } catch (Exception ignored) {}
+    dispose();
+    SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
+});
+
+JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+right.add(dateLabel);
+right.add(logoutBtn);
+
+header.add(welcomeLabel, BorderLayout.WEST);
+header.add(right, BorderLayout.EAST);
 
         // Tabs
         JTabbedPane tabs = new JTabbedPane();

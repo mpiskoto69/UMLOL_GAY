@@ -13,8 +13,10 @@ public class SimulationPanel extends JPanel {
 
     private final JLabel dateLabel = new JLabel();
     private final JButton nextDayBtn = new JButton("Next day");
-    private final JButton advance7Btn = new JButton("Advance 7 days");
+   
     private final JTextArea logArea = new JTextArea(10, 60);
+    private final JTextField targetDateField = new JTextField(10); // yyyy-mm-dd
+    private final JButton goBtn = new JButton("Go to date");
 
     public SimulationPanel(BankingFacade facade, Runnable afterAdvance) {
         this.facade = facade;
@@ -35,7 +37,11 @@ public class SimulationPanel extends JPanel {
         // Buttons row
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         actions.add(nextDayBtn);
-        actions.add(advance7Btn);
+        
+        targetDateField.setText(facade.getCurrentDate().toString());
+actions.add(new JLabel("Target (yyyy-mm-dd):"));
+actions.add(targetDateField);
+actions.add(goBtn);
 
         // Log
         logArea.setEditable(false);
@@ -51,7 +57,8 @@ public class SimulationPanel extends JPanel {
 
         // Wire events
         nextDayBtn.addActionListener(e -> advanceDays(1));
-        advance7Btn.addActionListener(e -> advanceDays(7));
+        goBtn.addActionListener(e -> goToDate());
+        
 
         refresh();
     }
@@ -63,9 +70,11 @@ public class SimulationPanel extends JPanel {
 
     private void advanceDays(int n) {
         LocalDate before = facade.getCurrentDate();
-        for (int i = 0; i < n; i++) {
-            facade.nextDay();
-        }
+       for (int i = 0; i < n; i++) {
+    var rep = facade.nextDayWithReport();
+    logReport(rep);
+}
+
         LocalDate after = facade.getCurrentDate();
 
         log("Advanced: " + before + " -> " + after + " (+" + n + " day(s))");
@@ -75,6 +84,37 @@ public class SimulationPanel extends JPanel {
 
         refresh();
     }
+    private void goToDate() {
+    try {
+        LocalDate target = LocalDate.parse(targetDateField.getText().trim());
+        if (target.isBefore(facade.getCurrentDate())) {
+            log("Target must be >= today");
+            return;
+        }
+
+        LocalDate before = facade.getCurrentDate();
+        while (facade.getCurrentDate().isBefore(target)) {
+            var rep = facade.nextDayWithReport();
+            logReport(rep);
+        }
+        log("Advanced: " + before + " -> " + facade.getCurrentDate());
+
+        if (afterAdvance != null) afterAdvance.run();
+        refresh();
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, ex.getMessage(), "Invalid date", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+private void logReport(managers.StandingOrderManager.ExecutionReport rep) {
+    if (rep == null) return;
+    if (rep.success.isEmpty() && rep.failed.isEmpty()) return;
+
+    log("== Standing Orders " + rep.date + " ==");
+    for (String s : rep.success) log(" OK   " + s);
+    for (String f : rep.failed)  log(" FAIL " + f);
+}
 
     private void log(String msg) {
         logArea.append(msg + "\n");
