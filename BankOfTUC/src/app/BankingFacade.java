@@ -9,6 +9,9 @@ import accounts.BankAccount;
 import bank.storage.StorageManager;
 import managers.*;
 import standingOrders.TransferOrder;
+import transactions.Deposit;
+import transactions.Payment;
+import transactions.Transfer;
 import transactions.Withdrawall;
 import bank.storage.Bill;  
 import users.*;
@@ -146,6 +149,78 @@ public void withdraw(Customer customer, String fromIban, double amount, String r
     TransactionManager.getInstance().registerTransaction(
         new Withdrawall(customer, from, reason, amount)
     );
+}
+
+public void transfer(Customer customer, String fromIban,String toIban,double amount, String reason) {
+
+    var from = AccountManager.getInstance().findByIban(fromIban);
+    var to = AccountManager.getInstance().findByIban(toIban);
+
+    if (from == null || to == null)
+        throw new IllegalArgumentException("Unknown IBAN");
+
+    TransactionManager.getInstance().registerTransaction(
+        new Transfer(customer, from, to, reason, reason, amount)
+    );
+}
+public void payBill(Customer customer, String fromIban, String rfCode) {
+    if (customer == null) throw new IllegalArgumentException("Customer is required");
+    if (fromIban == null || fromIban.isBlank()) throw new IllegalArgumentException("From IBAN is required");
+    if (rfCode == null || rfCode.isBlank()) throw new IllegalArgumentException("RF is required");
+
+    // 1) find payer account
+    BankAccount payer = AccountManager.getInstance().findByIban(fromIban);
+    if (payer == null) throw new IllegalArgumentException("Account not found: " + fromIban);
+
+    if (!AccountManager.getInstance().hasAccessToAccount(customer, payer))
+        throw new IllegalArgumentException("No access to this account");
+
+    // 2) find bill (must be due/unpaid)
+    Bill bill = findBillForPayment(rfCode); // uses currentDate inside facade
+    // bill has issuer VAT; payee is issuer's business account
+    BankAccount payee = AccountManager.getInstance().findBusinessAccountByVat(bill.getIssuerVAT());
+    if (payee == null) throw new IllegalArgumentException("Issuer business account not found");
+
+    // 3) execute payment: amount + (optional fee=0 εδώ)
+    TransactionManager.getInstance().registerTransaction(
+        new Payment(
+            customer,
+            payer,
+            payee,
+            "Πληρωμή λογαριασμού RF: " + rfCode,
+            "Είσπραξη λογαριασμού RF: " + rfCode,
+            bill.getAmount()
+        )
+    );
+
+
+    // 4) mark paid
+    bill.markAsPaid();
+}
+
+public void deposit(Customer customer, String toIban, double amount, String reason) {
+    if (customer == null) throw new IllegalArgumentException("Customer is required");
+    if (toIban == null || toIban.isBlank()) throw new IllegalArgumentException("IBAN is required");
+    if (amount <= 0) throw new IllegalArgumentException("Amount must be > 0");
+    if (reason == null || reason.isBlank()) reason = "Cash deposit";
+
+    BankAccount to = AccountManager.getInstance().findByIban(toIban);
+    if (to == null) throw new IllegalArgumentException("Account not found: " + toIban);
+
+    if (!AccountManager.getInstance().hasAccessToAccount(customer, to))
+        throw new IllegalArgumentException("No access to this account");
+
+    TransactionManager.getInstance().registerTransaction(
+        new Deposit(customer, to, reason, amount)
+    );
+}
+
+public List<Bill> issuedBillsFor(Company c) {
+    return BillManager.getInstance().getBillsIssuedBy(c.getVatNumber());
+}
+
+public List<Bill> billsToPayFor(Company c) {
+    return BillManager.getInstance().getBillsToPayBy(c.getVatNumber());
 }
     // --- simulation ---
     public void nextDay() {

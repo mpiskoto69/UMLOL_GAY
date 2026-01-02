@@ -2,8 +2,10 @@ package gui;
 
 import app.BankingFacade;
 import gui.panels.AccountsPanel;
+import gui.panels.CompanyBillsPanel;
 import gui.panels.StandingOrdersPanel;
 import users.Company;
+import gui.panels.StatementsPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,6 +19,8 @@ public class CompanyMainFrame extends JFrame {
     private final JLabel dateLabel = new JLabel();
 
     private AccountsPanel accountsPanel;
+    private StandingOrdersPanel soPanel;
+    private CompanyBillsPanel billsPanel;
 
     public CompanyMainFrame(BankingFacade facade, Company user) {
         super("Company - " + user.getLegalName());
@@ -29,31 +33,56 @@ public class CompanyMainFrame extends JFrame {
 
     private void buildUI() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(850, 520);
+        setSize(900, 560);
         setLocationRelativeTo(null);
 
+        // ---------- Header ----------
         JPanel header = new JPanel(new BorderLayout(10, 10));
         header.setBorder(BorderFactory.createEmptyBorder(12, 12, 6, 12));
 
         welcomeLabel.setFont(welcomeLabel.getFont().deriveFont(Font.BOLD, 18f));
         dateLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 
-        header.add(welcomeLabel, BorderLayout.WEST);
-        header.add(dateLabel, BorderLayout.EAST);
+        JButton logoutBtn = new JButton("Logout");
+        logoutBtn.addActionListener(e -> {
+            try { facade.saveAll(); } catch (Exception ignored) {}
+            dispose();
+            SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
+        });
 
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        right.add(dateLabel);
+        right.add(logoutBtn);
+
+        header.add(welcomeLabel, BorderLayout.WEST);
+        header.add(right, BorderLayout.EAST);
+
+        // ---------- Tabs ----------
         JTabbedPane tabs = new JTabbedPane();
 
         accountsPanel = new AccountsPanel(facade);
         accountsPanel.setCustomer(user);
 
-        tabs.addTab("Accounts", accountsPanel);
+        soPanel = new StandingOrdersPanel(facade);
+        soPanel.setCustomer(user);
 
+        billsPanel = new CompanyBillsPanel(facade);
+        billsPanel.setCompany(user);
+       
+        StatementsPanel stPanel = new StatementsPanel(facade);
+        stPanel.setCustomer(user);
+
+
+        tabs.addTab("Accounts", accountsPanel);
+        tabs.addTab("Standing Orders", soPanel);
+        tabs.addTab("Bills", billsPanel);
+        tabs.addTab("Statements", stPanel);
+
+        // ---------- Root ----------
         JPanel root = new JPanel(new BorderLayout());
         root.add(header, BorderLayout.NORTH);
         root.add(tabs, BorderLayout.CENTER);
-        StandingOrdersPanel soPanel = new StandingOrdersPanel(facade);
-        soPanel.setCustomer(user);
-       tabs.addTab("Standing Orders", soPanel);
+
         setContentPane(root);
     }
 

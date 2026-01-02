@@ -1,6 +1,9 @@
 package gui.panels;
 
 import app.BankingFacade;
+import gui.dialogs.DepositDialog;
+import gui.dialogs.PayBillDialog;
+import gui.dialogs.TransferDialog;
 import gui.dialogs.WithdrawDialog;
 import accounts.BankAccount;
 import users.Customer;
@@ -22,6 +25,12 @@ public class AccountsPanel extends JPanel {
 
     private final JButton refreshBtn = new JButton("Refresh");
     private final JButton withdrawBtn = new JButton("Withdraw");
+    private final JButton transferBtn = new JButton("Transfer");
+    private final JButton payBillBtn = new JButton("Pay Bill");
+    private final JButton depositBtn = new JButton("Deposit");
+
+
+
 
     public AccountsPanel(BankingFacade facade) {
         this.facade = facade;
@@ -38,6 +47,11 @@ public class AccountsPanel extends JPanel {
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT));
         actions.add(refreshBtn);
         actions.add(withdrawBtn);
+        actions.add(transferBtn);
+        actions.add(payBillBtn);
+        actions.add(depositBtn);
+
+
 
         add(top, BorderLayout.NORTH);
         add(new JScrollPane(list), BorderLayout.CENTER);
@@ -45,7 +59,9 @@ public class AccountsPanel extends JPanel {
 
         refreshBtn.addActionListener(e -> refresh());
         withdrawBtn.addActionListener(e -> onWithdraw());
-
+        transferBtn.addActionListener(e -> onTransfer());
+        payBillBtn.addActionListener(e -> onPayBill());
+        depositBtn.addActionListener(e -> onDeposit());
         updateDate();
     }
 
@@ -74,6 +90,47 @@ public class AccountsPanel extends JPanel {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Withdraw failed", JOptionPane.ERROR_MESSAGE);
         }
     }
+    private void onDeposit() {
+    if (customer == null) return;
+
+    DepositDialog dlg = new DepositDialog(
+        SwingUtilities.getWindowAncestor(this),
+        customer,
+        facade.accountsFor(customer)
+    );
+
+    DepositDialog.Result res = dlg.showDialog();
+    if (res == null) return;
+
+    try {
+        facade.deposit(customer, res.toIban, res.amount, res.reason);
+        refresh();
+        JOptionPane.showMessageDialog(this, "Deposit completed.", "OK", JOptionPane.INFORMATION_MESSAGE);
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, ex.getMessage(), "Deposit failed", JOptionPane.ERROR_MESSAGE);
+    }
+}
+    private void onPayBill() {
+    if (customer == null) return;
+
+    PayBillDialog dlg = new PayBillDialog(
+        SwingUtilities.getWindowAncestor(this),
+        customer,
+        facade.accountsFor(customer)
+    );
+
+    PayBillDialog.Result res = dlg.showDialog();
+    if (res == null) return;
+
+    try {
+        facade.payBill(customer, res.fromIban, res.rfCode);
+        refresh();
+        JOptionPane.showMessageDialog(this, "Bill paid successfully.", "OK", JOptionPane.INFORMATION_MESSAGE);
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, ex.getMessage(), "Payment failed", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
 
     public void refresh() {
         if (customer == null) return;
@@ -96,6 +153,30 @@ public class AccountsPanel extends JPanel {
 
         updateDate();
     }
+
+    private void onTransfer() {
+    if (customer == null) return;
+
+    TransferDialog dlg = new TransferDialog(
+        SwingUtilities.getWindowAncestor(this),
+        customer,
+        facade.accountsFor(customer)
+    );
+
+    TransferDialog.Result res = dlg.showDialog();
+    if (res == null) return;
+
+    try {
+        facade.transfer(customer, res.fromIban, res.toIban, res.amount, res.reason);
+        refresh();
+        JOptionPane.showMessageDialog(this, "Transfer completed.", "OK",
+                JOptionPane.INFORMATION_MESSAGE);
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, ex.getMessage(),
+                "Transfer failed", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
 
     private void updateDate() {
         dateLabel.setText("Today: " + facade.getCurrentDate());

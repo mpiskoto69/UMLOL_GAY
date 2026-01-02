@@ -2,6 +2,7 @@ package managers;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 import bank.storage.StorableList;
 import bank.storage.Bill;
@@ -91,5 +92,19 @@ public void clearAll() {
     RFcodes.clear();
     billIDs.clear();
 }
+public List<Bill> getBillsIssuedBy(String issuerVat) {
+    List<Bill> out = new ArrayList<>();
+    for (Bill b : bills) {
+        if (b != null && issuerVat.equals(b.getIssuerVAT())) out.add(b);
+    }
+    return out;
+}
 
+public List<Bill> getBillsToPayBy(String recipientVat) {
+    List<Bill> out = new ArrayList<>();
+    for (Bill b : bills) {
+        if (b != null && recipientVat.equals(b.getRecipientCustomerId())) out.add(b);
+    }
+    return out;
+}
 }
