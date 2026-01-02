@@ -8,6 +8,7 @@ import java.util.UUID;
 import accounts.BankAccount;
 import bank.storage.StorageManager;
 import managers.*;
+import standingOrders.PaymentOrder;
 import standingOrders.TransferOrder;
 import transactions.Deposit;
 import transactions.Payment;
@@ -53,6 +54,63 @@ public class BankingFacade {
     }
     return u;
 }
+
+public void createPaymentOrder(Customer customer,
+                               String title,
+                               String description,
+                               String fromIban,
+                               String rfCode,
+                               double maxAmount,
+                               LocalDate startDate,
+                               LocalDate endDate,
+                               double fee) {
+
+    if (customer == null)
+        throw new IllegalArgumentException("Customer is required");
+
+    if (fromIban == null || fromIban.isBlank())
+        throw new IllegalArgumentException("Source account (IBAN) is required");
+
+    if (rfCode == null || rfCode.isBlank())
+        throw new IllegalArgumentException("RF code is required");
+
+    if (!rfCode.startsWith("RF"))
+        throw new IllegalArgumentException("RF must start with 'RF'");
+
+    if (maxAmount <= 0)
+        throw new IllegalArgumentException("Max amount must be > 0");
+
+    if (fee < 0)
+        throw new IllegalArgumentException("Fee must be >= 0");
+
+    if (startDate == null || endDate == null || endDate.isBefore(startDate))
+        throw new IllegalArgumentException("Invalid start/end date");
+
+    BankAccount fromAccount = AccountManager.getInstance().findByIban(fromIban);
+    if (fromAccount == null)
+        throw new IllegalArgumentException("Source account not found");
+
+    if (!AccountManager.getInstance().hasAccessToAccount(customer, fromAccount))
+        throw new IllegalArgumentException("No access to source account");
+
+    String id = UUID.randomUUID().toString();
+
+    PaymentOrder order = new PaymentOrder(
+            customer,
+            id,
+            (title != null && !title.isBlank()) ? title : "Standing Bill Payment",
+            description,
+            fromAccount,
+            rfCode,
+            maxAmount,
+            startDate,
+            endDate,
+            fee
+    );
+
+    StandingOrderManager.getInstance().addOrder(order);
+}
+
 public void createTransferOrder(Customer customer,
                                 String title,
                                 String description,

@@ -5,7 +5,7 @@ import gui.dialogs.TransferOrderDialog;
 import managers.StandingOrderManager;
 import standingOrders.StandingOrder;
 import users.Customer;
-
+import gui.dialogs.CreatePaymentOrderDialog;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -140,13 +140,47 @@ public class StandingOrdersPanel extends JPanel {
     }
 }
 
-    private void onCreatePayment() {
-        if (customer == null) return;
-        JOptionPane.showMessageDialog(this,
-                "TODO: PaymentOrder dialog εδώ.\n" +
-                "Μετά το OK: facade.createPaymentOrder(...)\n" +
-                "και refresh().",
-                "Create Payment Order",
-                JOptionPane.INFORMATION_MESSAGE);
+  private void onCreatePayment() {
+    if (customer == null) return;
+
+    CreatePaymentOrderDialog dlg = new CreatePaymentOrderDialog(
+            SwingUtilities.getWindowAncestor(this),
+            customer,
+            facade.accountsFor(customer),
+            facade.getCurrentDate()
+    );
+
+    CreatePaymentOrderDialog.Result res = dlg.showDialog();
+    if (res == null) return;
+
+    try {
+        facade.createPaymentOrder(
+                customer,
+                res.title,
+                res.description,
+                res.fromIban,
+                res.rfCode,
+                res.maxAmount,
+                res.startDate,
+                res.endDate,
+                res.fee
+        );
+
+        refresh();
+        JOptionPane.showMessageDialog(
+                this,
+                "Payment standing order created.",
+                "OK",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(
+                this,
+                ex.getMessage(),
+                "Create failed",
+                JOptionPane.ERROR_MESSAGE
+        );
     }
+}
 }
