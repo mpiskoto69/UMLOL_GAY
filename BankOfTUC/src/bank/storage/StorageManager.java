@@ -23,6 +23,10 @@ import transactions.AccountStatement;
 public class StorageManager {
     private static final StorageManager instance = new StorageManager();
  private String storagePath = resolveDataPath();
+private Path metaFile() {
+    return Paths.get(storagePath, "meta", "date.txt");
+}
+
 
 private String resolveDataPath() {
     // 1) try ./data
@@ -59,7 +63,7 @@ private String resolveDataPath() {
     // --- Load ---
     public void loadAll() {
     System.out.println("Storage path=" + storagePath);
-
+     createCheckpointIfMissing();
     UserManager.getInstance().clearAll();
     AccountManager.getInstance().clearAll();
     BillManager.getInstance().clearAll();
@@ -123,15 +127,16 @@ private String resolveDataPath() {
     }
 
     // --- Save ---
-    public void saveAll(LocalDate simulatedToday) {
-        storeUsers("users/users.csv");
-        storeAccounts("accounts/accounts.csv");
+   public void saveAll(LocalDate simulatedToday) {
+    storeUsers("users/users.csv");
+    storeAccounts("accounts/accounts.csv");
+    storeBills();
+    storeOrders(simulatedToday);
+    storeAllStatements("statements");
 
-        storeBills();
-        storeOrders(simulatedToday);
+    saveCurrentDate(simulatedToday);
+}
 
-        storeAllStatements("statements");
-    }
 
     
  public void storeUsers(String fileName) {
@@ -203,6 +208,27 @@ private String resolveDataPath() {
 			loadStatements(folderName, iban);
 		}
 	}
+
+  private void saveCurrentDate(LocalDate d) {
+    try {
+        Path f = metaFile();
+        Files.createDirectories(f.getParent());
+        Files.writeString(f, d.toString(),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING);
+    } catch (Exception ignored) {}
+}
+
+public LocalDate loadCurrentDateOrDefault() {
+    try {
+        Path f = metaFile();
+        if (!Files.exists(f)) return LocalDate.now();
+        return LocalDate.parse(Files.readString(f).trim());
+    } catch (Exception e) {
+        return LocalDate.now();
+    }
+}
+
 public <T extends Storable> void storeObject(T storable, String fileName) throws IOException {
     File file = new File(storagePath + fileName);
 
@@ -283,5 +309,82 @@ private File[] listCsvFiles(String folderName) {
 
     return dir.listFiles((d, name) -> name.endsWith(".csv"));
 }
+// --- CHECKPOINT (snapshot) support ---
+
+private Path checkpointDir() {
+    // π.χ. ./data/_checkpoint
+    return Paths.get(storagePath, "_checkpoint");
+}
+
+public void createCheckpointIfMissing() {
+    try {
+        Path cp = checkpointDir();
+        if (Files.exists(cp)) return;
+
+        Files.createDirectories(cp);
+
+        // copy users, accounts, bills, orders, statements, meta
+        copyIfExists(p("users"), cp.resolve("users"));
+        copyIfExists(p("accounts"), cp.resolve("accounts"));
+        copyIfExists(p("bills"), cp.resolve("bills"));
+        copyIfExists(p("orders"), cp.resolve("orders"));
+        copyIfExists(p("statements"), cp.resolve("statements"));
+        copyIfExists(p("meta"), cp.resolve("meta"));
+
+        System.out.println("Checkpoint created at: " + cp.toAbsolutePath());
+    } catch (Exception e) {
+        System.err.println("Checkpoint creation failed: " + e.getMessage());
+    }
+}
+
+public void restoreCheckpoint() throws IOException {
+    Path cp = checkpointDir();
+    if (!Files.exists(cp)) throw new FileNotFoundException("Checkpoint not found: " + cp);
+
+    // delete current data folders (except _checkpoint)
+    deleteIfExists(p("users"));
+    deleteIfExists(p("accounts"));
+    deleteIfExists(p("bills"));
+    deleteIfExists(p("orders"));
+    deleteIfExists(p("statements"));
+    deleteIfExists(p("meta"));
+
+    // restore from checkpoint
+    copyIfExists(cp.resolve("users"), p("users"));
+    copyIfExists(cp.resolve("accounts"), p("accounts"));
+    copyIfExists(cp.resolve("bills"), p("bills"));
+    copyIfExists(cp.resolve("orders"), p("orders"));
+    copyIfExists(cp.resolve("statements"), p("statements"));
+    copyIfExists(cp.resolve("meta"), p("meta"));
+
+    System.out.println("Checkpoint restored.");
+}
+
+private void copyIfExists(Path src, Path dst) throws IOException {
+    if (!Files.exists(src)) return;
+    Files.walk(src).forEach(from -> {
+        try {
+            Path to = dst.resolve(src.relativize(from));
+            if (Files.isDirectory(from)) {
+                Files.createDirectories(to);
+            } else {
+                Files.createDirectories(to.getParent());
+                Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+    });
+}
+
+private void deleteIfExists(Path path) throws IOException {
+    if (!Files.exists(path)) return;
+    Files.walk(path)
+            .sorted((a, b) -> b.compareTo(a)) // delete children first
+            .forEach(p -> {
+                try { Files.deleteIfExists(p); } catch (IOException ignored) {}
+            });
+}
+
 
 }

@@ -33,6 +33,7 @@ public class BankingFacade {
         BillManager.getInstance().clearAll();
         StandingOrderManager.getInstance().clearAll();
         StorageManager.getInstance().loadAll();
+        currentDate = StorageManager.getInstance().loadCurrentDateOrDefault();
         Customer bank = UserManager.getInstance().findCustomerByVat("bank");
 if (bank == null) {
     Company bankCo = new Company("bank", "bank", "bank", "Bank");
@@ -93,6 +94,23 @@ public Bill issueBill(Company company,
 
     BillManager.getInstance().addBill(bill);
     return bill;
+}
+public void resetToRealTodayAndDiscardSimulated() {
+    try {
+        // 1) restore baseline files
+        StorageManager.getInstance().restoreCheckpoint();
+
+        // 2) reload managers from restored CSV
+        loadAll();
+
+        // 3) jump date to REAL today (χωρίς να τρέξουμε ημέρες => χωρίς τόκους/κινήσεις)
+        this.currentDate = java.time.LocalDate.now();
+
+        // 4) (προαιρετικό) γράψε το meta/date.txt ως σήμερα
+        // StorageManager.getInstance().saveAll(currentDate);  // ΜΗΝ το κάνεις αν δεν θες save
+    } catch (Exception e) {
+        throw new RuntimeException("Reset failed: " + e.getMessage(), e);
+    }
 }
 
 public void createPaymentOrder(Customer customer,
@@ -244,7 +262,7 @@ public void createTransferOrder(Customer customer,
     if (c == null) throw new IllegalArgumentException("Unknown customer VAT: " + customerVat);
 
     Bill b = new Bill(issuer.getVatNumber(), customerVat, amount, issueDate, dueDate);
-    BillManager.getInstance().addBill(b); // πρέπει να υπάρχει addBill, αλλιώς addBills(list)
+    BillManager.getInstance().addBill(b);
     return b;
 }
 
@@ -266,6 +284,8 @@ public void withdraw(Customer customer, String fromIban, double amount, String r
         new Withdrawall(customer, from, reason, amount)
     );
 }
+
+
 
 public void transfer(Customer customer,
                      String fromIban,
@@ -350,6 +370,25 @@ public void deposit(Customer customer, String toIban, double amount, String reas
         new Deposit(customer, to, reason, amount)
     );
 }
+
+public void resetPassword(String username, String oldPassword, String newPassword) {
+    if (username == null || username.isBlank())
+        throw new IllegalArgumentException("Username is required");
+    if (newPassword == null || newPassword.isBlank())
+        throw new IllegalArgumentException("New password is required");
+
+    User u = UserManager.getInstance().findUserByUsername(username);
+    if (u == null)
+        throw new IllegalArgumentException("User not found");
+
+    // έλεγχος παλιού κωδικού (για απλό reset χωρίς email)
+    if (oldPassword == null || !u.login(oldPassword))
+        throw new IllegalArgumentException("Old password is incorrect");
+
+    
+    u.setPassword(newPassword);
+}
+
 
 public List<Bill> issuedBillsFor(Company c) {
     return BillManager.getInstance().getBillsIssuedBy(c.getVatNumber());

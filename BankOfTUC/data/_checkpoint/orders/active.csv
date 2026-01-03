@@ -1,0 +1,1 @@
+type:TransferOrder,orderId:4c68bbf1-26ec-4db0-b086-87c8fdd96361,title:Standing Transfer,description:,customer:067688302,amount:10.0,startDate:2026-01-03,endDate:2027-01-03,fee:0.0,failedAttempts:0,chargeAccount:GR100202503111546001,creditAccount:GR200202503131719402,frequencyInMonths:1,dayOfMonth:3

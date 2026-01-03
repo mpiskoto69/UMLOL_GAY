@@ -13,6 +13,8 @@ public class SimulationPanel extends JPanel {
 
     private final JLabel dateLabel = new JLabel();
     private final JButton nextDayBtn = new JButton("Next day");
+    private final JButton resetBtn = new JButton("Reset to Today");
+
    
     private final JTextArea logArea = new JTextArea(10, 60);
     private final JTextField targetDateField = new JTextField(10); // yyyy-mm-dd
@@ -42,6 +44,8 @@ public class SimulationPanel extends JPanel {
 actions.add(new JLabel("Target (yyyy-mm-dd):"));
 actions.add(targetDateField);
 actions.add(goBtn);
+actions.add(resetBtn);
+
 
         // Log
         logArea.setEditable(false);
@@ -58,7 +62,7 @@ actions.add(goBtn);
         // Wire events
         nextDayBtn.addActionListener(e -> advanceDays(1));
         goBtn.addActionListener(e -> goToDate());
-        
+        resetBtn.addActionListener(e -> onReset());
 
         refresh();
     }
@@ -120,5 +124,25 @@ private void logReport(managers.StandingOrderManager.ExecutionReport rep) {
         logArea.append(msg + "\n");
         logArea.setCaretPosition(logArea.getDocument().getLength());
     }
-    
+ private void onReset() {
+    int r = JOptionPane.showConfirmDialog(
+            this,
+            "Reset to real today and discard ALL simulated changes?",
+            "Reset",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE
+    );
+    if (r != JOptionPane.YES_OPTION) return;
+
+    try {
+        facade.resetToRealTodayAndDiscardSimulated();
+        log("RESET done. Today is: " + facade.getCurrentDate());
+
+        if (afterAdvance != null) afterAdvance.run();
+        refresh();
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, ex.getMessage(), "Reset failed", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
 }
