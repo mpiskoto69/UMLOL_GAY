@@ -94,8 +94,27 @@ public void clearAll() {
 }
 public List<Bill> getBillsIssuedBy(String issuerVat) {
     List<Bill> out = new ArrayList<>();
+    for (Bill b : bills) {               // όπου "bills" η λίστα σου
+        if (b != null && issuerVat.equals(b.getIssuerVAT())) {
+            out.add(b);
+        }
+    }
+    return out;
+}
+
+public List<Bill> getBillsIssuedByStatus(String issuerVat, Boolean paid) {
+    List<Bill> out = new ArrayList<>();
     for (Bill b : bills) {
-        if (b != null && issuerVat.equals(b.getIssuerVAT())) out.add(b);
+        if (b == null) continue;
+        if (!issuerVat.equals(b.getIssuerVAT())) continue;
+
+        if (paid == null) { // null = ALL
+            out.add(b);
+        } else if (paid && b.isPaid()) {
+            out.add(b);
+        } else if (!paid && !b.isPaid()) {
+            out.add(b);
+        }
     }
     return out;
 }
@@ -107,4 +126,5 @@ public List<Bill> getBillsToPayBy(String recipientVat) {
     }
     return out;
 }
+
 }

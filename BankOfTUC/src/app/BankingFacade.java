@@ -1,10 +1,8 @@
 package app;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import accounts.BankAccount;
 import accounts.MasterAccount;
 import bank.storage.StorageManager;
@@ -16,7 +14,7 @@ import transactions.Payment;
 import transactions.Transfer;
 import transactions.Withdrawall;
 import transactions.protocol.TransferProtocol;
-import bank.storage.Bill;  
+import bank.storage.Bill;
 import users.*;
 
 public class BankingFacade {
@@ -65,6 +63,36 @@ if (MasterAccount.getInstance().getPrimaryHolder() == null) {
         throw new IllegalArgumentException("Λάθος username ή password");
     }
     return u;
+}
+public Bill issueBill(Company company,
+                      String customerVat,
+                      double amount,
+                      LocalDate dueDate) {
+
+    if (company == null) throw new IllegalArgumentException("Company is required");
+    if (customerVat == null || customerVat.isBlank()) throw new IllegalArgumentException("Customer VAT is required");
+    if (amount <= 0) throw new IllegalArgumentException("Amount must be > 0");
+    if (dueDate == null) throw new IllegalArgumentException("Due date is required");
+
+    // (Optional) validate customer exists
+    Customer c = UserManager.getInstance().findCustomerByVat(customerVat);
+    if (c == null) throw new IllegalArgumentException("Unknown customer VAT: " + customerVat);
+
+    // ensure issuer has a business account (your rule)
+    if (AccountManager.getInstance().findBusinessAccountByVat(company.getVatNumber()) == null) {
+        throw new IllegalArgumentException("Company has no business account (cannot issue bills).");
+    }
+
+    Bill bill = new Bill(
+            company.getVatNumber(),
+            customerVat,
+            amount,
+            currentDate,
+            dueDate
+    );
+
+    BillManager.getInstance().addBill(bill);
+    return bill;
 }
 
 public void createPaymentOrder(Customer customer,
@@ -202,6 +230,24 @@ public void createTransferOrder(Customer customer,
         }
         return b;
     }
+
+    public Bill createBill(Company issuer, String customerVat, double amount, LocalDate dueDate) {
+    if (issuer == null) throw new IllegalArgumentException("Issuer is required");
+    if (customerVat == null || customerVat.isBlank()) throw new IllegalArgumentException("Customer VAT required");
+    if (amount <= 0) throw new IllegalArgumentException("Amount must be > 0");
+    if (dueDate == null) throw new IllegalArgumentException("Due date required");
+
+    LocalDate issueDate = getCurrentDate();
+
+    // sanity: customer must exist
+    Customer c = UserManager.getInstance().findCustomerByVat(customerVat);
+    if (c == null) throw new IllegalArgumentException("Unknown customer VAT: " + customerVat);
+
+    Bill b = new Bill(issuer.getVatNumber(), customerVat, amount, issueDate, dueDate);
+    BillManager.getInstance().addBill(b); // πρέπει να υπάρχει addBill, αλλιώς addBills(list)
+    return b;
+}
+
   
 public void withdraw(Customer customer, String fromIban, double amount, String reason) {
     if (customer == null) throw new IllegalArgumentException("Customer is required");

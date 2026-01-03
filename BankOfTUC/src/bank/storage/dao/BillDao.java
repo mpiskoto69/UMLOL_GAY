@@ -15,12 +15,35 @@ public class BillDao {
         this.folder = folder;
     }
 
-    public List<Bill> loadAll() throws IOException {
-        List<Bill> result = new ArrayList<>();
-        loadInto(result, folder.resolve("issued.csv"), false);
-        loadInto(result, folder.resolve("paid.csv"), true);
-        return result;
+  public List<Bill> loadAll() throws IOException {
+    List<Bill> result = new ArrayList<>();
+    if (!Files.exists(folder)) return result;
+
+    try (DirectoryStream<Path> stream = Files.newDirectoryStream(folder, "*.csv")) {
+        for (Path file : stream) {
+            boolean markPaidFile = file.getFileName().toString().equalsIgnoreCase("paid.csv");
+
+            try (BufferedReader r = Files.newBufferedReader(file)) {
+                String line;
+                while ((line = r.readLine()) != null) {
+                    if (line.isBlank()) continue;
+
+                    Bill b = new Bill();
+                    try {
+                        b.unmarshal(line);          // parse
+                        if (markPaidFile) b.markAsPaid();
+                        result.add(b);
+                    } catch (Exception ex) {
+                        // ΚΑΝΕ LOG για να βλέπεις τι πετάει έξω
+                        System.err.println("Bad bill line in " + file.getFileName() + ": " + line);
+                    }
+                }
+            }
+        }
     }
+    return result;
+}
+
 
     private void loadInto(List<Bill> out, Path file, boolean markPaid) throws IOException {
         if (!Files.exists(file)) return;
@@ -35,7 +58,8 @@ public class BillDao {
                     if (markPaid) b.markAsPaid();
                     out.add(b);
                 } catch (Exception ex) {
-                    // skip or log malformed
+ System.err.println("Malformed bill line: " + line);
+    System.err.println("Reason: " + ex.getMessage());
                 }
             }
         }
