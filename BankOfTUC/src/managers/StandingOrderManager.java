@@ -71,7 +71,6 @@ public ExecutionReport executeDueOrdersWithReport(LocalDate today) {
     for (StandingOrder order : standingOrders) {
         if (order == null) continue;
 
-        // ΣΗΜΑΝΤΙΚΟ: χρησιμοποίησε το "for today"
         if (order.isDue(today) && !order.hasExceededMaxFailuresFor(today)) {
             due.add(order);
         }

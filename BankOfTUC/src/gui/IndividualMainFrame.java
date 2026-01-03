@@ -43,10 +43,38 @@ public class IndividualMainFrame extends JFrame {
 
         JButton logoutBtn = new JButton("Logout");
         logoutBtn.addActionListener(e -> {
-            try { facade.saveAll(); } catch (Exception ignored) {}
-            dispose();
-            SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
-        });
+
+    int r = JOptionPane.showConfirmDialog(
+            IndividualMainFrame.this,
+            "Save changes before logout?",
+            "Logout",
+            JOptionPane.YES_NO_CANCEL_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+    );
+
+    if (r == JOptionPane.CANCEL_OPTION) {
+        return; // ❌ ακύρωση logout
+    }
+
+    if (r == JOptionPane.YES_OPTION) {
+        try {
+            facade.saveAll(); // ✅ σώζει ΟΛΑ + ημερομηνία
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                    IndividualMainFrame.this,
+                    "Failed to save data:\n" + ex.getMessage(),
+                    "Save Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return; // ❌ μην κάνεις logout αν απέτυχε το save
+        }
+    }
+
+    // ✅ NO ή YES → logout κανονικά
+    dispose();
+    SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
+});
+
 
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         right.add(dateLabel);

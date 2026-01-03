@@ -47,7 +47,34 @@ dateLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 
 JButton logoutBtn = new JButton("Logout");
 logoutBtn.addActionListener(e -> {
-    try { facade.saveAll(); } catch (Exception ignored) {}
+
+    int r = JOptionPane.showConfirmDialog(
+            AdminMainFrame.this,
+            "Save changes before logout?",
+            "Logout",
+            JOptionPane.YES_NO_CANCEL_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+    );
+
+    if (r == JOptionPane.CANCEL_OPTION) {
+        return; // ❌ ακύρωση logout
+    }
+
+    if (r == JOptionPane.YES_OPTION) {
+        try {
+            facade.saveAll(); // ✅ σώζει ΟΛΑ + ημερομηνία
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                    AdminMainFrame.this,
+                    "Failed to save data:\n" + ex.getMessage(),
+                    "Save Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return; // ❌ μην κάνεις logout αν απέτυχε το save
+        }
+    }
+
+    // ✅ NO ή YES → logout κανονικά
     dispose();
     SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
 });
