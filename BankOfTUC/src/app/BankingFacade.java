@@ -1,11 +1,12 @@
 package app;
+import accounts.BankAccount;
+import accounts.MasterAccount;
+import bank.storage.Bill;
+import bank.storage.StorageManager;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import accounts.BankAccount;
-import accounts.MasterAccount;
-import bank.storage.StorageManager;
 import managers.*;
 import standingOrders.PaymentOrder;
 import standingOrders.TransferOrder;
@@ -14,7 +15,6 @@ import transactions.Payment;
 import transactions.Transfer;
 import transactions.Withdrawall;
 import transactions.protocol.TransferProtocol;
-import bank.storage.Bill;
 import users.*;
 
 public class BankingFacade {
@@ -377,6 +377,7 @@ public List<Bill> billsToPayFor(Company c) {
     // --- simulation ---
     public StandingOrderManager.ExecutionReport nextDayWithReport() {
     currentDate = currentDate.plusDays(1);
+     StorageManager.getInstance().loadIssuedBills("bills/" + currentDate + ".csv");
 
     AccountManager.getInstance().applyDailyInterestToAllAccounts();
 
@@ -393,6 +394,7 @@ public List<Bill> billsToPayFor(Company c) {
 
     public void nextDay() {
         currentDate = currentDate.plusDays(1);
+      StorageManager.getInstance().loadIssuedBills("bills/" + currentDate + ".csv");
 
         // 1) accrue daily interest
         AccountManager.getInstance().applyDailyInterestToAllAccounts();

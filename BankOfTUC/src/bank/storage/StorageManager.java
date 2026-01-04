@@ -121,7 +121,18 @@ private String resolveDataPath() {
             System.err.println("Cannot load orders: " + ex.getMessage());
         }
     }
-
+  public void loadIssuedBills(String fileName) {
+		StorableList<Bill> issued = new StorableList<>();
+		try {
+			loadObject(issued, fileName);
+			// leave isPaid==false (default from unmarshal ctor)
+			BillManager.getInstance().addBills(issued);
+		} catch (IOException e) {
+			System.out.println("Could not open issued file: " + e.getMessage());
+		} catch (UnMarshalingException e) {
+			System.out.println("Could not parse issued data: " + e.getMessage());
+		}
+	}
     //  Save 
    public void saveAll(LocalDate simulatedToday) {
     storeUsers("users/users.csv");
