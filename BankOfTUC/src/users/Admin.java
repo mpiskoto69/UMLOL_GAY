@@ -20,7 +20,6 @@ public class Admin extends User {
 
     @Override
     public String marshal() {
-        // keys in the order: type, legalName, userName, password
         return String.join(",",
                 "type:Admin",
                 "legalName:" + legalName,

@@ -1,15 +1,8 @@
 package standingOrders;
-
 import java.time.LocalDate;
-
 import bank.storage.Storable;
 import users.Customer;
 
-/**
- * Standing order base class.
- * - Tracks failures per due-date attempt (3 failures => skip this attempt)
- * - Does NOT kill the order permanently; next cycle can attempt again.
- */
 public abstract class StandingOrder implements Storable {
 
     protected String id;
@@ -21,9 +14,7 @@ public abstract class StandingOrder implements Storable {
     // Failure policy
     protected int failedAttempts = 0;
     protected static final int MAX_ATTEMPTS = 3;
-
     protected LocalDate failureBucketDate = null;
-
     protected double fee;
     protected Customer customer;
 
@@ -106,10 +97,6 @@ public abstract class StandingOrder implements Storable {
         return failedAttempts >= MAX_ATTEMPTS;
     }
 
-    /**
-     * Backward compatible method: "ever exceeded" (used by storage splitting).
-     * NOTE: Prefer hasExceededMaxFailuresFor(today) for runtime decisions.
-     */
     public boolean hasExceededMaxFailures() {
         return failedAttempts >= MAX_ATTEMPTS;
     }

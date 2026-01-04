@@ -1,16 +1,14 @@
 package standingOrders;
-
-import java.time.LocalDate;
-
 import accounts.BankAccount;
+import bank.storage.Bill;
 import bank.storage.UnMarshalingException;
+import java.time.LocalDate;
 import managers.AccountManager;
 import managers.BillManager;
 import managers.TransactionManager;
 import managers.UserManager;
 import transactions.Payment;
 import users.Customer;
-import bank.storage.Bill;
 public class PaymentOrder extends StandingOrder {
     private BankAccount fromAccount;
     private String rfCode;

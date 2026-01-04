@@ -36,14 +36,11 @@ public class TransferOrder extends StandingOrder {
     public boolean isDue(LocalDate today) {
         if (!isActive(today)) return false;
 
-        // basic guards
         if (frequencyInMonths <= 0) return false;
         if (executionDay <= 0 || executionDay > 31) return false;
 
-        // Ημέρα του μήνα πρέπει να ταιριάζει
         if (today.getDayOfMonth() != executionDay) return false;
 
-        // Υπολογίζουμε αν έχει περάσει ακέραιος αριθμός μηνών από την αρχή
         LocalDate anchorStart = LocalDate.of(getStartDate().getYear(), getStartDate().getMonth(), executionDay);
         LocalDate anchorToday = LocalDate.of(today.getYear(), today.getMonth(), executionDay);
 
@@ -53,7 +50,6 @@ public class TransferOrder extends StandingOrder {
 
     @Override
     public void execute(LocalDate today) {
-        // (Optional) If you want: do not attempt if already failed 3 times
         if (hasExceededMaxFailures()) return;
 
         if (customer == null || fromAccount == null || toAccount == null) {
@@ -91,7 +87,6 @@ public class TransferOrder extends StandingOrder {
 
     @Override
     public String marshal() {
-        // Persist failedAttempts so it survives restarts
         String customerVat = (customer != null) ? customer.getVatNumber() : "";
         String chargeIban = (fromAccount != null) ? fromAccount.getIban() : "";
         String creditIban = (toAccount != null) ? toAccount.getIban() : "";

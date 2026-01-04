@@ -19,7 +19,6 @@ public class Individual extends Customer {
 
 	@Override
 	public String marshal() {
-		// type,legalName,userName,password,vatNumber
 		return String.join(",",
 				"type:Individual",
 				"legalName:" + legalName,
