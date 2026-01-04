@@ -58,7 +58,6 @@ public class StandingOrdersPanel extends JPanel {
 
         refreshBtn.addActionListener(e -> refresh());
 
-        // TODO: wire dialogs when you create them:
         
         createTransferBtn.addActionListener(e -> onCreateTransfer());
         createPaymentBtn.addActionListener(e -> onCreatePayment());
@@ -88,8 +87,6 @@ public class StandingOrdersPanel extends JPanel {
         }
 
         if (mine.isEmpty()) {
-            // optional: show empty state row
-            // model.addRow(new Object[]{"(none)", "", "", "", "", "", ""});
         }
     }
 

@@ -15,51 +15,34 @@ public class BillDao {
         this.folder = folder;
     }
 
-  public List<Bill> loadAll() throws IOException {
-    List<Bill> result = new ArrayList<>();
-    if (!Files.exists(folder)) return result;
+    /** Loads ONLY the canonical files: issued.csv + paid.csv */
+    public List<Bill> loadAll() throws IOException {
+        List<Bill> result = new ArrayList<>();
+        if (folder == null) return result;
 
-    try (DirectoryStream<Path> stream = Files.newDirectoryStream(folder, "*.csv")) {
-        for (Path file : stream) {
-            boolean markPaidFile = file.getFileName().toString().equalsIgnoreCase("paid.csv");
+        loadInto(result, folder.resolve("issued.csv"), false);
+        loadInto(result, folder.resolve("paid.csv"), true);
 
-            try (BufferedReader r = Files.newBufferedReader(file)) {
-                String line;
-                while ((line = r.readLine()) != null) {
-                    if (line.isBlank()) continue;
-
-                    Bill b = new Bill();
-                    try {
-                        b.unmarshal(line);          // parse
-                        if (markPaidFile) b.markAsPaid();
-                        result.add(b);
-                    } catch (Exception ex) {
-                        // ΚΑΝΕ LOG για να βλέπεις τι πετάει έξω
-                        System.err.println("Bad bill line in " + file.getFileName() + ": " + line);
-                    }
-                }
-            }
-        }
+        return result;
     }
-    return result;
-}
-
 
     private void loadInto(List<Bill> out, Path file, boolean markPaid) throws IOException {
-        if (!Files.exists(file)) return;
+        if (out == null) return;
+        if (file == null || !Files.exists(file)) return;
 
         try (BufferedReader r = Files.newBufferedReader(file)) {
             String line;
             while ((line = r.readLine()) != null) {
                 if (line.isBlank()) continue;
+
                 Bill b = new Bill();
                 try {
                     b.unmarshal(line);
                     if (markPaid) b.markAsPaid();
                     out.add(b);
                 } catch (Exception ex) {
- System.err.println("Malformed bill line: " + line);
-    System.err.println("Reason: " + ex.getMessage());
+                    System.err.println("Bad bill line in " + file.getFileName() + ": " + line);
+                    System.err.println("Reason: " + ex.getMessage());
                 }
             }
         }
@@ -72,18 +55,22 @@ public class BillDao {
         Path paid   = folder.resolve("paid.csv");
 
         try (
-    BufferedWriter iw = Files.newBufferedWriter(
-        issued,
-        StandardOpenOption.CREATE,
-        StandardOpenOption.TRUNCATE_EXISTING
-    );
-    BufferedWriter pw = Files.newBufferedWriter(
-        paid,
-        StandardOpenOption.CREATE,
-        StandardOpenOption.TRUNCATE_EXISTING
-    )
-){
+                BufferedWriter iw = Files.newBufferedWriter(
+                        issued,
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING
+                );
+                BufferedWriter pw = Files.newBufferedWriter(
+                        paid,
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING
+                )
+        ) {
+            if (bills == null) return;
+
             for (Bill b : bills) {
+                if (b == null) continue;
+
                 if (b.isPaid()) {
                     pw.write(b.marshal());
                     pw.newLine();

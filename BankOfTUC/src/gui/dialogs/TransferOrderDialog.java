@@ -25,7 +25,6 @@ public class TransferOrderDialog extends JDialog {
 
     private Result result = null;
 
-    // Fields
     private final JTextField titleField = new JTextField(22);
     private final JTextField descField = new JTextField(22);
 
@@ -48,7 +47,6 @@ public class TransferOrderDialog extends JDialog {
 
         buildUI();
 
-        // defaults
         titleField.setText("Standing Transfer");
         descField.setText("");
         startDateField.setText(today.toString());

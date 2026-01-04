@@ -38,6 +38,7 @@ public class BankingFacade {
 if (bank == null) {
     Company bankCo = new Company("bank", "bank", "bank", "Bank");
     UserManager.getInstance().addUser(bankCo);
+    this.currentDate = StorageManager.getInstance().loadCurrentDateOrDefault();
 }
 
 // Ensure master has holder
@@ -65,6 +66,7 @@ if (MasterAccount.getInstance().getPrimaryHolder() == null) {
     }
     return u;
 }
+
 public Bill issueBill(Company company,
                       String customerVat,
                       double amount,
@@ -95,27 +97,22 @@ public Bill issueBill(Company company,
     BillManager.getInstance().addBill(bill);
     return bill;
 }
-public void resetToRealTodayAndDiscardSimulated() {
+public void resetToToday() {
     try {
-        // 1) restore baseline files
-        StorageManager.getInstance().restoreCheckpoint();
+        StorageManager.getInstance().restoreCheckpointAndReload();
 
-        // 2) reload managers from restored CSV
-        loadAll();
+        
+        this.currentDate = LocalDate.now();
 
-        // 3) jump date to REAL today (χωρίς να τρέξουμε ημέρες => χωρίς τόκους/κινήσεις)
-        this.currentDate = java.time.LocalDate.now();
+        StorageManager.getInstance().saveCurrentDatePublic(this.currentDate);
 
-        // 4) (προαιρετικό) γράψε το meta/date.txt ως σήμερα
-        // StorageManager.getInstance().saveAll(currentDate);  // ΜΗΝ το κάνεις αν δεν θες save
     } catch (Exception e) {
         throw new RuntimeException("Reset failed: " + e.getMessage(), e);
     }
 }
 
-public void createPaymentOrder(Customer customer,
-                               String title,
-                               String description,
+
+public void createPaymentOrder(Customer customer,String title, String description,
                                String fromIban,
                                String rfCode,
                                double maxAmount,
@@ -276,7 +273,7 @@ public void withdraw(Customer customer, String fromIban, double amount, String r
     BankAccount from = AccountManager.getInstance().findByIban(fromIban);
     if (from == null) throw new IllegalArgumentException("Account not found: " + fromIban);
 
-    // (optional, but bank-grade) access check here too
+    //  access check here too
     if (!AccountManager.getInstance().hasAccessToAccount(customer, from))
         throw new IllegalArgumentException("No access to this account");
 
@@ -305,11 +302,10 @@ public void transfer(Customer customer,
         from = AccountManager.getInstance().findByIban(fromIban);
         to   = AccountManager.getInstance().findByIban(toIban);
     } catch (IllegalArgumentException ex) {
-        // μήνυμα από findByIban
         throw ex;
     }
 
-    // access check (ΣΗΜΑΝΤΙΚΟ)
+    // access check 
     if (!AccountManager.getInstance().hasAccessToAccount(customer, from))
         throw new IllegalArgumentException("No access to source account");
 
@@ -324,20 +320,18 @@ public void payBill(Customer customer, String fromIban, String rfCode) {
     if (fromIban == null || fromIban.isBlank()) throw new IllegalArgumentException("From IBAN is required");
     if (rfCode == null || rfCode.isBlank()) throw new IllegalArgumentException("RF is required");
 
-    // 1) find payer account
     BankAccount payer = AccountManager.getInstance().findByIban(fromIban);
     if (payer == null) throw new IllegalArgumentException("Account not found: " + fromIban);
 
     if (!AccountManager.getInstance().hasAccessToAccount(customer, payer))
         throw new IllegalArgumentException("No access to this account");
 
-    // 2) find bill (must be due/unpaid)
     Bill bill = findBillForPayment(rfCode); // uses currentDate inside facade
     // bill has issuer VAT; payee is issuer's business account
     BankAccount payee = AccountManager.getInstance().findBusinessAccountByVat(bill.getIssuerVAT());
     if (payee == null) throw new IllegalArgumentException("Issuer business account not found");
 
-    // 3) execute payment: amount + (optional fee=0 εδώ)
+    // 3) execute payment
     TransactionManager.getInstance().registerTransaction(
         new Payment(
             customer,
@@ -371,23 +365,6 @@ public void deposit(Customer customer, String toIban, double amount, String reas
     );
 }
 
-public void resetPassword(String username, String oldPassword, String newPassword) {
-    if (username == null || username.isBlank())
-        throw new IllegalArgumentException("Username is required");
-    if (newPassword == null || newPassword.isBlank())
-        throw new IllegalArgumentException("New password is required");
-
-    User u = UserManager.getInstance().findUserByUsername(username);
-    if (u == null)
-        throw new IllegalArgumentException("User not found");
-
-    // έλεγχος παλιού κωδικού (για απλό reset χωρίς email)
-    if (oldPassword == null || !u.login(oldPassword))
-        throw new IllegalArgumentException("Old password is incorrect");
-
-    
-    u.setPassword(newPassword);
-}
 
 
 public List<Bill> issuedBillsFor(Company c) {

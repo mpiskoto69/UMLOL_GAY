@@ -76,7 +76,6 @@ public class AccountsAdminPanel extends JPanel {
         countLabel.setText("Count: " + all.size());
     }
 
-    /** Optional helper if later you want to open statements */
     public String getSelectedIban() {
         int viewRow = table.getSelectedRow();
         if (viewRow < 0) return null;
@@ -87,11 +86,8 @@ public class AccountsAdminPanel extends JPanel {
     if (iban == null) return "";
     iban = iban.trim();
 
-    // Expecting: GR + typeCode + ...
     if (!iban.startsWith("GR") || iban.length() < 5) return "Unknown";
 
-    // You generate: "GR" + typeCode + 15 digits
-    // If your typeCode is 3 digits (e.g. 100/200):
     String code = iban.substring(2, 5);
 
     return switch (code) {

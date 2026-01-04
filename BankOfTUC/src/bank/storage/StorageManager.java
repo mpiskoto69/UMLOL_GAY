@@ -29,19 +29,15 @@ private Path metaFile() {
 
 
 private String resolveDataPath() {
-    // 1) try ./data
     File d1 = new File("./data");
     if (d1.exists() && d1.isDirectory()) return "./data/";
 
-    // 2) try ../data (common when running from bin/)
     File d2 = new File("../data");
     if (d2.exists() && d2.isDirectory()) return "../data/";
 
-    // 3) try BankOfTUC/data (if launched from workspace root)
     File d3 = new File("./BankOfTUC/data");
     if (d3.exists() && d3.isDirectory()) return "./BankOfTUC/data/";
 
-    // fallback: keep default, but you'll get the same "Could not open file"
     return "./data/";
 }
 
@@ -60,7 +56,7 @@ private String resolveDataPath() {
         return Paths.get(storagePath, parts);
     }
 
-    // --- Load ---
+    // Load 
     public void loadAll() {
     System.out.println("Storage path=" + storagePath);
      createCheckpointIfMissing();
@@ -126,7 +122,7 @@ private String resolveDataPath() {
         }
     }
 
-    // --- Save ---
+    //  Save 
    public void saveAll(LocalDate simulatedToday) {
     storeUsers("users/users.csv");
     storeAccounts("accounts/accounts.csv");
@@ -176,7 +172,6 @@ private String resolveDataPath() {
         }
     }
 
-    // helper
     private <T extends Storable> StorableList<T> toStorableList(List<T> list) {
         StorableList<T> sl = new StorableList<>();
         sl.addAll(list);
@@ -186,7 +181,6 @@ private String resolveDataPath() {
     
    
 	public void storeAllStatements(String folderName) {
-		// ensure directory exists
 		Path dir = Paths.get(storagePath, folderName);
 		try {
 			Files.createDirectories(dir);
@@ -195,7 +189,6 @@ private String resolveDataPath() {
 			return;
 		}
 
-		// for each account, dump its statements to <iban>.csv
 		for (BankAccount acct : AccountManager.getInstance().getAllAccounts()) {
 			String iban = acct.getIban();
 			storeStatements(folderName, iban);
@@ -217,6 +210,9 @@ private String resolveDataPath() {
                 StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING);
     } catch (Exception ignored) {}
+}
+public void saveCurrentDatePublic(LocalDate d) {
+    saveCurrentDate(d);
 }
 
 public LocalDate loadCurrentDateOrDefault() {
@@ -255,7 +251,6 @@ public <T extends Storable> void loadObject(T storable, String fileName) throws 
     }
     storable.unmarshal(sb.toString());
 }
-// --- Statements helpers (required by storeAllStatements/loadAllStatements) ---
 
 public void storeStatements(String folderName, String iban) {
     Path dir = Paths.get(storagePath, folderName);
@@ -288,20 +283,22 @@ public void loadStatements(String folderName, String iban) {
     if (!Files.exists(file)) return;
 
     try (BufferedReader r = Files.newBufferedReader(file)) {
-        String line;
         BankAccount acct = AccountManager.getInstance().findByIban(iban);
+
+        acct.getStatements().clear();
+
+        String line;
         while ((line = r.readLine()) != null) {
             if (line.isBlank()) continue;
             AccountStatement s = new AccountStatement();
             s.unmarshal(line);
             acct.addStatement(s);
         }
-    } catch (IOException e) {
-        System.err.println("I/O error reading " + file + ": " + e.getMessage());
-    } catch (UnMarshalingException e) {
-        System.err.println("Malformed statement in " + file + ": " + e.getMessage());
+    } catch (Exception e) {
+        System.err.println("loadStatements error: " + e.getMessage());
     }
 }
+
 
 private File[] listCsvFiles(String folderName) {
     File dir = new File(storagePath + folderName);
@@ -309,10 +306,8 @@ private File[] listCsvFiles(String folderName) {
 
     return dir.listFiles((d, name) -> name.endsWith(".csv"));
 }
-// --- CHECKPOINT (snapshot) support ---
 
 private Path checkpointDir() {
-    // π.χ. ./data/_checkpoint
     return Paths.get(storagePath, "_checkpoint");
 }
 
@@ -341,7 +336,7 @@ public void restoreCheckpoint() throws IOException {
     Path cp = checkpointDir();
     if (!Files.exists(cp)) throw new FileNotFoundException("Checkpoint not found: " + cp);
 
-    // delete current data folders (except _checkpoint)
+    // delete current data folders 
     deleteIfExists(p("users"));
     deleteIfExists(p("accounts"));
     deleteIfExists(p("bills"));
@@ -358,6 +353,29 @@ public void restoreCheckpoint() throws IOException {
     copyIfExists(cp.resolve("meta"), p("meta"));
 
     System.out.println("Checkpoint restored.");
+}
+
+public void restoreCheckpointAndReload() throws IOException {
+    restoreCheckpoint();
+
+    // ⚠️ καθάρισε τα πάντα από τη μνήμη
+    UserManager.getInstance().clearAll();
+    AccountManager.getInstance().clearAll();
+    BillManager.getInstance().clearAll();
+    StandingOrderManager.getInstance().clearAll();
+
+    // 🔄 φόρτωσε ΞΑΝΑ από τα restored αρχεία
+    loadAll();
+}
+public void resetToRealToday() {
+    try {
+        restoreCheckpoint();                // 1. restore snapshot
+        LocalDate realToday = LocalDate.now();
+        saveCurrentDate(realToday);         // 2. γράψε ΠΡΑΓΜΑΤΙΚΗ ημερομηνία
+        System.out.println("RESET done. Today is: " + realToday);
+    } catch (Exception e) {
+        throw new RuntimeException("Reset failed", e);
+    }
 }
 
 private void copyIfExists(Path src, Path dst) throws IOException {
@@ -379,12 +397,18 @@ private void copyIfExists(Path src, Path dst) throws IOException {
 
 private void deleteIfExists(Path path) throws IOException {
     if (!Files.exists(path)) return;
+
     Files.walk(path)
-            .sorted((a, b) -> b.compareTo(a)) // delete children first
-            .forEach(p -> {
-                try { Files.deleteIfExists(p); } catch (IOException ignored) {}
-            });
+        .sorted((a, b) -> b.compareTo(a))
+        .forEach(p -> {
+            try {
+                Files.deleteIfExists(p);
+            } catch (IOException ex) {
+                System.err.println("DELETE FAILED: " + p + " -> " + ex.getMessage());
+            }
+        });
 }
+
 
 
 }

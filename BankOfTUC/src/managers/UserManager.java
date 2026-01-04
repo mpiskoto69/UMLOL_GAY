@@ -58,6 +58,14 @@ public User findUserByUsername(String username) {
     public void addUsers(StorableList<User> users) {
         this.users.addAll(users);
     }
+
+public void resetPassword(String username, String newPassword) {
+    User u = findUserByUsername(username);
+    if (u == null)
+        throw new IllegalArgumentException("User not found");
+
+    u.setPassword(newPassword);
+}
 public void clearAll() {
     users.clear();
 }

@@ -22,10 +22,6 @@ public abstract class StandingOrder implements Storable {
     protected int failedAttempts = 0;
     protected static final int MAX_ATTEMPTS = 3;
 
-    /**
-     * Tracks which scheduled attempt the failures belong to.
-     * If the order becomes due for a NEW cycle/date, failures reset.
-     */
     protected LocalDate failureBucketDate = null;
 
     protected double fee;
@@ -73,15 +69,10 @@ public abstract class StandingOrder implements Storable {
             && !today.isAfter(endDate);
     }
 
-    /**
-     * Returns true if the order should be attempted on 'today' (based on schedule).
-     */
+    
     public abstract boolean isDue(LocalDate today);
 
-    /**
-     * Performs the action for today's scheduled attempt.
-     * Implementations should call onAttemptFailure(today) when failing.
-     */
+    
     public abstract void execute(LocalDate today);
 
     /**

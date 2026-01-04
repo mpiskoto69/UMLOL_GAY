@@ -36,7 +36,7 @@ public class CompanyMainFrame extends JFrame {
         setSize(900, 560);
         setLocationRelativeTo(null);
 
-        // ---------- Header ----------
+        // Header 
         JPanel header = new JPanel(new BorderLayout(10, 10));
         header.setBorder(BorderFactory.createEmptyBorder(12, 12, 6, 12));
 
@@ -55,12 +55,12 @@ public class CompanyMainFrame extends JFrame {
     );
 
     if (r == JOptionPane.CANCEL_OPTION) {
-        return; // ❌ ακύρωση logout
+        return; 
     }
 
     if (r == JOptionPane.YES_OPTION) {
         try {
-            facade.saveAll(); // ✅ σώζει ΟΛΑ + ημερομηνία
+            facade.saveAll(); 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(
                     CompanyMainFrame.this,
@@ -68,11 +68,10 @@ public class CompanyMainFrame extends JFrame {
                     "Save Error",
                     JOptionPane.ERROR_MESSAGE
             );
-            return; // ❌ μην κάνεις logout αν απέτυχε το save
+            return; 
         }
     }
 
-    // ✅ NO ή YES → logout κανονικά
     dispose();
     SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
 });
@@ -84,7 +83,7 @@ public class CompanyMainFrame extends JFrame {
         header.add(welcomeLabel, BorderLayout.WEST);
         header.add(right, BorderLayout.EAST);
 
-        // ---------- Tabs ----------
+        // Tabs 
         JTabbedPane tabs = new JTabbedPane();
 
         accountsPanel = new AccountsPanel(facade);
@@ -105,7 +104,7 @@ public class CompanyMainFrame extends JFrame {
         tabs.addTab("Bills", billsPanel);
         tabs.addTab("Statements", stPanel);
 
-        // ---------- Root ----------
+        //  Root 
         JPanel root = new JPanel(new BorderLayout());
         root.add(header, BorderLayout.NORTH);
         root.add(tabs, BorderLayout.CENTER);

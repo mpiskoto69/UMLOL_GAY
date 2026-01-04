@@ -70,13 +70,7 @@ public class TransferOrder extends StandingOrder {
         }
 
         try {
-            // IMPORTANT: do NOT debit/credit here.
-            // The TransactionManager/Transfer.execute() should be the only place that changes balances
-            // and creates statements.
-
-            // Business choice:
-            // Here we charge the sender amount + fee in the same transfer.
-            // If you want strict baseline alignment, do a 2nd transaction for the fee to MasterAccount.
+          
          TransactionManager.getInstance().registerTransaction(
          Transfer.builder()
         .transactor(customer)
@@ -88,8 +82,6 @@ public class TransferOrder extends StandingOrder {
 );
 
 
-            // If execution succeeds, you may optionally reset failures (depends on your policy)
-            // failedAttempts = 0;
 
         } catch (Exception e) {
             onAttemptFailure(today);
@@ -137,7 +129,6 @@ public class TransferOrder extends StandingOrder {
 
             switch (kv[0]) {
                 case "type":
-                    // ignore (already checked)
                     break;
                 case "orderId":
                     id = kv[1];
@@ -181,12 +172,10 @@ public class TransferOrder extends StandingOrder {
                     executionDay = Integer.parseInt(kv[1]);
                     break;
                 default:
-                    // ignore unknown fields for forward compatibility
                     break;
             }
         }
 
-        // final sanity
         if (customer == null) throw new UnMarshalingException("Unknown customer for order: " + id);
     }
 }

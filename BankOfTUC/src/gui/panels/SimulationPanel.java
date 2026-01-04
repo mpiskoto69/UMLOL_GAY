@@ -64,6 +64,8 @@ actions.add(resetBtn);
         goBtn.addActionListener(e -> goToDate());
         resetBtn.addActionListener(e -> onReset());
 
+
+
         refresh();
     }
 
@@ -83,7 +85,6 @@ actions.add(resetBtn);
 
         log("Advanced: " + before + " -> " + after + " (+" + n + " day(s))");
 
-        // Notify parent frame to refresh header/tables
         if (afterAdvance != null) afterAdvance.run();
 
         refresh();
@@ -127,22 +128,20 @@ private void logReport(managers.StandingOrderManager.ExecutionReport rep) {
  private void onReset() {
     int r = JOptionPane.showConfirmDialog(
             this,
-            "Reset to real today and discard ALL simulated changes?",
-            "Reset",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.WARNING_MESSAGE
+            "Reset simulation and discard all simulated transactions?",
+            "Reset to Today",
+            JOptionPane.YES_NO_OPTION
     );
     if (r != JOptionPane.YES_OPTION) return;
 
-    try {
-        facade.resetToRealTodayAndDiscardSimulated();
-        log("RESET done. Today is: " + facade.getCurrentDate());
+    facade.resetToToday();
 
-        if (afterAdvance != null) afterAdvance.run();
-        refresh();
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, ex.getMessage(), "Reset failed", JOptionPane.ERROR_MESSAGE);
-    }
+    targetDateField.setText(facade.getCurrentDate().toString());
+    log("RESET done. Today is: " + facade.getCurrentDate());
+
+    if (afterAdvance != null) afterAdvance.run();
+    refresh();
 }
+
 
 }

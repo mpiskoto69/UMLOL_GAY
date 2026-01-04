@@ -38,7 +38,7 @@ public class CustomersPanel extends JPanel {
         actions.add(refreshBtn);
         top.add(actions, BorderLayout.EAST);
 
-        // Table model (view-only)
+        // Table model 
         model = new DefaultTableModel(new Object[]{"Role", "Legal Name", "VAT", "Username"}, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {

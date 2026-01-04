@@ -41,7 +41,7 @@ public void endOfMonth() {
     if (thisMonthsInterest > 0) {
         TransactionManager.getInstance().eofInterestPayment(this, thisMonthsInterest);
     }
-    resetMonthsInterest(); // πάντα reset
+    resetMonthsInterest(); 
 }
 
 

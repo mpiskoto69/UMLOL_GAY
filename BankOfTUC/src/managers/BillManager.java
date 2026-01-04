@@ -1,35 +1,67 @@
 package managers;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-import bank.storage.StorableList;
 import bank.storage.Bill;
+import bank.storage.StorableList;
 
 public class BillManager {
+
     private static final BillManager instance = new BillManager();
-    private StorableList<Bill> bills;
-    private ArrayList<String> RFcodes;
-    private ArrayList<String> billIDs;
-    private BillManager() {
-        bills = new StorableList<>();
-        RFcodes = new ArrayList<>();
-        billIDs = new ArrayList<>();
-    }
+
+    private final StorableList<Bill> bills = new StorableList<>();
+
+    private final ArrayList<String> RFcodes = new ArrayList<>();
+    private final ArrayList<String> billIDs = new ArrayList<>();
+
+    private final Set<String> seenKeys = new HashSet<>();
+
+    private BillManager() { }
 
     public static BillManager getInstance() {
         return instance;
     }
 
-    public void createBill(String issuerName, String recipientCustomerId, double amount,
-        LocalDate issuDate,  LocalDate dueDate) {
-        Bill bill = new Bill(issuerName, recipientCustomerId, amount, issuDate, dueDate);
-        bills.add(bill);
+    private String keyOf(Bill b) {
+        if (b == null) return null;
+
+        String id = b.getId();        
+        if (id != null && !id.isBlank()) return "ID:" + id;
+
+        String rf = b.getRfCode();
+        if (rf != null && !rf.isBlank()) return "RF:" + rf;
+
+        return null;
+    }
+
+    public void createBill(String issuerVat, String recipientCustomerId, double amount,
+                           LocalDate issueDate, LocalDate dueDate) {
+        Bill bill = new Bill(issuerVat, recipientCustomerId, amount, issueDate, dueDate);
+        addBill(bill);
     }
 
     public void addBill(Bill bill) {
-        bills.add(bill);
+        if (bill == null) return;
+
+        String key = keyOf(bill);
+        if (key == null) return;
+
+        if (seenKeys.add(key)) {
+            bills.add(bill);
+
+            if (bill.getRfCode() != null && bill.getRfCode().startsWith("RF") && bill.getRfCode().length() > 2) {
+                addRFcode(bill.getRfCode().substring(2));
+            }
+            if (bill.getId() != null) {
+                addBillID(bill.getId());
+            }
+        }
+    }
+
+    public void addBills(StorableList<Bill> incoming) {
+        if (incoming == null) return;
+        for (Bill b : incoming) addBill(b);
     }
 
     public StorableList<Bill> getAllBills() {
@@ -37,94 +69,88 @@ public class BillManager {
     }
 
     public Bill getUnpaidBill(String rfCode, LocalDate today) {
-    for (Bill b : bills) {
-        if (b.getRfCode().equals(rfCode) && b.isDue(today)) {
-            return b;
+        if (rfCode == null) return null;
+
+        for (Bill b : bills) {
+            if (b == null) continue;
+            if (rfCode.equals(b.getRfCode()) && b.isDue(today)) {
+                return b;
+            }
         }
+        return null;
     }
-    return null;
-}
 
     public ArrayList<Bill> getPaidBills() {
         ArrayList<Bill> paidBills = new ArrayList<>();
-        for (Bill b : this.bills) {
-            if (b.isPaid())
-                paidBills.add(b);
+        for (Bill b : bills) {
+            if (b != null && b.isPaid()) paidBills.add(b);
         }
-
         return paidBills;
     }
 
-   public boolean isBillDueToday(String rfCode, LocalDate today) {
-    return getUnpaidBill(rfCode, today) != null;
-}
+    public boolean isBillDueToday(String rfCode, LocalDate today) {
+        return getUnpaidBill(rfCode, today) != null;
+    }
+
 
 
     public void addRFcode(String rf) {
-        RFcodes.add(rf);
+        if (rf == null) return;
+        if (!RFcodes.contains(rf)) RFcodes.add(rf);
     }
 
     public boolean existsRF(String rf) {
-        for (String code : RFcodes) {
-            if (code.equals(rf))
-                return true;
-        }
-        return false;
+        return rf != null && RFcodes.contains(rf);
     }
 
     public void addBillID(String id) {
-        billIDs.add(id);
+        if (id == null) return;
+        if (!billIDs.contains(id)) billIDs.add(id);
     }
 
     public boolean existsBillID(String id) {
-        for (String bid : billIDs) {
-            if (id.equals(bid))
-                return true;
+        return id != null && billIDs.contains(id);
+    }
+
+    public void clearAll() {
+        bills.clear();
+        RFcodes.clear();
+        billIDs.clear();
+        seenKeys.clear();
+    }
+
+    public List<Bill> getBillsIssuedBy(String issuerVat) {
+        List<Bill> out = new ArrayList<>();
+        if (issuerVat == null) return out;
+
+        for (Bill b : bills) {
+            if (b != null && issuerVat.equals(b.getIssuerVAT())) out.add(b);
         }
-        return false;
+        return out;
     }
 
-    public void addBills(StorableList<Bill> bills) {
-        this.bills.addAll(bills);
-    }
-public void clearAll() {
-    bills.clear();
-    RFcodes.clear();
-    billIDs.clear();
-}
-public List<Bill> getBillsIssuedBy(String issuerVat) {
-    List<Bill> out = new ArrayList<>();
-    for (Bill b : bills) {               // όπου "bills" η λίστα σου
-        if (b != null && issuerVat.equals(b.getIssuerVAT())) {
-            out.add(b);
+    public List<Bill> getBillsIssuedByStatus(String issuerVat, Boolean paid) {
+        List<Bill> out = new ArrayList<>();
+        if (issuerVat == null) return out;
+
+        for (Bill b : bills) {
+            if (b == null) continue;
+            if (!issuerVat.equals(b.getIssuerVAT())) continue;
+
+            if (paid == null) out.add(b);
+            else if (paid && b.isPaid()) out.add(b);
+            else if (!paid && !b.isPaid()) out.add(b);
         }
+        return out;
     }
-    return out;
-}
 
-public List<Bill> getBillsIssuedByStatus(String issuerVat, Boolean paid) {
-    List<Bill> out = new ArrayList<>();
-    for (Bill b : bills) {
-        if (b == null) continue;
-        if (!issuerVat.equals(b.getIssuerVAT())) continue;
+    public List<Bill> getBillsToPayBy(String recipientVat) {
+        List<Bill> out = new ArrayList<>();
+        if (recipientVat == null) return out;
 
-        if (paid == null) { // null = ALL
-            out.add(b);
-        } else if (paid && b.isPaid()) {
-            out.add(b);
-        } else if (!paid && !b.isPaid()) {
-            out.add(b);
+        for (Bill b : bills) {
+            if (b != null && recipientVat.equals(b.getRecipientCustomerId())) out.add(b);
         }
+        return out;
     }
-    return out;
-}
-
-public List<Bill> getBillsToPayBy(String recipientVat) {
-    List<Bill> out = new ArrayList<>();
-    for (Bill b : bills) {
-        if (b != null && recipientVat.equals(b.getRecipientCustomerId())) out.add(b);
-    }
-    return out;
-}
-
 }

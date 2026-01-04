@@ -30,10 +30,7 @@ public class StandingOrderManager {
         if (orders != null) this.standingOrders.addAll(orders);
     }
 
-    /**
-     * Executes orders due on 'today', prioritizing by "older scheduled attempt first".
-     * For our simplified case, we prioritize by startDate then id (stable ordering).
-     */
+    
     public void executeDueOrders(LocalDate today) {
         if (today == null) return;
 
@@ -47,7 +44,6 @@ public class StandingOrderManager {
             }
         }
 
-        // Priority: older startDate first, then id
         due.sort(Comparator
             .comparing(StandingOrder::getStartDate, Comparator.nullsLast(Comparator.naturalOrder()))
             .thenComparing(StandingOrder::getId, Comparator.nullsLast(Comparator.naturalOrder())));
@@ -82,7 +78,6 @@ public ExecutionReport executeDueOrdersWithReport(LocalDate today) {
 
     for (StandingOrder order : due) {
         int beforeFails = order.getFailedAttempts();
-        LocalDate beforeBucket = order.getFailureBucketDate();
 
         order.execute(today);
 

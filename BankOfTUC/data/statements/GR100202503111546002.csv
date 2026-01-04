@@ -1,2 +1,0 @@
-type:Statement,timestamp:2026-01-03T17:47:46.274847200,transactionId:ceb89d8e-7f31-412b-9856-0c7baad25ba4,transactor:bank,accountIban:GR100202503111546002,counterpartyIban:GR2001767455245055,reason:Monthly interest,amount:3.1445152743387195,balanceAfter:2052.694649441539,movementType:CREDIT
-type:Statement,timestamp:2026-01-03T16:54:52.163770700,transactionId:a70dff5b-585f-467f-ae64-2eb811109160,transactor:bank,accountIban:GR100202503111546002,counterpartyIban:GR2001767452073572,reason:Monthly interest,amount:3.139698203122968,balanceAfter:2049.5501341672,movementType:CREDIT

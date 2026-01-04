@@ -29,7 +29,6 @@ public class PaymentOrder extends StandingOrder {
 
     @Override
     public boolean isDue(LocalDate today) {
-        // due if active and there is an unpaid bill for this RF
         return isActive(today) && BillManager.getInstance().isBillDueToday(rfCode, today);
     }
 
@@ -39,7 +38,6 @@ public class PaymentOrder extends StandingOrder {
             Bill bill = BillManager.getInstance().getUnpaidBill(rfCode, today);
 
             if (bill == null || bill.getAmount() > maxAmount) {
-                // use onAttemptFailure(today) if you added it, otherwise registerFailure()
                 onAttemptFailure(today);
                 return;
             }
@@ -49,23 +47,19 @@ public class PaymentOrder extends StandingOrder {
                 return;
             }
 
-            // payer = customer's chosen account
             BankAccount payer = this.fromAccount;
 
-            // payee = issuer company's business account
             BankAccount payee = AccountManager.getInstance().findBusinessAccountByVat(bill.getIssuerVAT());
             if (payee == null) {
                 onAttemptFailure(today);
                 return;
             }
 
-            // access check (important)
             if (!AccountManager.getInstance().hasAccessToAccount(customer, payer)) {
                 onAttemptFailure(today);
                 return;
             }
 
-            // execute Payment transaction (this will debit/credit + statements)
             TransactionManager.getInstance().registerTransaction(
                 new Payment(
                     customer,
@@ -78,9 +72,7 @@ public class PaymentOrder extends StandingOrder {
             );
 
             bill.markAsPaid();
-            // optional: reset failures on success
-            // failedAttempts = 0;
-
+            
         } catch (Exception e) {
             onAttemptFailure(today);
         }

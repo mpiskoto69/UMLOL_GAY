@@ -13,7 +13,6 @@ public class StandingOrderFactory {
     }
 
     public StandingOrder fromLine(String line) throws UnMarshalingException {
-        // line starts like: type:PaymentOrder,...
         String type = line.split(",", 2)[0].substring("type:".length());
         StandingOrder so = createEmptyByType(type);
         so.unmarshal(line);

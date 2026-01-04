@@ -7,26 +7,24 @@ public class ForgotPasswordDialog extends JDialog {
 
     public static class Result {
         public String username;
-        public String oldPassword;
         public String newPassword;
     }
 
     private Result result;
 
     private final JTextField usernameField = new JTextField(20);
-    private final JPasswordField oldPassField = new JPasswordField(20);
     private final JPasswordField newPassField = new JPasswordField(20);
     private final JPasswordField confirmField = new JPasswordField(20);
 
     private final JButton cancelBtn = new JButton("Cancel");
-    private final JButton changeBtn = new JButton("Change");
+    private final JButton resetBtn  = new JButton("Reset");
 
     public ForgotPasswordDialog(Window owner) {
         super(owner, "Forgot password", ModalityType.APPLICATION_MODAL);
         buildUI();
 
         cancelBtn.addActionListener(e -> { result = null; dispose(); });
-        changeBtn.addActionListener(e -> onChange());
+        resetBtn.addActionListener(e -> onReset());
 
         pack();
         setLocationRelativeTo(owner);
@@ -51,9 +49,6 @@ public class ForgotPasswordDialog extends JDialog {
         c.gridx = 0; c.gridy = y; form.add(new JLabel("Username:"), c);
         c.gridx = 1; form.add(usernameField, c); y++;
 
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("Old password:"), c);
-        c.gridx = 1; form.add(oldPassField, c); y++;
-
         c.gridx = 0; c.gridy = y; form.add(new JLabel("New password:"), c);
         c.gridx = 1; form.add(newPassField, c); y++;
 
@@ -62,33 +57,37 @@ public class ForgotPasswordDialog extends JDialog {
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttons.add(cancelBtn);
-        buttons.add(changeBtn);
+        buttons.add(resetBtn);
 
         root.add(form, BorderLayout.CENTER);
         root.add(buttons, BorderLayout.SOUTH);
 
         setContentPane(root);
-        getRootPane().setDefaultButton(changeBtn);
+        getRootPane().setDefaultButton(resetBtn);
     }
 
-    private void onChange() {
+    private void onReset() {
         try {
             String username = usernameField.getText().trim();
-            String oldPass = new String(oldPassField.getPassword());
-            String newPass = new String(newPassField.getPassword());
-            String conf = new String(confirmField.getPassword());
+            String newPass  = new String(newPassField.getPassword());
+            String conf     = new String(confirmField.getPassword());
 
-            if (username.isEmpty()) throw new IllegalArgumentException("Username is required");
-            if (newPass.isBlank()) throw new IllegalArgumentException("New password is required");
-            if (!newPass.equals(conf)) throw new IllegalArgumentException("Passwords do not match");
+            if (username.isEmpty())
+                throw new IllegalArgumentException("Username is required");
+
+            if (newPass.isBlank())
+                throw new IllegalArgumentException("New password is required");
+
+            if (!newPass.equals(conf))
+                throw new IllegalArgumentException("Passwords do not match");
 
             Result r = new Result();
             r.username = username;
-            r.oldPassword = oldPass;
             r.newPassword = newPass;
 
             result = r;
             dispose();
+
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Validation", JOptionPane.WARNING_MESSAGE);
         }

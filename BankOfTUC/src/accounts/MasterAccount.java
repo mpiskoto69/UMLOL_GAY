@@ -10,27 +10,24 @@ public class MasterAccount extends BusinessAccount {
     private static final MasterAccount instance = new MasterAccount();
 
     private MasterAccount() {
-        super(); // empty, will be filled by init/unmarshal
+        super(); 
     }
 
     public static MasterAccount getInstance() {
         return instance;
     }
 
-    /** Call ONCE on startup (if not loaded from CSV) */
     public void initIfNeeded(Company bankCompany) {
-        if (this.primaryHolder != null) return; // already initialized (e.g. from unmarshal)
+        if (this.primaryHolder != null) return; 
 
         this.primaryHolder = bankCompany;
         this.interestRate = 0.0;
         this.dateCreated = LocalDate.now();
-        // keep existing iban if already set, else generate one
         if (this.iban == null || this.iban.isBlank()) {
-            this.iban = "GR200" + System.currentTimeMillis(); // ή δικό σου generator
+            this.iban = "GR200" + System.currentTimeMillis(); 
         }
         this.balance = 10000.0;
 
-        // σημαντικό: σύνδεση company <-> account
         bankCompany.addAccount(this);
     }
 
@@ -50,7 +47,6 @@ public class MasterAccount extends BusinessAccount {
 
     @Override
     public void unmarshal(String data) throws UnMarshalingException {
-        // ίδιος κώδικας όπως έχεις, απλά ΔΕΝ κάνεις addAccount εδώ.
         String[] parts = data.split(",");
         for (String p : parts) {
             String[] kv = p.split(":", 2);

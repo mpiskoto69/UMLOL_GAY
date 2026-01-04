@@ -14,7 +14,7 @@ import transactions.Transaction;
 
 	    public void registerStatements(Transaction transaction) {
 	        // Οι ίδιες οι συναλλαγές καλούν addStatement σε λογαριασμούς,
-	        // αλλά εδώ μπορεί να γίνεται αποθήκευση σε αρχείο, logs, κλπ.
+	        // αλλά εδώ μπορεί να γίνεται αποθήκευση σε αρχείο, logs.
 	    }
 	}
 

@@ -1,6 +1,7 @@
 package gui;
 
 import app.BankingFacade;
+import gui.dialogs.ForgotPasswordDialog;
 import users.Admin;
 import users.Company;
 import users.Individual;
@@ -58,7 +59,6 @@ public class LoginFrame extends JFrame {
         statusLabel.setForeground(new Color(70, 70, 70));
         root.add(statusLabel, BorderLayout.NORTH);
 
-        // form
         JPanel form = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(6, 6, 6, 6);
@@ -78,7 +78,6 @@ public class LoginFrame extends JFrame {
 
         root.add(form, BorderLayout.CENTER);
 
-        // buttons bottom: left = forgot, right = exit/login
         JPanel buttons = new JPanel(new BorderLayout());
 
         JPanel leftBtns = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -104,7 +103,6 @@ public class LoginFrame extends JFrame {
         exitButton.addActionListener(e -> System.exit(0));
         forgotBtn.addActionListener(e -> onForgotPassword());
 
-        // Enter on password triggers login
         passwordField.addActionListener(this::onLogin);
     }
 
@@ -155,76 +153,24 @@ public class LoginFrame extends JFrame {
         }
     }
 
-    private void onForgotPassword() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(6, 6, 6, 6);
-        c.anchor = GridBagConstraints.WEST;
+   private void onForgotPassword() {
+    ForgotPasswordDialog dlg = new ForgotPasswordDialog(this);
+    ForgotPasswordDialog.Result res = dlg.showDialog();
+    if (res == null) return;
 
-        JTextField uField = new JTextField(16);
-        JPasswordField oldField = new JPasswordField(16);
-        JPasswordField newField = new JPasswordField(16);
-        JPasswordField confirmField = new JPasswordField(16);
+    try {
+        User u = managers.UserManager.getInstance().findUserByUsername(res.username);
+        if (u == null) throw new IllegalArgumentException("User not found");
 
-        // prefill username from login field (nice UX)
-        uField.setText(usernameField.getText().trim());
+        u.setPassword(res.newPassword);
 
-        int y = 0;
+        facade.saveAll();
 
-        c.gridx = 0; c.gridy = y; panel.add(new JLabel("Username:"), c);
-        c.gridx = 1; panel.add(uField, c); y++;
-
-        c.gridx = 0; c.gridy = y; panel.add(new JLabel("Old password:"), c);
-        c.gridx = 1; panel.add(oldField, c); y++;
-
-        c.gridx = 0; c.gridy = y; panel.add(new JLabel("New password:"), c);
-        c.gridx = 1; panel.add(newField, c); y++;
-
-        c.gridx = 0; c.gridy = y; panel.add(new JLabel("Confirm new:"), c);
-        c.gridx = 1; panel.add(confirmField, c);
-
-        int ok = JOptionPane.showConfirmDialog(
-                this,
-                panel,
-                "Reset password",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE
-        );
-
-        if (ok != JOptionPane.OK_OPTION) return;
-
-        String username = uField.getText().trim();
-        String oldPass = new String(oldField.getPassword());
-        String newPass = new String(newField.getPassword());
-        String confirm = new String(confirmField.getPassword());
-
-        if (username.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Username is required.", "Validation", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        if (newPass.isBlank()) {
-            JOptionPane.showMessageDialog(this, "New password is required.", "Validation", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        if (!newPass.equals(confirm)) {
-            JOptionPane.showMessageDialog(this, "New passwords do not match.", "Validation", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        try {
-            facade.resetPassword(username, oldPass, newPass);
-            facade.saveAll(); // persist to CSV
-            JOptionPane.showMessageDialog(this, "Password updated.", "OK", JOptionPane.INFORMATION_MESSAGE);
-
-            // convenience: fill login fields
-            usernameField.setText(username);
-            passwordField.setText("");
-
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Reset failed", JOptionPane.ERROR_MESSAGE);
-        }
+        JOptionPane.showMessageDialog(this, "Password reset successful.", "OK", JOptionPane.INFORMATION_MESSAGE);
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, ex.getMessage(), "Reset failed", JOptionPane.ERROR_MESSAGE);
     }
-
+}
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
     }

@@ -53,12 +53,12 @@ public class IndividualMainFrame extends JFrame {
     );
 
     if (r == JOptionPane.CANCEL_OPTION) {
-        return; // ❌ ακύρωση logout
+        return; 
     }
 
     if (r == JOptionPane.YES_OPTION) {
         try {
-            facade.saveAll(); // ✅ σώζει ΟΛΑ + ημερομηνία
+            facade.saveAll(); // σώζει ΟΛΑ + ημερομηνία
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(
                     IndividualMainFrame.this,
@@ -66,11 +66,11 @@ public class IndividualMainFrame extends JFrame {
                     "Save Error",
                     JOptionPane.ERROR_MESSAGE
             );
-            return; // ❌ μην κάνεις logout αν απέτυχε το save
+            return; //  μην κάνεις logout αν απέτυχε το save
         }
     }
 
-    // ✅ NO ή YES → logout κανονικά
+    //  logout κανονικά
     dispose();
     SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
 });

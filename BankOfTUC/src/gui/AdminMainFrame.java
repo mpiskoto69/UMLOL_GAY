@@ -37,7 +37,6 @@ public class AdminMainFrame extends JFrame {
         setLocationRelativeTo(null);
 
         // Header
-       // Header
 JPanel header = new JPanel(new BorderLayout(10, 10));
 header.setBorder(BorderFactory.createEmptyBorder(12, 12, 6, 12));
 
@@ -57,12 +56,12 @@ logoutBtn.addActionListener(e -> {
     );
 
     if (r == JOptionPane.CANCEL_OPTION) {
-        return; // ❌ ακύρωση logout
+        return; 
     }
 
     if (r == JOptionPane.YES_OPTION) {
         try {
-            facade.saveAll(); // ✅ σώζει ΟΛΑ + ημερομηνία
+            facade.saveAll(); 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(
                     AdminMainFrame.this,
@@ -70,11 +69,11 @@ logoutBtn.addActionListener(e -> {
                     "Save Error",
                     JOptionPane.ERROR_MESSAGE
             );
-            return; // ❌ μην κάνεις logout αν απέτυχε το save
+            return; 
         }
     }
 
-    // ✅ NO ή YES → logout κανονικά
+   
     dispose();
     SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
 });

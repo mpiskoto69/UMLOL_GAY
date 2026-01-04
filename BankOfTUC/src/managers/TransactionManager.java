@@ -16,13 +16,13 @@ public class TransactionManager {
         return instance;
     }
 
-    // ✅ non-static: ο manager (ως Singleton) είναι ο μοναδικός executor
+    // ο manager (ως Singleton) είναι ο μοναδικός executor
     public void registerTransaction(Transaction transaction) {
         try {
             transaction.execute();
             StatementManager.getInstance().registerStatements(transaction);
         } catch (Exception e) {
-           e.printStackTrace(); // για να βλέπεις τι έγινε σε fail
+           e.printStackTrace(); 
         }
     }
 
@@ -52,11 +52,11 @@ public void newTransfer(Customer transactor,
     Customer bank = (Customer) MasterAccount.getInstance().getPrimaryHolder();
 
     Transaction t = Transfer.builder()
-            .transactor(bank)                     // η τράπεζα
-            .from(MasterAccount.getInstance())    // πληρώνει
-            .to(toAccount)                        // ο πελάτης λαμβάνει
-            .reasonFrom("Monthly interest")       // statement στο Master
-            .reasonTo("Monthly interest")         // statement στον πελάτη
+            .transactor(bank)                     
+            .from(MasterAccount.getInstance())    
+            .to(toAccount)                        
+            .reasonFrom("Monthly interest")       
+            .reasonTo("Monthly interest")         
             .amount(amount)
             .build();
 

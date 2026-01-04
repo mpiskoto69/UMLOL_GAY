@@ -13,8 +13,8 @@ public class CreatePaymentOrderDialog extends JDialog {
     public static class Result {
         public String title;
         public String description;
-        public String fromIban;     // chargeAccount
-        public String rfCode;       // paymentCode
+        public String fromIban;     
+        public String rfCode;       
         public double maxAmount;
         public LocalDate startDate;
         public LocalDate endDate;

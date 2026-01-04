@@ -89,7 +89,6 @@ public class AccountManager {
 
     public boolean hasAccessToAccount(Customer customer, BankAccount account) {
 
-        // Master bank account has access to all accounts
         if (customer.equals(MasterAccount.getInstance().getPrimaryHolder()))
             return true;
 
@@ -100,18 +99,6 @@ public class AccountManager {
 
         return false;
 
-        // if (account.getPrimaryHolder() == customer)
-        // return true;
-
-        // if (account instanceof PersonalAccount) {
-        // PersonalAccount pAcc = (PersonalAccount) account;
-        // for (Individual sec : pAcc.getSecondaryHolders()) {
-        // if (sec == customer)
-        // return true;
-        // }
-        // }
-
-        // return false;
     }
 
     public void addIban(String iban) throws IllegalArgumentException {
@@ -171,21 +158,18 @@ public BankAccount requireByIban(String iban) {
     for (BankAccount a : loaded) {
         if (a == null) continue;
 
-        // 1) Skip duplicate MasterAccount (singleton)
         if (a instanceof MasterAccount) {
             boolean already = false;
             for (BankAccount existing : this.accounts) {
                 if (existing instanceof MasterAccount) { already = true; break; }
             }
-            if (already) continue; // ignore duplicates
+            if (already) continue; 
         }
 
-        // 2) Skip duplicate IBAN (safety)
         if (findByIban(a.getIban()) != null) {
             continue;
         }
 
-        // 3) Enforce "company only one account" rule during load too
         if (a instanceof BusinessAccount) {
             String vat = a.getPrimaryHolder() != null ? a.getPrimaryHolder().getVatNumber() : null;
             if (vat != null) {
@@ -198,11 +182,10 @@ public BankAccount requireByIban(String iban) {
                         break;
                     }
                 }
-                if (companyAlreadyHas) continue; // ignore extra business accounts
+                if (companyAlreadyHas) continue; 
             }
         }
 
-        // 4) Add + register IBAN unique part for future generation
         this.accounts.add(a);
         try {
             String iban = a.getIban();

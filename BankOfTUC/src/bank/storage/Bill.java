@@ -30,9 +30,7 @@ public class Bill implements Storable {
         this.isPaid = false;
     }
 
-    /** Empty constructor: for unmarshal ONLY (do not generate IDs here) */
     public Bill() {
-        // intentionally empty
     }
 
     private String generateRFcode() {
@@ -59,7 +57,7 @@ public class Bill implements Storable {
         return "BI" + uniquePart;
     }
 
-    // --- domain methods ---
+    //  domain methods 
     public boolean isPaid() { return isPaid; }
 
     public void markAsPaid() { this.isPaid = true; }
@@ -144,12 +142,10 @@ public boolean isDue(LocalDate today) {
                     this.isPaid = Boolean.parseBoolean(val);
                     break;
                 default:
-                    // ignore unknown keys
                     break;
             }
         }
 
-        // register identifiers so future generated ones won't collide
         if (rfCode != null && rfCode.startsWith("RF") && rfCode.length() > 2) {
             BillManager.getInstance().addRFcode(rfCode.substring(2));
         }
