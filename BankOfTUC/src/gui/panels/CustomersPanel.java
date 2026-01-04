@@ -1,15 +1,14 @@
 package gui.panels;
 
 import app.BankingFacade;
-import managers.UserManager;
-import users.Customer;
-import users.User;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import managers.UserManager;
+import users.Customer;
+import users.User;
 
 public class CustomersPanel extends JPanel {
 
@@ -38,8 +37,8 @@ public class CustomersPanel extends JPanel {
         actions.add(refreshBtn);
         top.add(actions, BorderLayout.EAST);
 
-        // Table model 
-        model = new DefaultTableModel(new Object[]{"Role", "Legal Name", "VAT", "Username"}, 0) {
+        // Table model
+        model = new DefaultTableModel(new Object[] { "Role", "Legal Name", "VAT", "Username" }, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
                 return false;
@@ -61,7 +60,7 @@ public class CustomersPanel extends JPanel {
 
         List<Customer> customers = getAllCustomers();
         for (Customer c : customers) {
-            model.addRow(new Object[]{
+            model.addRow(new Object[] {
                     c.getRole(),
                     c.getLegalName(),
                     c.getVatNumber(),

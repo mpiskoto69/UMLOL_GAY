@@ -1,12 +1,13 @@
 package bank.storage.dao;
+
 import bank.storage.StorableList;
 import bank.storage.UnMarshalingException;
-import standingOrders.StandingOrder;
-import standingOrders.StandingOrderFactory;
 import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDate;
 import java.util.List;
+import standingOrders.StandingOrder;
+import standingOrders.StandingOrderFactory;
 
 public class StandingOrderDao {
 
@@ -20,12 +21,14 @@ public class StandingOrderDao {
     public StorableList<StandingOrder> loadFile(String fileName) throws IOException, UnMarshalingException {
         Path file = folder.resolve(fileName);
         StorableList<StandingOrder> list = new StorableList<>();
-        if (!Files.exists(file)) return list;
+        if (!Files.exists(file))
+            return list;
 
         try (BufferedReader r = Files.newBufferedReader(file)) {
             String line;
             while ((line = r.readLine()) != null) {
-                if (line.isBlank()) continue;
+                if (line.isBlank())
+                    continue;
                 list.add(factory.fromLine(line));
             }
         }
@@ -37,7 +40,7 @@ public class StandingOrderDao {
 
         Path active = folder.resolve("active.csv");
         Path expired = folder.resolve("expired.csv");
-        Path failed  = folder.resolve("failed.csv");
+        Path failed = folder.resolve("failed.csv");
 
         // overwrite each time
         Files.writeString(active, "", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -46,9 +49,12 @@ public class StandingOrderDao {
 
         for (StandingOrder so : all) {
             Path out;
-            if (so.hasExceededMaxFailures()) out = failed;
-            else if (!so.isActive(simulatedToday)) out = expired;
-            else out = active;
+            if (so.hasExceededMaxFailures())
+                out = failed;
+            else if (!so.isActive(simulatedToday))
+                out = expired;
+            else
+                out = active;
 
             Files.writeString(out, so.marshal() + System.lineSeparator(), StandardOpenOption.APPEND);
         }

@@ -1,10 +1,9 @@
 package bank.storage;
 
-import java.util.ArrayList;
-
 import accounts.BusinessAccount;
 import accounts.MasterAccount;
 import accounts.PersonalAccount;
+import java.util.ArrayList;
 import standingOrders.PaymentOrder;
 import standingOrders.TransferOrder;
 import users.Admin;
@@ -31,16 +30,16 @@ public class StorableList<T extends Storable> extends ArrayList<T> implements St
 				continue;
 			String type = line.split(",", 2)[0].substring("type:".length());
 			Storable inst;
-			 switch (type) {
-                case "Admin":
-                    inst = new Admin();
-                    break;
-                case "Individual":
-                    inst = new Individual();
-                    break;
-                case "Company":
-                    inst = new Company();
-                    break;
+			switch (type) {
+				case "Admin":
+					inst = new Admin();
+					break;
+				case "Individual":
+					inst = new Individual();
+					break;
+				case "Company":
+					inst = new Company();
+					break;
 				case "PersonalAccount":
 					inst = new PersonalAccount();
 					break;
@@ -58,7 +57,7 @@ public class StorableList<T extends Storable> extends ArrayList<T> implements St
 				case "MasterAccount":
 					inst = MasterAccount.getInstance();
 					break;
-				
+
 				default:
 					throw new UnMarshalingException("Unknown type: " + type);
 			}

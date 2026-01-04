@@ -1,4 +1,5 @@
 package app;
+
 import accounts.BankAccount;
 import accounts.MasterAccount;
 import bank.storage.Bill;
@@ -27,7 +28,7 @@ public class BankingFacade {
 
     // --- load/save ---
     public void loadAll() {
-        
+
         UserManager.getInstance().clearAll();
         AccountManager.getInstance().clearAll();
         BillManager.getInstance().clearAll();
@@ -35,207 +36,205 @@ public class BankingFacade {
         StorageManager.getInstance().loadAll();
         currentDate = StorageManager.getInstance().loadCurrentDateOrDefault();
         Customer bank = UserManager.getInstance().findCustomerByVat("bank");
-if (bank == null) {
-    Company bankCo = new Company("bank", "bank", "bank", "Bank");
-    UserManager.getInstance().addUser(bankCo);
-    this.currentDate = StorageManager.getInstance().loadCurrentDateOrDefault();
-}
+        if (bank == null) {
+            Company bankCo = new Company("bank", "bank", "bank", "Bank");
+            UserManager.getInstance().addUser(bankCo);
+            this.currentDate = StorageManager.getInstance().loadCurrentDateOrDefault();
+        }
 
-// Ensure master has holder
-if (MasterAccount.getInstance().getPrimaryHolder() == null) {
-    Company bankCo = (Company) UserManager.getInstance().findCustomerByVat("bank");
-    MasterAccount.getInstance().initIfNeeded(bankCo);
-}
+        if (MasterAccount.getInstance().getPrimaryHolder() == null) {
+            Company bankCo = (Company) UserManager.getInstance().findCustomerByVat("bank");
+            MasterAccount.getInstance().initIfNeeded(bankCo);
+        }
     }
+
     public void saveAll() {
         StorageManager.getInstance().saveAll(currentDate);
     }
 
-  public User login(String username, String password) {
-    User u = UserManager.getInstance().findUserByUsername(username);
+    public User login(String username, String password) {
+        User u = UserManager.getInstance().findUserByUsername(username);
 
-    System.out.println("LOGIN attempt username='" + username + "' found=" + (u != null));
-    if (u != null) {
-        System.out.println("stored username='" + u.getUsername() + "'");
-        System.out.println("stored password='" + u.getPassword() + "'");
-        System.out.println("pass ok? " + u.login(password));
+        System.out.println("LOGIN attempt username='" + username + "' found=" + (u != null));
+        if (u != null) {
+            System.out.println("stored username='" + u.getUsername() + "'");
+            System.out.println("stored password='" + u.getPassword() + "'");
+            System.out.println("pass ok? " + u.login(password));
+        }
+
+        if (u == null || !u.login(password)) {
+            throw new IllegalArgumentException("Λάθος username ή password");
+        }
+        return u;
     }
 
-    if (u == null || !u.login(password)) {
-        throw new IllegalArgumentException("Λάθος username ή password");
+    public Bill issueBill(Company company,
+            String customerVat,
+            double amount,
+            LocalDate dueDate) {
+
+        if (company == null)
+            throw new IllegalArgumentException("Company is required");
+        if (customerVat == null || customerVat.isBlank())
+            throw new IllegalArgumentException("Customer VAT is required");
+        if (amount <= 0)
+            throw new IllegalArgumentException("Amount must be > 0");
+        if (dueDate == null)
+            throw new IllegalArgumentException("Due date is required");
+
+        Customer c = UserManager.getInstance().findCustomerByVat(customerVat);
+        if (c == null)
+            throw new IllegalArgumentException("Unknown customer VAT: " + customerVat);
+
+        if (AccountManager.getInstance().findBusinessAccountByVat(company.getVatNumber()) == null) {
+            throw new IllegalArgumentException("Company has no business account (cannot issue bills).");
+        }
+
+        Bill bill = new Bill(
+                company.getVatNumber(),
+                customerVat,
+                amount,
+                currentDate,
+                dueDate);
+
+        BillManager.getInstance().addBill(bill);
+        return bill;
     }
-    return u;
-}
 
-public Bill issueBill(Company company,
-                      String customerVat,
-                      double amount,
-                      LocalDate dueDate) {
+    public void resetToToday() {
+        try {
+            StorageManager.getInstance().restoreCheckpointAndReload();
 
-    if (company == null) throw new IllegalArgumentException("Company is required");
-    if (customerVat == null || customerVat.isBlank()) throw new IllegalArgumentException("Customer VAT is required");
-    if (amount <= 0) throw new IllegalArgumentException("Amount must be > 0");
-    if (dueDate == null) throw new IllegalArgumentException("Due date is required");
+            this.currentDate = LocalDate.now();
 
-    // (Optional) validate customer exists
-    Customer c = UserManager.getInstance().findCustomerByVat(customerVat);
-    if (c == null) throw new IllegalArgumentException("Unknown customer VAT: " + customerVat);
+            StorageManager.getInstance().saveCurrentDatePublic(this.currentDate);
 
-    // ensure issuer has a business account (your rule)
-    if (AccountManager.getInstance().findBusinessAccountByVat(company.getVatNumber()) == null) {
-        throw new IllegalArgumentException("Company has no business account (cannot issue bills).");
+        } catch (Exception e) {
+            throw new RuntimeException("Reset failed: " + e.getMessage(), e);
+        }
     }
 
-    Bill bill = new Bill(
-            company.getVatNumber(),
-            customerVat,
-            amount,
-            currentDate,
-            dueDate
-    );
+    public void createPaymentOrder(Customer customer, String title, String description,
+            String fromIban,
+            String rfCode,
+            double maxAmount,
+            LocalDate startDate,
+            LocalDate endDate,
+            double fee) {
 
-    BillManager.getInstance().addBill(bill);
-    return bill;
-}
-public void resetToToday() {
-    try {
-        StorageManager.getInstance().restoreCheckpointAndReload();
+        if (customer == null)
+            throw new IllegalArgumentException("Customer is required");
 
-        
-        this.currentDate = LocalDate.now();
+        if (fromIban == null || fromIban.isBlank())
+            throw new IllegalArgumentException("Source account (IBAN) is required");
 
-        StorageManager.getInstance().saveCurrentDatePublic(this.currentDate);
+        if (rfCode == null || rfCode.isBlank())
+            throw new IllegalArgumentException("RF code is required");
 
-    } catch (Exception e) {
-        throw new RuntimeException("Reset failed: " + e.getMessage(), e);
+        if (!rfCode.startsWith("RF"))
+            throw new IllegalArgumentException("RF must start with 'RF'");
+
+        if (maxAmount <= 0)
+            throw new IllegalArgumentException("Max amount must be > 0");
+
+        if (fee < 0)
+            throw new IllegalArgumentException("Fee must be >= 0");
+
+        if (startDate == null || endDate == null || endDate.isBefore(startDate))
+            throw new IllegalArgumentException("Invalid start/end date");
+
+        BankAccount fromAccount = AccountManager.getInstance().findByIban(fromIban);
+        if (fromAccount == null)
+            throw new IllegalArgumentException("Source account not found");
+
+        if (!AccountManager.getInstance().hasAccessToAccount(customer, fromAccount))
+            throw new IllegalArgumentException("No access to source account");
+
+        String id = UUID.randomUUID().toString();
+
+        PaymentOrder order = new PaymentOrder(
+                customer,
+                id,
+                (title != null && !title.isBlank()) ? title : "Standing Bill Payment",
+                description,
+                fromAccount,
+                rfCode,
+                maxAmount,
+                startDate,
+                endDate,
+                fee);
+
+        StandingOrderManager.getInstance().addOrder(order);
     }
-}
 
+    public void createTransferOrder(Customer customer,
+            String title,
+            String description,
+            String fromIban,
+            String toIban,
+            double amount,
+            int frequencyInMonths,
+            int dayOfMonth,
+            LocalDate startDate,
+            LocalDate endDate,
+            double fee) {
 
-public void createPaymentOrder(Customer customer,String title, String description,
-                               String fromIban,
-                               String rfCode,
-                               double maxAmount,
-                               LocalDate startDate,
-                               LocalDate endDate,
-                               double fee) {
+        // ---------- basic validation ----------
+        if (customer == null)
+            throw new IllegalArgumentException("Customer is required");
 
-    if (customer == null)
-        throw new IllegalArgumentException("Customer is required");
+        if (amount <= 0)
+            throw new IllegalArgumentException("Amount must be > 0");
 
-    if (fromIban == null || fromIban.isBlank())
-        throw new IllegalArgumentException("Source account (IBAN) is required");
+        if (fee < 0)
+            throw new IllegalArgumentException("Fee must be >= 0");
 
-    if (rfCode == null || rfCode.isBlank())
-        throw new IllegalArgumentException("RF code is required");
+        if (frequencyInMonths < 1)
+            throw new IllegalArgumentException("Frequency must be >= 1");
 
-    if (!rfCode.startsWith("RF"))
-        throw new IllegalArgumentException("RF must start with 'RF'");
+        if (dayOfMonth < 1 || dayOfMonth > 31)
+            throw new IllegalArgumentException("Day of month must be 1..31");
 
-    if (maxAmount <= 0)
-        throw new IllegalArgumentException("Max amount must be > 0");
+        if (startDate == null || endDate == null || endDate.isBefore(startDate))
+            throw new IllegalArgumentException("Invalid start/end date");
 
-    if (fee < 0)
-        throw new IllegalArgumentException("Fee must be >= 0");
+        // ---------- find accounts ----------
+        BankAccount fromAccount = AccountManager.getInstance().findByIban(fromIban);
+        if (fromAccount == null)
+            throw new IllegalArgumentException("Source account not found");
 
-    if (startDate == null || endDate == null || endDate.isBefore(startDate))
-        throw new IllegalArgumentException("Invalid start/end date");
+        BankAccount toAccount = AccountManager.getInstance().findByIban(toIban);
+        if (toAccount == null)
+            throw new IllegalArgumentException("Target account not found");
 
-    BankAccount fromAccount = AccountManager.getInstance().findByIban(fromIban);
-    if (fromAccount == null)
-        throw new IllegalArgumentException("Source account not found");
+        // ---------- access check ----------
+        if (!AccountManager.getInstance().hasAccessToAccount(customer, fromAccount))
+            throw new IllegalArgumentException("No access to source account");
 
-    if (!AccountManager.getInstance().hasAccessToAccount(customer, fromAccount))
-        throw new IllegalArgumentException("No access to source account");
+        // ---------- create order ----------
+        String id = UUID.randomUUID().toString();
 
-    String id = UUID.randomUUID().toString();
+        TransferOrder order = new TransferOrder(
+                customer,
+                id,
+                title != null && !title.isBlank() ? title : "Standing Transfer",
+                description,
+                fromAccount,
+                toAccount,
+                amount,
+                frequencyInMonths,
+                dayOfMonth,
+                startDate,
+                endDate,
+                fee);
 
-    PaymentOrder order = new PaymentOrder(
-            customer,
-            id,
-            (title != null && !title.isBlank()) ? title : "Standing Bill Payment",
-            description,
-            fromAccount,
-            rfCode,
-            maxAmount,
-            startDate,
-            endDate,
-            fee
-    );
-
-    StandingOrderManager.getInstance().addOrder(order);
-}
-
-public void createTransferOrder(Customer customer,
-                                String title,
-                                String description,
-                                String fromIban,
-                                String toIban,
-                                double amount,
-                                int frequencyInMonths,
-                                int dayOfMonth,
-                                LocalDate startDate,
-                                LocalDate endDate,
-                                double fee) {
-
-    // ---------- basic validation ----------
-    if (customer == null)
-        throw new IllegalArgumentException("Customer is required");
-
-    if (amount <= 0)
-        throw new IllegalArgumentException("Amount must be > 0");
-
-    if (fee < 0)
-        throw new IllegalArgumentException("Fee must be >= 0");
-
-    if (frequencyInMonths < 1)
-        throw new IllegalArgumentException("Frequency must be >= 1");
-
-    if (dayOfMonth < 1 || dayOfMonth > 31)
-        throw new IllegalArgumentException("Day of month must be 1..31");
-
-    if (startDate == null || endDate == null || endDate.isBefore(startDate))
-        throw new IllegalArgumentException("Invalid start/end date");
-
-    // ---------- find accounts ----------
-    BankAccount fromAccount = AccountManager.getInstance().findByIban(fromIban);
-    if (fromAccount == null)
-        throw new IllegalArgumentException("Source account not found");
-
-    BankAccount toAccount = AccountManager.getInstance().findByIban(toIban);
-    if (toAccount == null)
-        throw new IllegalArgumentException("Target account not found");
-
-    // ---------- access check ----------
-    if (!AccountManager.getInstance().hasAccessToAccount(customer, fromAccount))
-        throw new IllegalArgumentException("No access to source account");
-
-    // ---------- create order ----------
-    String id = UUID.randomUUID().toString();
-
-    TransferOrder order = new TransferOrder(
-            customer,
-            id,
-            title != null && !title.isBlank() ? title : "Standing Transfer",
-            description,
-            fromAccount,
-            toAccount,
-            amount,
-            frequencyInMonths,
-            dayOfMonth,
-            startDate,
-            endDate,
-            fee
-    );
-
-    // ---------- register ----------
-    StandingOrderManager.getInstance().addOrder(order);
-}
+        // ---------- register ----------
+        StandingOrderManager.getInstance().addOrder(order);
+    }
 
     // --- queries ---
     public List<BankAccount> accountsFor(Customer c) {
         return new ArrayList<>(c.getAccounts());
-        // ή: return AccountManager.getInstance().getAllAccountsOfUser(c.getVatNumber());
     }
 
     public Bill findBillForPayment(String rfCode) {
@@ -247,162 +246,165 @@ public void createTransferOrder(Customer customer,
     }
 
     public Bill createBill(Company issuer, String customerVat, double amount, LocalDate dueDate) {
-    if (issuer == null) throw new IllegalArgumentException("Issuer is required");
-    if (customerVat == null || customerVat.isBlank()) throw new IllegalArgumentException("Customer VAT required");
-    if (amount <= 0) throw new IllegalArgumentException("Amount must be > 0");
-    if (dueDate == null) throw new IllegalArgumentException("Due date required");
+        if (issuer == null)
+            throw new IllegalArgumentException("Issuer is required");
+        if (customerVat == null || customerVat.isBlank())
+            throw new IllegalArgumentException("Customer VAT required");
+        if (amount <= 0)
+            throw new IllegalArgumentException("Amount must be > 0");
+        if (dueDate == null)
+            throw new IllegalArgumentException("Due date required");
 
-    LocalDate issueDate = getCurrentDate();
+        LocalDate issueDate = getCurrentDate();
 
-    // sanity: customer must exist
-    Customer c = UserManager.getInstance().findCustomerByVat(customerVat);
-    if (c == null) throw new IllegalArgumentException("Unknown customer VAT: " + customerVat);
+        Customer c = UserManager.getInstance().findCustomerByVat(customerVat);
+        if (c == null)
+            throw new IllegalArgumentException("Unknown customer VAT: " + customerVat);
 
-    Bill b = new Bill(issuer.getVatNumber(), customerVat, amount, issueDate, dueDate);
-    BillManager.getInstance().addBill(b);
-    return b;
-}
-
-  
-public void withdraw(Customer customer, String fromIban, double amount, String reason) {
-    if (customer == null) throw new IllegalArgumentException("Customer is required");
-    if (fromIban == null || fromIban.isBlank()) throw new IllegalArgumentException("From IBAN is required");
-    if (amount <= 0) throw new IllegalArgumentException("Amount must be > 0");
-    if (reason == null || reason.isBlank()) reason = "Cash withdrawal";
-
-    BankAccount from = AccountManager.getInstance().findByIban(fromIban);
-    if (from == null) throw new IllegalArgumentException("Account not found: " + fromIban);
-
-    //  access check here too
-    if (!AccountManager.getInstance().hasAccessToAccount(customer, from))
-        throw new IllegalArgumentException("No access to this account");
-
-    TransactionManager.getInstance().registerTransaction(
-        new Withdrawall(customer, from, reason, amount)
-    );
-}
-
-
-
-public void transfer(Customer customer,
-                     String fromIban,
-                     String toIban,
-                     double amount,
-                     String reason,
-                     TransferProtocol protocol) {
-
-    if (customer == null) throw new IllegalArgumentException("Customer is required");
-    if (amount <= 0) throw new IllegalArgumentException("Amount must be > 0");
-    if (reason == null || reason.isBlank()) reason = "Transfer";
-
-    BankAccount from;
-    BankAccount to;
-
-    try {
-        from = AccountManager.getInstance().findByIban(fromIban);
-        to   = AccountManager.getInstance().findByIban(toIban);
-    } catch (IllegalArgumentException ex) {
-        throw ex;
+        Bill b = new Bill(issuer.getVatNumber(), customerVat, amount, issueDate, dueDate);
+        BillManager.getInstance().addBill(b);
+        return b;
     }
 
-    // access check 
-    if (!AccountManager.getInstance().hasAccessToAccount(customer, from))
-        throw new IllegalArgumentException("No access to source account");
+    public void withdraw(Customer customer, String fromIban, double amount, String reason) {
+        if (customer == null)
+            throw new IllegalArgumentException("Customer is required");
+        if (fromIban == null || fromIban.isBlank())
+            throw new IllegalArgumentException("From IBAN is required");
+        if (amount <= 0)
+            throw new IllegalArgumentException("Amount must be > 0");
+        if (reason == null || reason.isBlank())
+            reason = "Cash withdrawal";
 
-    TransactionManager.getInstance().registerTransaction(
-        new Transfer(customer, from, to, reason, reason, amount, protocol)
-    );
-}
+        BankAccount from = AccountManager.getInstance().findByIban(fromIban);
+        if (from == null)
+            throw new IllegalArgumentException("Account not found: " + fromIban);
 
+        if (!AccountManager.getInstance().hasAccessToAccount(customer, from))
+            throw new IllegalArgumentException("No access to this account");
 
-public void payBill(Customer customer, String fromIban, String rfCode) {
-    if (customer == null) throw new IllegalArgumentException("Customer is required");
-    if (fromIban == null || fromIban.isBlank()) throw new IllegalArgumentException("From IBAN is required");
-    if (rfCode == null || rfCode.isBlank()) throw new IllegalArgumentException("RF is required");
+        TransactionManager.getInstance().registerTransaction(
+                new Withdrawall(customer, from, reason, amount));
+    }
 
-    BankAccount payer = AccountManager.getInstance().findByIban(fromIban);
-    if (payer == null) throw new IllegalArgumentException("Account not found: " + fromIban);
+    public void transfer(Customer customer,
+            String fromIban,
+            String toIban,
+            double amount,
+            String reason,
+            TransferProtocol protocol) {
 
-    if (!AccountManager.getInstance().hasAccessToAccount(customer, payer))
-        throw new IllegalArgumentException("No access to this account");
+        if (customer == null)
+            throw new IllegalArgumentException("Customer is required");
+        if (amount <= 0)
+            throw new IllegalArgumentException("Amount must be > 0");
+        if (reason == null || reason.isBlank())
+            reason = "Transfer";
 
-    Bill bill = findBillForPayment(rfCode); // uses currentDate inside facade
-    // bill has issuer VAT; payee is issuer's business account
-    BankAccount payee = AccountManager.getInstance().findBusinessAccountByVat(bill.getIssuerVAT());
-    if (payee == null) throw new IllegalArgumentException("Issuer business account not found");
+        BankAccount from;
+        BankAccount to;
 
-    // 3) execute payment
-    TransactionManager.getInstance().registerTransaction(
-        new Payment(
-            customer,
-            payer,
-            payee,
-            "Πληρωμή λογαριασμού RF: " + rfCode,
-            "Είσπραξη λογαριασμού RF: " + rfCode,
-            bill.getAmount()
-        )
-    );
+        try {
+            from = AccountManager.getInstance().findByIban(fromIban);
+            to = AccountManager.getInstance().findByIban(toIban);
+        } catch (IllegalArgumentException ex) {
+            throw ex;
+        }
 
+        if (!AccountManager.getInstance().hasAccessToAccount(customer, from))
+            throw new IllegalArgumentException("No access to source account");
 
-    // 4) mark paid
-    bill.markAsPaid();
-}
+        TransactionManager.getInstance().registerTransaction(
+                new Transfer(customer, from, to, reason, reason, amount, protocol));
+    }
 
-public void deposit(Customer customer, String toIban, double amount, String reason) {
-    if (customer == null) throw new IllegalArgumentException("Customer is required");
-    if (toIban == null || toIban.isBlank()) throw new IllegalArgumentException("IBAN is required");
-    if (amount <= 0) throw new IllegalArgumentException("Amount must be > 0");
-    if (reason == null || reason.isBlank()) reason = "Cash deposit";
+    public void payBill(Customer customer, String fromIban, String rfCode) {
+        if (customer == null)
+            throw new IllegalArgumentException("Customer is required");
+        if (fromIban == null || fromIban.isBlank())
+            throw new IllegalArgumentException("From IBAN is required");
+        if (rfCode == null || rfCode.isBlank())
+            throw new IllegalArgumentException("RF is required");
 
-    BankAccount to = AccountManager.getInstance().findByIban(toIban);
-    if (to == null) throw new IllegalArgumentException("Account not found: " + toIban);
+        BankAccount payer = AccountManager.getInstance().findByIban(fromIban);
+        if (payer == null)
+            throw new IllegalArgumentException("Account not found: " + fromIban);
 
-    if (!AccountManager.getInstance().hasAccessToAccount(customer, to))
-        throw new IllegalArgumentException("No access to this account");
+        if (!AccountManager.getInstance().hasAccessToAccount(customer, payer))
+            throw new IllegalArgumentException("No access to this account");
 
-    TransactionManager.getInstance().registerTransaction(
-        new Deposit(customer, to, reason, amount)
-    );
-}
+        Bill bill = findBillForPayment(rfCode);
+        BankAccount payee = AccountManager.getInstance().findBusinessAccountByVat(bill.getIssuerVAT());
+        if (payee == null)
+            throw new IllegalArgumentException("Issuer business account not found");
 
+        TransactionManager.getInstance().registerTransaction(
+                new Payment(
+                        customer,
+                        payer,
+                        payee,
+                        "Πληρωμή λογαριασμού RF: " + rfCode,
+                        "Είσπραξη λογαριασμού RF: " + rfCode,
+                        bill.getAmount()));
 
+        bill.markAsPaid();
+    }
 
-public List<Bill> issuedBillsFor(Company c) {
-    return BillManager.getInstance().getBillsIssuedBy(c.getVatNumber());
-}
+    public void deposit(Customer customer, String toIban, double amount, String reason) {
+        if (customer == null)
+            throw new IllegalArgumentException("Customer is required");
+        if (toIban == null || toIban.isBlank())
+            throw new IllegalArgumentException("IBAN is required");
+        if (amount <= 0)
+            throw new IllegalArgumentException("Amount must be > 0");
+        if (reason == null || reason.isBlank())
+            reason = "Cash deposit";
 
-public List<Bill> billsToPayFor(Company c) {
-    return BillManager.getInstance().getBillsToPayBy(c.getVatNumber());
-}
+        BankAccount to = AccountManager.getInstance().findByIban(toIban);
+        if (to == null)
+            throw new IllegalArgumentException("Account not found: " + toIban);
+
+        if (!AccountManager.getInstance().hasAccessToAccount(customer, to))
+            throw new IllegalArgumentException("No access to this account");
+
+        TransactionManager.getInstance().registerTransaction(
+                new Deposit(customer, to, reason, amount));
+    }
+
+    public List<Bill> issuedBillsFor(Company c) {
+        return BillManager.getInstance().getBillsIssuedBy(c.getVatNumber());
+    }
+
+    public List<Bill> billsToPayFor(Company c) {
+        return BillManager.getInstance().getBillsToPayBy(c.getVatNumber());
+    }
+
     // --- simulation ---
     public StandingOrderManager.ExecutionReport nextDayWithReport() {
-    currentDate = currentDate.plusDays(1);
-     StorageManager.getInstance().loadIssuedBills("bills/" + currentDate + ".csv");
+        currentDate = currentDate.plusDays(1);
+        StorageManager.getInstance().loadIssuedBills("bills/" + currentDate + ".csv");
 
-    AccountManager.getInstance().applyDailyInterestToAllAccounts();
+        AccountManager.getInstance().applyDailyInterestToAllAccounts();
 
-    StandingOrderManager.ExecutionReport rep =
-            StandingOrderManager.getInstance().executeDueOrdersWithReport(currentDate);
+        StandingOrderManager.ExecutionReport rep = StandingOrderManager.getInstance()
+                .executeDueOrdersWithReport(currentDate);
 
-    if (currentDate.getDayOfMonth() == currentDate.lengthOfMonth()) {
-        for (BankAccount a : AccountManager.getInstance().getAllAccounts()) {
-            a.endOfMonth();
+        if (currentDate.getDayOfMonth() == currentDate.lengthOfMonth()) {
+            for (BankAccount a : AccountManager.getInstance().getAllAccounts()) {
+                a.endOfMonth();
+            }
         }
+        return rep;
     }
-    return rep;
-}
 
     public void nextDay() {
         currentDate = currentDate.plusDays(1);
-      StorageManager.getInstance().loadIssuedBills("bills/" + currentDate + ".csv");
+        StorageManager.getInstance().loadIssuedBills("bills/" + currentDate + ".csv");
 
-        // 1) accrue daily interest
         AccountManager.getInstance().applyDailyInterestToAllAccounts();
 
-        // 2) execute standing orders due today
         StandingOrderManager.getInstance().executeDueOrders(currentDate);
 
-        // 3) end-of-month posting
         if (currentDate.getDayOfMonth() == currentDate.lengthOfMonth()) {
             for (BankAccount a : AccountManager.getInstance().getAllAccounts()) {
                 a.endOfMonth();

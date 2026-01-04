@@ -1,8 +1,8 @@
 package managers;
 
 import accounts.BankAccount;
-import accounts.MasterAccount;
 import accounts.BusinessAccount;
+import accounts.MasterAccount;
 import transactions.Transaction;
 import transactions.Transfer;
 import users.Customer;
@@ -10,7 +10,8 @@ import users.Customer;
 public class TransactionManager {
     private static final TransactionManager instance = new TransactionManager();
 
-    private TransactionManager() {}
+    private TransactionManager() {
+    }
 
     public static TransactionManager getInstance() {
         return instance;
@@ -22,62 +23,62 @@ public class TransactionManager {
             transaction.execute();
             StatementManager.getInstance().registerStatements(transaction);
         } catch (Exception e) {
-           e.printStackTrace(); 
+            e.printStackTrace();
         }
     }
 
-public void newTransfer(Customer transactor,
-                        BankAccount fromAccount,
-                        BankAccount toAccount,
-                        String reasonFrom,
-                        String reasonTo,
-                        double amount) {
-
-    Transaction transfer = Transfer.builder()
-        .transactor(transactor)
-        .from(fromAccount)
-        .to(toAccount)
-        .reasonFrom(reasonFrom)
-        .reasonTo(reasonTo)
-        .amount(amount)
-        .build();
-
-    registerTransaction(transfer);
-}
-
-   public void eofInterestPayment(BankAccount toAccount, double amount) {
-    if (toAccount == null) return;
-    if (amount <= 0) return;
-
-    Customer bank = (Customer) MasterAccount.getInstance().getPrimaryHolder();
-
-    Transaction t = Transfer.builder()
-            .transactor(bank)                     
-            .from(MasterAccount.getInstance())    
-            .to(toAccount)                        
-            .reasonFrom("Monthly interest")       
-            .reasonTo("Monthly interest")         
-            .amount(amount)
-            .build();
-
-    registerTransaction(t);
-}
-
-
-public void chargeMaintenanceFee(BusinessAccount fromAccount) {
-    MasterAccount bm = MasterAccount.getInstance();
+    public void newTransfer(Customer transactor,
+            BankAccount fromAccount,
+            BankAccount toAccount,
+            String reasonFrom,
+            String reasonTo,
+            double amount) {
 
         Transaction transfer = Transfer.builder()
-        .transactor(fromAccount.getPrimaryHolder())
-        .from(fromAccount)
-        .to(bm)
-        .reasonFrom("Maintenance fee")
-        .reasonTo("Maintenance fee from " + fromAccount.getIban())
-        .amount(BusinessAccount.getMaintenaceFee())
-        .build();
+                .transactor(transactor)
+                .from(fromAccount)
+                .to(toAccount)
+                .reasonFrom(reasonFrom)
+                .reasonTo(reasonTo)
+                .amount(amount)
+                .build();
 
-    registerTransaction(transfer);
-}
+        registerTransaction(transfer);
+    }
 
-   
+    public void eofInterestPayment(BankAccount toAccount, double amount) {
+        if (toAccount == null)
+            return;
+        if (amount <= 0)
+            return;
+
+        Customer bank = (Customer) MasterAccount.getInstance().getPrimaryHolder();
+
+        Transaction t = Transfer.builder()
+                .transactor(bank)
+                .from(MasterAccount.getInstance())
+                .to(toAccount)
+                .reasonFrom("Monthly interest")
+                .reasonTo("Monthly interest")
+                .amount(amount)
+                .build();
+
+        registerTransaction(t);
+    }
+
+    public void chargeMaintenanceFee(BusinessAccount fromAccount) {
+        MasterAccount bm = MasterAccount.getInstance();
+
+        Transaction transfer = Transfer.builder()
+                .transactor(fromAccount.getPrimaryHolder())
+                .from(fromAccount)
+                .to(bm)
+                .reasonFrom("Maintenance fee")
+                .reasonTo("Maintenance fee from " + fromAccount.getIban())
+                .amount(BusinessAccount.getMaintenaceFee())
+                .build();
+
+        registerTransaction(transfer);
+    }
+
 }

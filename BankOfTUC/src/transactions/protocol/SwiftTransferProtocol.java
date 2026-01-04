@@ -6,12 +6,12 @@ import java.net.http.*;
 
 public class SwiftTransferProtocol implements TransferProtocol {
 
-    private static final String URL = "http://147.27.70.44:3020/transfer/swift";
+  private static final String URL = "http://147.27.70.44:3020/transfer/swift";
 
-    @Override
-    public void execute(BankAccount from, BankAccount to, double amount) throws Exception {
+  @Override
+  public void execute(BankAccount from, BankAccount to, double amount) throws Exception {
 
-        String json = """
+    String json = """
         {
           "currency": "EUR",
           "amount": %f,
@@ -30,26 +30,24 @@ public class SwiftTransferProtocol implements TransferProtocol {
           }
         }
         """.formatted(
-                amount,
-                to.getPrimaryHolder().getLegalName(),
-                to.getIban()
-        );
+        amount,
+        to.getPrimaryHolder().getLegalName(),
+        to.getIban());
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(URL))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(json))
-                .build();
+    HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create(URL))
+        .header("Content-Type", "application/json")
+        .POST(HttpRequest.BodyPublishers.ofString(json))
+        .build();
 
-        HttpClient client = HttpClient.newHttpClient();
-        HttpResponse<String> response =
-                client.send(request, HttpResponse.BodyHandlers.ofString());
+    HttpClient client = HttpClient.newHttpClient();
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        if (response.statusCode() != 200 || !response.body().contains("\"status\":\"success\"")) {
-            throw new Exception("SWIFT transfer failed");
-        }
-
-        from.debit(amount);
-        to.credit(amount);
+    if (response.statusCode() != 200 || !response.body().contains("\"status\":\"success\"")) {
+      throw new Exception("SWIFT transfer failed");
     }
+
+    from.debit(amount);
+    to.credit(amount);
+  }
 }

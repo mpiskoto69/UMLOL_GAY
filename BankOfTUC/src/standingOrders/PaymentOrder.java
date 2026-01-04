@@ -1,4 +1,5 @@
 package standingOrders;
+
 import accounts.BankAccount;
 import bank.storage.Bill;
 import bank.storage.UnMarshalingException;
@@ -9,21 +10,23 @@ import managers.TransactionManager;
 import managers.UserManager;
 import transactions.Payment;
 import users.Customer;
+
 public class PaymentOrder extends StandingOrder {
     private BankAccount fromAccount;
     private String rfCode;
     private double maxAmount;
 
     public PaymentOrder(Customer customer, String id, String title, String description,
-                        BankAccount fromAccount, String rfCode, double maxAmount,
-                        LocalDate startDate, LocalDate endDate, double fee) {
+            BankAccount fromAccount, String rfCode, double maxAmount,
+            LocalDate startDate, LocalDate endDate, double fee) {
         super(customer, id, title, description, startDate, endDate, fee);
         this.fromAccount = fromAccount;
         this.rfCode = rfCode;
         this.maxAmount = maxAmount;
     }
 
-    public PaymentOrder() {}
+    public PaymentOrder() {
+    }
 
     @Override
     public boolean isDue(LocalDate today) {
@@ -59,18 +62,16 @@ public class PaymentOrder extends StandingOrder {
             }
 
             TransactionManager.getInstance().registerTransaction(
-                new Payment(
-                    customer,
-                    payer,
-                    payee,
-                    "Πληρωμή λογαριασμού RF: " + rfCode,
-                    "Είσπραξη λογαριασμού RF: " + rfCode,
-                    bill.getAmount() + fee
-                )
-            );
+                    new Payment(
+                            customer,
+                            payer,
+                            payee,
+                            "Πληρωμή λογαριασμού RF: " + rfCode,
+                            "Είσπραξη λογαριασμού RF: " + rfCode,
+                            bill.getAmount() + fee));
 
             bill.markAsPaid();
-            
+
         } catch (Exception e) {
             onAttemptFailure(today);
         }
@@ -82,19 +83,18 @@ public class PaymentOrder extends StandingOrder {
         String chargeIban = (fromAccount != null) ? fromAccount.getIban() : "";
 
         return String.join(",",
-            "type:PaymentOrder",
-            "orderId:" + id,
-            "paymentCode:" + rfCode,
-            "title:" + title,
-            "description:" + description,
-            "customer:" + customerVat,
-            "maxAmount:" + maxAmount,
-            "startDate:" + startDate,
-            "endDate:" + endDate,
-            "fee:" + fee,
-            "failedAttempts:" + failedAttempts,
-            "chargeAccount:" + chargeIban
-        );
+                "type:PaymentOrder",
+                "orderId:" + id,
+                "paymentCode:" + rfCode,
+                "title:" + title,
+                "description:" + description,
+                "customer:" + customerVat,
+                "maxAmount:" + maxAmount,
+                "startDate:" + startDate,
+                "endDate:" + endDate,
+                "fee:" + fee,
+                "failedAttempts:" + failedAttempts,
+                "chargeAccount:" + chargeIban);
     }
 
     @Override
@@ -105,10 +105,12 @@ public class PaymentOrder extends StandingOrder {
         }
 
         for (String p : parts) {
-            if (p.isBlank()) continue;
+            if (p.isBlank())
+                continue;
 
             String[] kv = p.split(":", 2);
-            if (kv.length != 2) throw new UnMarshalingException("Bad field: " + p);
+            if (kv.length != 2)
+                throw new UnMarshalingException("Bad field: " + p);
 
             switch (kv[0]) {
                 case "type":
@@ -145,7 +147,8 @@ public class PaymentOrder extends StandingOrder {
                     break;
                 case "chargeAccount":
                     fromAccount = AccountManager.getInstance().findByIban(kv[1]);
-                    if (fromAccount == null) throw new UnMarshalingException("Unknown IBAN: " + kv[1]);
+                    if (fromAccount == null)
+                        throw new UnMarshalingException("Unknown IBAN: " + kv[1]);
                     break;
                 default:
                     // ignore

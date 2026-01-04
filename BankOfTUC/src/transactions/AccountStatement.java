@@ -1,9 +1,8 @@
 package transactions;
 
-import java.time.LocalDateTime;
-
 import bank.storage.Storable;
 import bank.storage.UnMarshalingException;
+import java.time.LocalDateTime;
 
 public class AccountStatement implements Storable {
 
@@ -11,26 +10,24 @@ public class AccountStatement implements Storable {
         CREDIT, DEBIT
     }
 
-    // NOTE: keep fields non-final because we support unmarshal() + Builder
     private LocalDateTime timestamp;
     private String transactionId;
     private String transactorName;
     private String accountIban;
-    private String counterpartyIban; // μπορεί να είναι null
+    private String counterpartyIban;
     private String reason;
     private double amount;
     private double balanceAfter;
     private MovementType movementType;
 
-    // Existing constructor (keep it for backward compatibility)
     public AccountStatement(String transactionId,
-                            String transactorName,
-                            String accountIban,
-                            String counterpartyIban,
-                            String reason,
-                            double amount,
-                            double balanceAfter,
-                            MovementType movementType) {
+            String transactorName,
+            String accountIban,
+            String counterpartyIban,
+            String reason,
+            double amount,
+            double balanceAfter,
+            MovementType movementType) {
         this.timestamp = LocalDateTime.now();
         this.transactionId = transactionId;
         this.transactorName = transactorName;
@@ -42,8 +39,8 @@ public class AccountStatement implements Storable {
         this.movementType = movementType;
     }
 
-    // Empty ctor needed for unmarshal() + Builder.build()
-    public AccountStatement() {}
+    public AccountStatement() {
+    }
 
     // ---------- Builder pattern ----------
     public static Builder builder() {
@@ -57,8 +54,8 @@ public class AccountStatement implements Storable {
         private String accountIban;
         private String counterpartyIban;
         private String reason;
-        private Double amount;         // wrapper to detect missing
-        private Double balanceAfter;   // wrapper to detect missing
+        private Double amount; // wrapper to detect missing
+        private Double balanceAfter; // wrapper to detect missing
         private MovementType movementType;
 
         public Builder timestamp(LocalDateTime timestamp) {
@@ -138,31 +135,56 @@ public class AccountStatement implements Storable {
     }
 
     // ---------- Getters ----------
-    public LocalDateTime getTimestamp() { return timestamp; }
-    public String getTransactionId() { return transactionId; }
-    public String getTransactorName() { return transactorName; }
-    public String getAccountIban() { return accountIban; }
-    public String getCounterpartyIban() { return counterpartyIban; }
-    public String getReason() { return reason; }
-    public double getAmount() { return amount; }
-    public double getBalanceAfter() { return balanceAfter; }
-    public MovementType getMovementType() { return movementType; }
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public String getTransactorName() {
+        return transactorName;
+    }
+
+    public String getAccountIban() {
+        return accountIban;
+    }
+
+    public String getCounterpartyIban() {
+        return counterpartyIban;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public double getBalanceAfter() {
+        return balanceAfter;
+    }
+
+    public MovementType getMovementType() {
+        return movementType;
+    }
 
     // ---------- Storage ----------
     @Override
     public String marshal() {
         return String.join(",",
-            "type:Statement",
-            "timestamp:" + timestamp,
-            "transactionId:" + transactionId,
-            "transactor:" + transactorName,
-            "accountIban:" + accountIban,
-            "counterpartyIban:" + (counterpartyIban != null ? counterpartyIban : ""),
-            "reason:" + reason,
-            "amount:" + amount,
-            "balanceAfter:" + balanceAfter,
-            "movementType:" + movementType
-        );
+                "type:Statement",
+                "timestamp:" + timestamp,
+                "transactionId:" + transactionId,
+                "transactor:" + transactorName,
+                "accountIban:" + accountIban,
+                "counterpartyIban:" + (counterpartyIban != null ? counterpartyIban : ""),
+                "reason:" + reason,
+                "amount:" + amount,
+                "balanceAfter:" + balanceAfter,
+                "movementType:" + movementType);
     }
 
     @Override
@@ -174,7 +196,8 @@ public class AccountStatement implements Storable {
 
         for (String p : parts) {
             String[] kv = p.split(":", 2);
-            if (kv.length != 2) throw new UnMarshalingException("Bad field: " + p);
+            if (kv.length != 2)
+                throw new UnMarshalingException("Bad field: " + p);
 
             switch (kv[0]) {
                 case "type":
@@ -216,9 +239,9 @@ public class AccountStatement implements Storable {
     @Override
     public String toString() {
         return "[" + timestamp + "] " + movementType
-            + " | " + amount + "€"
-            + " | REASON: " + reason
-            + " | BALANCEAFTER: " + balanceAfter + "€"
-            + " | Transactor: " + transactorName;
+                + " | " + amount + "€"
+                + " | REASON: " + reason
+                + " | BALANCEAFTER: " + balanceAfter + "€"
+                + " | Transactor: " + transactorName;
     }
 }

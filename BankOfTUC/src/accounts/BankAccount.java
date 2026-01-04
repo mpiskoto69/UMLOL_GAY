@@ -1,20 +1,18 @@
-    package accounts;
+package accounts;
 
+import bank.storage.Storable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Random;
-
 import javax.naming.InsufficientResourcesException;
-
-import bank.storage.Storable;
 import managers.AccountManager;
 import transactions.AccountStatement;
 import users.Customer;
 
-public abstract class BankAccount implements Storable{
+public abstract class BankAccount implements Storable {
     protected String iban;
     protected double balance;
-    protected double interestRate; // Ετήσιο επιτόκιο
+    protected double interestRate;
     protected Customer primaryHolder;
     protected double thisMonthsInterest;
     private ArrayList<AccountStatement> statements = new ArrayList<>();
@@ -29,7 +27,7 @@ public abstract class BankAccount implements Storable{
         this.dateCreated = LocalDate.now();
 
         holder.addAccount(this);
-    } 
+    }
 
     public BankAccount() {
 
@@ -37,24 +35,22 @@ public abstract class BankAccount implements Storable{
 
     private static final Random RANDOM = new Random();
 
-private String generateIban(String typeCode) {
-    String countryCode = "GR";
-    String uniquePart;
+    private String generateIban(String typeCode) {
+        String countryCode = "GR";
+        String uniquePart;
 
-    do {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 15; i++) {
-            sb.append(RANDOM.nextInt(10)); // 0-9
-        }
-        uniquePart = sb.toString();
-    } while (AccountManager.getInstance().existsIban(uniquePart));
+        do {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 15; i++) {
+                sb.append(RANDOM.nextInt(10));
+            }
+            uniquePart = sb.toString();
+        } while (AccountManager.getInstance().existsIban(uniquePart));
 
+        AccountManager.getInstance().addIban(uniquePart);
 
-    AccountManager.getInstance().addIban(uniquePart);
-
-    return countryCode + typeCode + uniquePart;
-}
-
+        return countryCode + typeCode + uniquePart;
+    }
 
     public String getIban() {
         return iban;
@@ -104,7 +100,7 @@ private String generateIban(String typeCode) {
     }
 
     public void addStatement(AccountStatement statement) {
-        statements.add(0, statement); // προσθήκη πρώτα για αντίστροφη χρονολογική σειρά
+        statements.add(0, statement);
     }
 
     public ArrayList<AccountStatement> getStatements() {

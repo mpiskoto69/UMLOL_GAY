@@ -2,14 +2,13 @@ package gui;
 
 import app.BankingFacade;
 import gui.dialogs.ForgotPasswordDialog;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import javax.swing.*;
 import users.Admin;
 import users.Company;
 import users.Individual;
 import users.User;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
 
 public class LoginFrame extends JFrame {
 
@@ -21,7 +20,6 @@ public class LoginFrame extends JFrame {
     private final JButton exitButton = new JButton("Exit");
     private final JLabel statusLabel = new JLabel(" ");
     private final JButton forgotBtn = new JButton("Forgot password");
-
 
     public LoginFrame() {
         super("Bank of TUC - Login");
@@ -38,11 +36,10 @@ public class LoginFrame extends JFrame {
         } catch (Exception ex) {
             statusLabel.setText("Load failed.");
             JOptionPane.showMessageDialog(
-                this,
-                "Αποτυχία φόρτωσης δεδομένων:\n" + ex.getMessage(),
-                "Load Error",
-                JOptionPane.ERROR_MESSAGE
-            );
+                    this,
+                    "Αποτυχία φόρτωσης δεδομένων:\n" + ex.getMessage(),
+                    "Load Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -63,13 +60,15 @@ public class LoginFrame extends JFrame {
         c.insets = new Insets(6, 6, 6, 6);
         c.anchor = GridBagConstraints.WEST;
 
-        c.gridx = 0; c.gridy = 0;
+        c.gridx = 0;
+        c.gridy = 0;
         form.add(new JLabel("Username:"), c);
 
         c.gridx = 1;
         form.add(usernameField, c);
 
-        c.gridx = 0; c.gridy = 1;
+        c.gridx = 0;
+        c.gridy = 1;
         form.add(new JLabel("Password:"), c);
 
         c.gridx = 1;
@@ -86,7 +85,7 @@ public class LoginFrame extends JFrame {
 
         root.add(form, BorderLayout.CENTER);
 
-      // JPanel buttons = new JPanel(new BorderLayout());
+        // JPanel buttons = new JPanel(new BorderLayout());
 
         JPanel leftBtns = new JPanel(new FlowLayout(FlowLayout.LEFT));
         leftBtns.add(forgotBtn);
@@ -123,11 +122,10 @@ public class LoginFrame extends JFrame {
 
         if (username.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(
-                this,
-                "Συμπλήρωσε username και password.",
-                "Validation",
-                JOptionPane.WARNING_MESSAGE
-            );
+                    this,
+                    "Συμπλήρωσε username και password.",
+                    "Validation",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -149,11 +147,10 @@ public class LoginFrame extends JFrame {
                 });
             } else {
                 JOptionPane.showMessageDialog(
-                    this,
-                    "Άγνωστος ρόλος χρήστη: " + u.getRole(),
-                    "Login Error",
-                    JOptionPane.ERROR_MESSAGE
-                );
+                        this,
+                        "Άγνωστος ρόλος χρήστη: " + u.getRole(),
+                        "Login Error",
+                        JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -162,36 +159,35 @@ public class LoginFrame extends JFrame {
 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(
-                this,
-                ex.getMessage(),
-                "Login Failed",
-                JOptionPane.ERROR_MESSAGE
-            );
+                    this,
+                    ex.getMessage(),
+                    "Login Failed",
+                    JOptionPane.ERROR_MESSAGE);
             passwordField.setText("");
             passwordField.requestFocusInWindow();
         }
     }
 
-   private void onForgotPassword() {
-    ForgotPasswordDialog dlg = new ForgotPasswordDialog(this);
-    ForgotPasswordDialog.Result res = dlg.showDialog();
-    if (res == null) return;
+    private void onForgotPassword() {
+        ForgotPasswordDialog dlg = new ForgotPasswordDialog(this);
+        ForgotPasswordDialog.Result res = dlg.showDialog();
+        if (res == null)
+            return;
 
-    try {
-        User u = managers.UserManager.getInstance().findUserByUsername(res.username);
-        if (u == null) throw new IllegalArgumentException("User not found");
+        try {
+            User u = managers.UserManager.getInstance().findUserByUsername(res.username);
+            if (u == null)
+                throw new IllegalArgumentException("User not found");
 
-        u.setPassword(res.newPassword);
+            u.setPassword(res.newPassword);
 
-       
-        facade.saveAll();
+            facade.saveAll();
 
-        JOptionPane.showMessageDialog(this, "Password reset successful.", "OK", JOptionPane.INFORMATION_MESSAGE);
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, ex.getMessage(), "Reset failed", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Password reset successful.", "OK", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Reset failed", JOptionPane.ERROR_MESSAGE);
+        }
     }
-}
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));

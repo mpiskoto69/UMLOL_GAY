@@ -1,20 +1,19 @@
 package gui.dialogs;
 
 import accounts.BankAccount;
-import users.Customer;
-
-import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.List;
+import javax.swing.*;
+import users.Customer;
 
 public class CreatePaymentOrderDialog extends JDialog {
 
     public static class Result {
         public String title;
         public String description;
-        public String fromIban;     
-        public String rfCode;       
+        public String fromIban;
+        public String rfCode;
         public double maxAmount;
         public LocalDate startDate;
         public LocalDate endDate;
@@ -30,21 +29,19 @@ public class CreatePaymentOrderDialog extends JDialog {
     private final JComboBox<String> fromIbanCombo = new JComboBox<>();
     private final JTextField rfField = new JTextField(18);
 
-    private final JSpinner maxAmountSpinner =
-            new JSpinner(new SpinnerNumberModel(100.00, 0.01, 1_000_000.00, 1.00));
-    private final JSpinner feeSpinner =
-            new JSpinner(new SpinnerNumberModel(0.00, 0.00, 1_000_000.00, 0.50));
+    private final JSpinner maxAmountSpinner = new JSpinner(new SpinnerNumberModel(100.00, 0.01, 1_000_000.00, 1.00));
+    private final JSpinner feeSpinner = new JSpinner(new SpinnerNumberModel(0.00, 0.00, 1_000_000.00, 0.50));
 
     private final JTextField startDateField = new JTextField(10); // yyyy-mm-dd
-    private final JTextField endDateField = new JTextField(10);   // yyyy-mm-dd
+    private final JTextField endDateField = new JTextField(10); // yyyy-mm-dd
 
     private final JButton cancelBtn = new JButton("Cancel");
     private final JButton createBtn = new JButton("Create");
 
     public CreatePaymentOrderDialog(Window owner,
-                                    Customer customer,
-                                    List<BankAccount> customerAccounts,
-                                    LocalDate today) {
+            Customer customer,
+            List<BankAccount> customerAccounts,
+            LocalDate today) {
         super(owner, "Create Payment Standing Order", ModalityType.APPLICATION_MODAL);
 
         buildUI();
@@ -61,7 +58,10 @@ public class CreatePaymentOrderDialog extends JDialog {
         }
 
         // wire
-        cancelBtn.addActionListener(e -> { result = null; dispose(); });
+        cancelBtn.addActionListener(e -> {
+            result = null;
+            dispose();
+        });
         createBtn.addActionListener(e -> onCreate());
 
         pack();
@@ -85,36 +85,68 @@ public class CreatePaymentOrderDialog extends JDialog {
         int y = 0;
 
         // title
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("Title:"), c);
-        c.gridx = 1; form.add(titleField, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("Title:"), c);
+        c.gridx = 1;
+        form.add(titleField, c);
+        y++;
 
         // description
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("Description:"), c);
-        c.gridx = 1; form.add(descField, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("Description:"), c);
+        c.gridx = 1;
+        form.add(descField, c);
+        y++;
 
         // from
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("Pay from (IBAN):"), c);
-        c.gridx = 1; form.add(fromIbanCombo, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("Pay from (IBAN):"), c);
+        c.gridx = 1;
+        form.add(fromIbanCombo, c);
+        y++;
 
         // RF
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("RF code:"), c);
-        c.gridx = 1; form.add(rfField, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("RF code:"), c);
+        c.gridx = 1;
+        form.add(rfField, c);
+        y++;
 
         // max amount
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("Max amount (€):"), c);
-        c.gridx = 1; form.add(maxAmountSpinner, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("Max amount (€):"), c);
+        c.gridx = 1;
+        form.add(maxAmountSpinner, c);
+        y++;
 
         // start date
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("Start date (yyyy-mm-dd):"), c);
-        c.gridx = 1; form.add(startDateField, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("Start date (yyyy-mm-dd):"), c);
+        c.gridx = 1;
+        form.add(startDateField, c);
+        y++;
 
         // end date
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("End date (yyyy-mm-dd):"), c);
-        c.gridx = 1; form.add(endDateField, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("End date (yyyy-mm-dd):"), c);
+        c.gridx = 1;
+        form.add(endDateField, c);
+        y++;
 
         // fee
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("Fee (€):"), c);
-        c.gridx = 1; form.add(feeSpinner, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("Fee (€):"), c);
+        c.gridx = 1;
+        form.add(feeSpinner, c);
+        y++;
 
         // buttons
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -131,7 +163,8 @@ public class CreatePaymentOrderDialog extends JDialog {
     private void onCreate() {
         try {
             String title = titleField.getText().trim();
-            if (title.isEmpty()) title = "Standing Bill Payment";
+            if (title.isEmpty())
+                title = "Standing Bill Payment";
 
             String fromIban = (String) fromIbanCombo.getSelectedItem();
             if (fromIban == null || fromIban.isBlank())
@@ -174,8 +207,7 @@ public class CreatePaymentOrderDialog extends JDialog {
                     this,
                     ex.getMessage(),
                     "Validation",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
         }
     }
 }

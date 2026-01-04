@@ -20,17 +20,16 @@ public class UserManager {
     public void addUser(User user) {
         users.add(user);
     }
-public User findUserByUsername(String username) {
-    for (User u : users) {
-        String un = u.getUsername();
-        if (un != null && un.trim().equals(username.trim())) {
-            return u;
+
+    public User findUserByUsername(String username) {
+        for (User u : users) {
+            String un = u.getUsername();
+            if (un != null && un.trim().equals(username.trim())) {
+                return u;
+            }
         }
+        return null;
     }
-    return null;
-}
-
-
 
     public StorableList<User> getAllUsers() {
         return users;
@@ -59,15 +58,16 @@ public User findUserByUsername(String username) {
         this.users.addAll(users);
     }
 
-public void resetPassword(String username, String newPassword) {
-    User u = findUserByUsername(username);
-    if (u == null)
-        throw new IllegalArgumentException("User not found");
+    public void resetPassword(String username, String newPassword) {
+        User u = findUserByUsername(username);
+        if (u == null)
+            throw new IllegalArgumentException("User not found");
 
-    u.setPassword(newPassword);
-}
-public void clearAll() {
-    users.clear();
-}
+        u.setPassword(newPassword);
+    }
+
+    public void clearAll() {
+        users.clear();
+    }
 
 }

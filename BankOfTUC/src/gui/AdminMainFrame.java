@@ -1,12 +1,12 @@
 package gui;
 
 import app.BankingFacade;
-import users.Admin;
-import gui.panels.CustomersPanel;
 import gui.panels.AccountsAdminPanel;
+import gui.panels.CustomersPanel;
 import gui.panels.SimulationPanel;
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
+import users.Admin;
 
 public class AdminMainFrame extends JFrame {
 
@@ -37,59 +37,56 @@ public class AdminMainFrame extends JFrame {
         setLocationRelativeTo(null);
 
         // Header
-JPanel header = new JPanel(new BorderLayout(10, 10));
-header.setBorder(BorderFactory.createEmptyBorder(12, 12, 6, 12));
+        JPanel header = new JPanel(new BorderLayout(10, 10));
+        header.setBorder(BorderFactory.createEmptyBorder(12, 12, 6, 12));
 
-welcomeLabel.setFont(welcomeLabel.getFont().deriveFont(Font.BOLD, 18f));
-dateLabel.setFont(dateLabel.getFont().deriveFont(Font.PLAIN, 14f));
-dateLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        welcomeLabel.setFont(welcomeLabel.getFont().deriveFont(Font.BOLD, 18f));
+        dateLabel.setFont(dateLabel.getFont().deriveFont(Font.PLAIN, 14f));
+        dateLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 
-JButton logoutBtn = new JButton("Logout");
-logoutBtn.addActionListener(e -> {
+        JButton logoutBtn = new JButton("Logout");
+        logoutBtn.addActionListener(e -> {
 
-    int r = JOptionPane.showConfirmDialog(
-            AdminMainFrame.this,
-            "Save changes before logout?",
-            "Logout",
-            JOptionPane.YES_NO_CANCEL_OPTION,
-            JOptionPane.QUESTION_MESSAGE
-    );
-
-    if (r == JOptionPane.CANCEL_OPTION) {
-        return; 
-    }
-
-    if (r == JOptionPane.YES_OPTION) {
-        try {
-            facade.saveAll(); 
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(
+            int r = JOptionPane.showConfirmDialog(
                     AdminMainFrame.this,
-                    "Failed to save data:\n" + ex.getMessage(),
-                    "Save Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            return; 
-        }
-    }
+                    "Save changes before logout?",
+                    "Logout",
+                    JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
 
-   
-    dispose();
-    SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
-});
+            if (r == JOptionPane.CANCEL_OPTION) {
+                return;
+            }
 
-JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-right.add(dateLabel);
-right.add(logoutBtn);
+            if (r == JOptionPane.YES_OPTION) {
+                try {
+                    facade.saveAll();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(
+                            AdminMainFrame.this,
+                            "Failed to save data:\n" + ex.getMessage(),
+                            "Save Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
 
-header.add(welcomeLabel, BorderLayout.WEST);
-header.add(right, BorderLayout.EAST);
+            dispose();
+            SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
+        });
+
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        right.add(dateLabel);
+        right.add(logoutBtn);
+
+        header.add(welcomeLabel, BorderLayout.WEST);
+        header.add(right, BorderLayout.EAST);
 
         // Tabs
         JTabbedPane tabs = new JTabbedPane();
 
         customersPanel = new CustomersPanel(facade);
-        accountsPanel  = new AccountsAdminPanel(facade);
+        accountsPanel = new AccountsAdminPanel(facade);
 
         simulationPanel = new SimulationPanel(facade, () -> {
             refreshHeader();
@@ -122,9 +119,12 @@ header.add(right, BorderLayout.EAST);
     }
 
     private void refreshAll() {
-        if (customersPanel != null) customersPanel.refresh();
-        if (accountsPanel != null) accountsPanel.refresh();
-        if (simulationPanel != null) simulationPanel.refresh();
+        if (customersPanel != null)
+            customersPanel.refresh();
+        if (accountsPanel != null)
+            accountsPanel.refresh();
+        if (simulationPanel != null)
+            simulationPanel.refresh();
     }
 
     private void setStatus(String msg) {

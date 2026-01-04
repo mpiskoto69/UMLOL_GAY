@@ -1,11 +1,10 @@
 package gui.dialogs;
 
 import accounts.BankAccount;
-import users.Customer;
-
-import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import javax.swing.*;
+import users.Customer;
 
 public class PayBillDialog extends JDialog {
 
@@ -39,18 +38,20 @@ public class PayBillDialog extends JDialog {
     private void buildUI() {
         JPanel form = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(6,6,6,6);
+        c.insets = new Insets(6, 6, 6, 6);
         c.anchor = GridBagConstraints.WEST;
 
         int y = 0;
 
-        c.gridx = 0; c.gridy = y;
+        c.gridx = 0;
+        c.gridy = y;
         form.add(new JLabel("Pay from account:"), c);
         c.gridx = 1;
         form.add(fromCombo, c);
         y++;
 
-        c.gridx = 0; c.gridy = y;
+        c.gridx = 0;
+        c.gridy = y;
         form.add(new JLabel("RF code:"), c);
         c.gridx = 1;
         form.add(rfField, c);
@@ -97,4 +98,3 @@ public class PayBillDialog extends JDialog {
         return result;
     }
 }
-

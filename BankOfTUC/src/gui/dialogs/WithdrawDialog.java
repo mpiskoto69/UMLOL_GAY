@@ -1,11 +1,10 @@
 package gui.dialogs;
 
 import accounts.BankAccount;
-import users.Customer;
-
-import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import javax.swing.*;
+import users.Customer;
 
 public class WithdrawDialog extends JDialog {
 
@@ -18,8 +17,7 @@ public class WithdrawDialog extends JDialog {
     private Result result = null;
 
     private final JComboBox<String> fromIbanCombo = new JComboBox<>();
-    private final JSpinner amountSpinner =
-            new JSpinner(new SpinnerNumberModel(20.00, 0.01, 1_000_000.00, 1.00));
+    private final JSpinner amountSpinner = new JSpinner(new SpinnerNumberModel(20.00, 0.01, 1_000_000.00, 1.00));
     private final JTextField reasonField = new JTextField(22);
 
     private final JButton cancelBtn = new JButton("Cancel");
@@ -38,7 +36,10 @@ public class WithdrawDialog extends JDialog {
             fromIbanCombo.addItem(a.getIban());
         }
 
-        cancelBtn.addActionListener(e -> { result = null; dispose(); });
+        cancelBtn.addActionListener(e -> {
+            result = null;
+            dispose();
+        });
         withdrawBtn.addActionListener(e -> onWithdraw());
 
         pack();
@@ -61,19 +62,22 @@ public class WithdrawDialog extends JDialog {
 
         int y = 0;
 
-        c.gridx = 0; c.gridy = y;
+        c.gridx = 0;
+        c.gridy = y;
         form.add(new JLabel("From (IBAN):"), c);
         c.gridx = 1;
         form.add(fromIbanCombo, c);
         y++;
 
-        c.gridx = 0; c.gridy = y;
+        c.gridx = 0;
+        c.gridy = y;
         form.add(new JLabel("Amount (€):"), c);
         c.gridx = 1;
         form.add(amountSpinner, c);
         y++;
 
-        c.gridx = 0; c.gridy = y;
+        c.gridx = 0;
+        c.gridy = y;
         form.add(new JLabel("Reason:"), c);
         c.gridx = 1;
         form.add(reasonField, c);
@@ -101,7 +105,8 @@ public class WithdrawDialog extends JDialog {
                 throw new IllegalArgumentException("Amount must be > 0.");
 
             String reason = reasonField.getText().trim();
-            if (reason.isEmpty()) reason = "Cash withdrawal";
+            if (reason.isEmpty())
+                reason = "Cash withdrawal";
 
             Result r = new Result();
             r.fromIban = fromIban;

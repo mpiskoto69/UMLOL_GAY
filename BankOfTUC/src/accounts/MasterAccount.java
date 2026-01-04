@@ -1,7 +1,7 @@
 package accounts;
 
-import java.time.LocalDate;
 import bank.storage.UnMarshalingException;
+import java.time.LocalDate;
 import managers.UserManager;
 import users.Company;
 import users.Customer;
@@ -10,7 +10,7 @@ public class MasterAccount extends BusinessAccount {
     private static final MasterAccount instance = new MasterAccount();
 
     private MasterAccount() {
-        super(); 
+        super();
     }
 
     public static MasterAccount getInstance() {
@@ -18,13 +18,14 @@ public class MasterAccount extends BusinessAccount {
     }
 
     public void initIfNeeded(Company bankCompany) {
-        if (this.primaryHolder != null) return; 
+        if (this.primaryHolder != null)
+            return;
 
         this.primaryHolder = bankCompany;
         this.interestRate = 0.0;
         this.dateCreated = LocalDate.now();
         if (this.iban == null || this.iban.isBlank()) {
-            this.iban = "GR200" + System.currentTimeMillis(); 
+            this.iban = "GR200" + System.currentTimeMillis();
         }
         this.balance = 10000.0;
 
@@ -32,7 +33,8 @@ public class MasterAccount extends BusinessAccount {
     }
 
     @Override
-    public void endOfMonth() { }
+    public void endOfMonth() {
+    }
 
     @Override
     public String marshal() {
@@ -50,7 +52,8 @@ public class MasterAccount extends BusinessAccount {
         String[] parts = data.split(",");
         for (String p : parts) {
             String[] kv = p.split(":", 2);
-            if (kv.length != 2) throw new UnMarshalingException("Bad field: " + p);
+            if (kv.length != 2)
+                throw new UnMarshalingException("Bad field: " + p);
 
             String key = kv[0], val = kv[1];
             switch (key) {
@@ -61,17 +64,18 @@ public class MasterAccount extends BusinessAccount {
                 case "iban":
                     this.iban = val;
                     break;
-               case "primaryOwner":
-    Customer cust = UserManager.getInstance().findCustomerByVat(val);
-    if (cust == null) {
-        throw new UnMarshalingException("No customer found for MasterAccount primaryOwner: " + val);
-    }
-    if (!(cust instanceof Company)) {
-        throw new UnMarshalingException("MasterAccount primaryOwner must be Company, got: " + cust.getClass().getSimpleName());
-    }
-    this.primaryHolder = (Company) cust;
-    this.primaryHolder.addAccount(this);
-    break;
+                case "primaryOwner":
+                    Customer cust = UserManager.getInstance().findCustomerByVat(val);
+                    if (cust == null) {
+                        throw new UnMarshalingException("No customer found for MasterAccount primaryOwner: " + val);
+                    }
+                    if (!(cust instanceof Company)) {
+                        throw new UnMarshalingException(
+                                "MasterAccount primaryOwner must be Company, got: " + cust.getClass().getSimpleName());
+                    }
+                    this.primaryHolder = (Company) cust;
+                    this.primaryHolder.addAccount(this);
+                    break;
 
                 case "dateCreated":
                     this.dateCreated = LocalDate.parse(val);

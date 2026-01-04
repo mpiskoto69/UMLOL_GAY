@@ -3,11 +3,10 @@ package gui;
 import app.BankingFacade;
 import gui.panels.AccountsPanel;
 import gui.panels.StandingOrdersPanel;
-import users.Individual;
 import gui.panels.StatementsPanel;
-
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
+import users.Individual;
 
 public class IndividualMainFrame extends JFrame {
 
@@ -44,37 +43,33 @@ public class IndividualMainFrame extends JFrame {
         JButton logoutBtn = new JButton("Logout");
         logoutBtn.addActionListener(e -> {
 
-    int r = JOptionPane.showConfirmDialog(
-            IndividualMainFrame.this,
-            "Save changes before logout?",
-            "Logout",
-            JOptionPane.YES_NO_CANCEL_OPTION,
-            JOptionPane.QUESTION_MESSAGE
-    );
-
-    if (r == JOptionPane.CANCEL_OPTION) {
-        return; 
-    }
-
-    if (r == JOptionPane.YES_OPTION) {
-        try {
-            facade.saveAll(); // σώζει ΟΛΑ + ημερομηνία
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(
+            int r = JOptionPane.showConfirmDialog(
                     IndividualMainFrame.this,
-                    "Failed to save data:\n" + ex.getMessage(),
-                    "Save Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            return; //  μην κάνεις logout αν απέτυχε το save
-        }
-    }
+                    "Save changes before logout?",
+                    "Logout",
+                    JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
 
-    //  logout κανονικά
-    dispose();
-    SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
-});
+            if (r == JOptionPane.CANCEL_OPTION) {
+                return;
+            }
 
+            if (r == JOptionPane.YES_OPTION) {
+                try {
+                    facade.saveAll();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(
+                            IndividualMainFrame.this,
+                            "Failed to save data:\n" + ex.getMessage(),
+                            "Save Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
+            dispose();
+            SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
+        });
 
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         right.add(dateLabel);
@@ -97,7 +92,7 @@ public class IndividualMainFrame extends JFrame {
         tabs.addTab("Accounts", accountsPanel);
         tabs.addTab("Standing Orders", soPanel);
         tabs.addTab("Statements", stPanel);
-        
+
         // ---------- Root ----------
         JPanel root = new JPanel(new BorderLayout());
         root.add(header, BorderLayout.NORTH);

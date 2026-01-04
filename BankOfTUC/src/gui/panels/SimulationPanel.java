@@ -2,9 +2,9 @@
 package gui.panels;
 
 import app.BankingFacade;
-import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
+import javax.swing.*;
 
 public class SimulationPanel extends JPanel {
 
@@ -15,7 +15,6 @@ public class SimulationPanel extends JPanel {
     private final JButton nextDayBtn = new JButton("Next day");
     private final JButton resetBtn = new JButton("Reset to Today");
 
-   
     private final JTextArea logArea = new JTextArea(10, 60);
     private final JTextField targetDateField = new JTextField(10); // yyyy-mm-dd
     private final JButton goBtn = new JButton("Go to date");
@@ -39,13 +38,12 @@ public class SimulationPanel extends JPanel {
         // Buttons row
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         actions.add(nextDayBtn);
-        
-        targetDateField.setText(facade.getCurrentDate().toString());
-actions.add(new JLabel("Target (yyyy-mm-dd):"));
-actions.add(targetDateField);
-actions.add(goBtn);
-actions.add(resetBtn);
 
+        targetDateField.setText(facade.getCurrentDate().toString());
+        actions.add(new JLabel("Target (yyyy-mm-dd):"));
+        actions.add(targetDateField);
+        actions.add(goBtn);
+        actions.add(resetBtn);
 
         // Log
         logArea.setEditable(false);
@@ -64,8 +62,6 @@ actions.add(resetBtn);
         goBtn.addActionListener(e -> goToDate());
         resetBtn.addActionListener(e -> onReset());
 
-
-
         refresh();
     }
 
@@ -76,72 +72,80 @@ actions.add(resetBtn);
 
     private void advanceDays(int n) {
         LocalDate before = facade.getCurrentDate();
-       for (int i = 0; i < n; i++) {
-    var rep = facade.nextDayWithReport();
-    logReport(rep);
-}
+        for (int i = 0; i < n; i++) {
+            var rep = facade.nextDayWithReport();
+            logReport(rep);
+        }
 
         LocalDate after = facade.getCurrentDate();
 
         log("Advanced: " + before + " -> " + after + " (+" + n + " day(s))");
 
-        if (afterAdvance != null) afterAdvance.run();
+        if (afterAdvance != null)
+            afterAdvance.run();
 
         refresh();
     }
+
     private void goToDate() {
-    try {
-        LocalDate target = LocalDate.parse(targetDateField.getText().trim());
-        if (target.isBefore(facade.getCurrentDate())) {
-            log("Target must be >= today");
-            return;
+        try {
+            LocalDate target = LocalDate.parse(targetDateField.getText().trim());
+            if (target.isBefore(facade.getCurrentDate())) {
+                log("Target must be >= today");
+                return;
+            }
+
+            LocalDate before = facade.getCurrentDate();
+            while (facade.getCurrentDate().isBefore(target)) {
+                var rep = facade.nextDayWithReport();
+                logReport(rep);
+            }
+            log("Advanced: " + before + " -> " + facade.getCurrentDate());
+
+            if (afterAdvance != null)
+                afterAdvance.run();
+            refresh();
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Invalid date", JOptionPane.ERROR_MESSAGE);
         }
-
-        LocalDate before = facade.getCurrentDate();
-        while (facade.getCurrentDate().isBefore(target)) {
-            var rep = facade.nextDayWithReport();
-            logReport(rep);
-        }
-        log("Advanced: " + before + " -> " + facade.getCurrentDate());
-
-        if (afterAdvance != null) afterAdvance.run();
-        refresh();
-
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, ex.getMessage(), "Invalid date", JOptionPane.ERROR_MESSAGE);
     }
-}
 
-private void logReport(managers.StandingOrderManager.ExecutionReport rep) {
-    if (rep == null) return;
-    if (rep.success.isEmpty() && rep.failed.isEmpty()) return;
+    private void logReport(managers.StandingOrderManager.ExecutionReport rep) {
+        if (rep == null)
+            return;
+        if (rep.success.isEmpty() && rep.failed.isEmpty())
+            return;
 
-    log("== Standing Orders " + rep.date + " ==");
-    for (String s : rep.success) log(" OK   " + s);
-    for (String f : rep.failed)  log(" FAIL " + f);
-}
+        log("== Standing Orders " + rep.date + " ==");
+        for (String s : rep.success)
+            log(" OK   " + s);
+        for (String f : rep.failed)
+            log(" FAIL " + f);
+    }
 
     private void log(String msg) {
         logArea.append(msg + "\n");
         logArea.setCaretPosition(logArea.getDocument().getLength());
     }
- private void onReset() {
-    int r = JOptionPane.showConfirmDialog(
-            this,
-            "Reset simulation and discard all simulated transactions?",
-            "Reset to Today",
-            JOptionPane.YES_NO_OPTION
-    );
-    if (r != JOptionPane.YES_OPTION) return;
 
-    facade.resetToToday();
+    private void onReset() {
+        int r = JOptionPane.showConfirmDialog(
+                this,
+                "Reset simulation and discard all simulated transactions?",
+                "Reset to Today",
+                JOptionPane.YES_NO_OPTION);
+        if (r != JOptionPane.YES_OPTION)
+            return;
 
-    targetDateField.setText(facade.getCurrentDate().toString());
-    log("RESET done. Today is: " + facade.getCurrentDate());
+        facade.resetToToday();
 
-    if (afterAdvance != null) afterAdvance.run();
-    refresh();
-}
+        targetDateField.setText(facade.getCurrentDate().toString());
+        log("RESET done. Today is: " + facade.getCurrentDate());
 
+        if (afterAdvance != null)
+            afterAdvance.run();
+        refresh();
+    }
 
 }

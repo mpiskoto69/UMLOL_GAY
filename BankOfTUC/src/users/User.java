@@ -22,17 +22,16 @@ public abstract class User implements Storable {
 	}
 
 	public boolean login(String inputPassword) {
-    return password != null && password.equals(inputPassword);
-}
-
+		return password != null && password.equals(inputPassword);
+	}
 
 	public String getPassword() {
 		return password;
 	}
-public void setPassword(String password) {
-    this.password = password;
-}
 
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
 	public abstract String getRole();
 }

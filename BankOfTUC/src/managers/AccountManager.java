@@ -1,13 +1,12 @@
 package managers;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-
 import accounts.BankAccount;
-import accounts.MasterAccount;
 import accounts.BusinessAccount;
+import accounts.MasterAccount;
 import accounts.PersonalAccount;
 import bank.storage.StorableList;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import users.Company;
 import users.Customer;
 import users.Individual;
@@ -40,13 +39,13 @@ public class AccountManager {
     }
 
     public BankAccount findByIban(String iban) {
-    for (BankAccount acc : accounts) {
-        if (acc != null && iban != null && iban.equals(acc.getIban())) {
-            return acc;
+        for (BankAccount acc : accounts) {
+            if (acc != null && iban != null && iban.equals(acc.getIban())) {
+                return acc;
+            }
         }
+        return null;
     }
-    return null;
-}
 
     public BankAccount getPrimaryAccountOfUser(String userId) {
         for (BankAccount acc : accounts) {
@@ -56,7 +55,6 @@ public class AccountManager {
         }
         return null;
     }
-
 
     public ArrayList<BankAccount> getAllAccountsOfUser(String userId) {
         ArrayList<BankAccount> accountsList = new ArrayList<>();
@@ -115,11 +113,13 @@ public class AccountManager {
         }
         return false;
     }
-public BankAccount requireByIban(String iban) {
-    BankAccount a = findByIban(iban);
-    if (a == null) throw new IllegalArgumentException("Δεν βρέθηκε λογαριασμός με IBAN: " + iban);
-    return a;
-}
+
+    public BankAccount requireByIban(String iban) {
+        BankAccount a = findByIban(iban);
+        if (a == null)
+            throw new IllegalArgumentException("Δεν βρέθηκε λογαριασμός με IBAN: " + iban);
+        return a;
+    }
 
     public void createPersonalAccount(String vat, double interestRate, double balance) {
         Customer ind = UserManager.getInstance().findCustomerByVat(vat);
@@ -152,51 +152,59 @@ public BankAccount requireByIban(String iban) {
         }
     }
 
-  public void addAccounts(StorableList<BankAccount> loaded) {
-    if (loaded == null) return;
+    public void addAccounts(StorableList<BankAccount> loaded) {
+        if (loaded == null)
+            return;
 
-    for (BankAccount a : loaded) {
-        if (a == null) continue;
+        for (BankAccount a : loaded) {
+            if (a == null)
+                continue;
 
-        if (a instanceof MasterAccount) {
-            boolean already = false;
-            for (BankAccount existing : this.accounts) {
-                if (existing instanceof MasterAccount) { already = true; break; }
-            }
-            if (already) continue; 
-        }
-
-        if (findByIban(a.getIban()) != null) {
-            continue;
-        }
-
-        if (a instanceof BusinessAccount) {
-            String vat = a.getPrimaryHolder() != null ? a.getPrimaryHolder().getVatNumber() : null;
-            if (vat != null) {
-                boolean companyAlreadyHas = false;
+            if (a instanceof MasterAccount) {
+                boolean already = false;
                 for (BankAccount existing : this.accounts) {
-                    if (existing instanceof BusinessAccount
-                            && existing.getPrimaryHolder() != null
-                            && vat.equals(existing.getPrimaryHolder().getVatNumber())) {
-                        companyAlreadyHas = true;
+                    if (existing instanceof MasterAccount) {
+                        already = true;
                         break;
                     }
                 }
-                if (companyAlreadyHas) continue; 
+                if (already)
+                    continue;
+            }
+
+            if (findByIban(a.getIban()) != null) {
+                continue;
+            }
+
+            if (a instanceof BusinessAccount) {
+                String vat = a.getPrimaryHolder() != null ? a.getPrimaryHolder().getVatNumber() : null;
+                if (vat != null) {
+                    boolean companyAlreadyHas = false;
+                    for (BankAccount existing : this.accounts) {
+                        if (existing instanceof BusinessAccount
+                                && existing.getPrimaryHolder() != null
+                                && vat.equals(existing.getPrimaryHolder().getVatNumber())) {
+                            companyAlreadyHas = true;
+                            break;
+                        }
+                    }
+                    if (companyAlreadyHas)
+                        continue;
+                }
+            }
+
+            this.accounts.add(a);
+            try {
+                String iban = a.getIban();
+                if (iban != null && iban.length() >= 15) {
+                    String uniquePart = iban.substring(iban.length() - 15);
+                    if (!existsIban(uniquePart))
+                        addIban(uniquePart);
+                }
+            } catch (Exception ignored) {
             }
         }
-
-        this.accounts.add(a);
-        try {
-            String iban = a.getIban();
-            if (iban != null && iban.length() >= 15) {
-                String uniquePart = iban.substring(iban.length() - 15);
-                if (!existsIban(uniquePart)) addIban(uniquePart);
-            }
-        } catch (Exception ignored) {}
     }
-}
-
 
     public BusinessAccount findBusinessAccountByVat(String vat) {
         for (BankAccount acc : accounts) {
@@ -209,9 +217,10 @@ public BankAccount requireByIban(String iban) {
         }
         return null;
     }
-public void clearAll() {
-    accounts.clear();
-    ibanList.clear();
-}
+
+    public void clearAll() {
+        accounts.clear();
+        ibanList.clear();
+    }
 
 }

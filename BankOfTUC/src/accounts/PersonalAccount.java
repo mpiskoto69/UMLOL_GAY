@@ -1,10 +1,8 @@
 package accounts;
 
+import bank.storage.UnMarshalingException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-
-
-import bank.storage.UnMarshalingException;
 import managers.TransactionManager;
 import managers.UserManager;
 import users.Customer;
@@ -32,18 +30,17 @@ public class PersonalAccount extends BankAccount {
     }
 
     @Override
-   
-public void endOfMonth() {
-    System.out.print("Interest paid ");
-    System.out.printf("%.2f", thisMonthsInterest);
-    System.out.println(" euros for " + iban);
 
-    if (thisMonthsInterest > 0) {
-        TransactionManager.getInstance().eofInterestPayment(this, thisMonthsInterest);
+    public void endOfMonth() {
+        System.out.print("Interest paid ");
+        System.out.printf("%.2f", thisMonthsInterest);
+        System.out.println(" euros for " + iban);
+
+        if (thisMonthsInterest > 0) {
+            TransactionManager.getInstance().eofInterestPayment(this, thisMonthsInterest);
+        }
+        resetMonthsInterest();
     }
-    resetMonthsInterest(); 
-}
-
 
     @Override
     public String marshal() {

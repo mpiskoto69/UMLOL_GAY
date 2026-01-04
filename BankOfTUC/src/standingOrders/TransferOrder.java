@@ -1,10 +1,9 @@
 package standingOrders;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-
 import accounts.BankAccount;
 import bank.storage.UnMarshalingException;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import managers.AccountManager;
 import managers.TransactionManager;
 import managers.UserManager;
@@ -15,13 +14,13 @@ public class TransferOrder extends StandingOrder {
     private BankAccount fromAccount;
     private BankAccount toAccount;
     private double amount;
-    private int frequencyInMonths; // κάθε πόσους μήνες εκτελείται
-    private int executionDay;      // ποια ημέρα κάθε μήνα εκτελείται (1..28/30/31)
+    private int frequencyInMonths;
+    private int executionDay;
 
     public TransferOrder(Customer customer, String id, String title, String description,
-                         BankAccount fromAccount, BankAccount toAccount, double amount,
-                         int frequencyInMonths, int executionDay,
-                         LocalDate startDate, LocalDate endDate, double fee) {
+            BankAccount fromAccount, BankAccount toAccount, double amount,
+            int frequencyInMonths, int executionDay,
+            LocalDate startDate, LocalDate endDate, double fee) {
         super(customer, id, title, description, startDate, endDate, fee);
         this.fromAccount = fromAccount;
         this.toAccount = toAccount;
@@ -30,16 +29,21 @@ public class TransferOrder extends StandingOrder {
         this.executionDay = executionDay;
     }
 
-    public TransferOrder() { }
+    public TransferOrder() {
+    }
 
     @Override
     public boolean isDue(LocalDate today) {
-        if (!isActive(today)) return false;
+        if (!isActive(today))
+            return false;
 
-        if (frequencyInMonths <= 0) return false;
-        if (executionDay <= 0 || executionDay > 31) return false;
+        if (frequencyInMonths <= 0)
+            return false;
+        if (executionDay <= 0 || executionDay > 31)
+            return false;
 
-        if (today.getDayOfMonth() != executionDay) return false;
+        if (today.getDayOfMonth() != executionDay)
+            return false;
 
         LocalDate anchorStart = LocalDate.of(getStartDate().getYear(), getStartDate().getMonth(), executionDay);
         LocalDate anchorToday = LocalDate.of(today.getYear(), today.getMonth(), executionDay);
@@ -50,34 +54,32 @@ public class TransferOrder extends StandingOrder {
 
     @Override
     public void execute(LocalDate today) {
-        if (hasExceededMaxFailures()) return;
+        if (hasExceededMaxFailures())
+            return;
 
         if (customer == null || fromAccount == null || toAccount == null) {
-           onAttemptFailure(today);
+            onAttemptFailure(today);
 
             return;
         }
 
         if (!AccountManager.getInstance().hasAccessToAccount(customer, fromAccount)) {
             System.out.println("You don't have access to this account!");
-           onAttemptFailure(today);
+            onAttemptFailure(today);
 
             return;
         }
 
         try {
-          
-         TransactionManager.getInstance().registerTransaction(
-         Transfer.builder()
-        .transactor(customer)
-        .from(fromAccount)
-        .to(toAccount)
-        .reason("Πάγια Εντολή Μεταφοράς")
-        .amount(amount + fee)
-        .build()
-);
 
-
+            TransactionManager.getInstance().registerTransaction(
+                    Transfer.builder()
+                            .transactor(customer)
+                            .from(fromAccount)
+                            .to(toAccount)
+                            .reason("Πάγια Εντολή Μεταφοράς")
+                            .amount(amount + fee)
+                            .build());
 
         } catch (Exception e) {
             onAttemptFailure(today);
@@ -92,21 +94,20 @@ public class TransferOrder extends StandingOrder {
         String creditIban = (toAccount != null) ? toAccount.getIban() : "";
 
         return String.join(",",
-            "type:TransferOrder",
-            "orderId:" + id,
-            "title:" + title,
-            "description:" + description,
-            "customer:" + customerVat,
-            "amount:" + amount,
-            "startDate:" + startDate,
-            "endDate:" + endDate,
-            "fee:" + fee,
-            "failedAttempts:" + failedAttempts,
-            "chargeAccount:" + chargeIban,
-            "creditAccount:" + creditIban,
-            "frequencyInMonths:" + frequencyInMonths,
-            "dayOfMonth:" + executionDay
-        );
+                "type:TransferOrder",
+                "orderId:" + id,
+                "title:" + title,
+                "description:" + description,
+                "customer:" + customerVat,
+                "amount:" + amount,
+                "startDate:" + startDate,
+                "endDate:" + endDate,
+                "fee:" + fee,
+                "failedAttempts:" + failedAttempts,
+                "chargeAccount:" + chargeIban,
+                "creditAccount:" + creditIban,
+                "frequencyInMonths:" + frequencyInMonths,
+                "dayOfMonth:" + executionDay);
     }
 
     @Override
@@ -117,10 +118,12 @@ public class TransferOrder extends StandingOrder {
         }
 
         for (String p : parts) {
-            if (p.isBlank()) continue;
+            if (p.isBlank())
+                continue;
 
             String[] kv = p.split(":", 2);
-            if (kv.length != 2) throw new UnMarshalingException("Bad field: " + p);
+            if (kv.length != 2)
+                throw new UnMarshalingException("Bad field: " + p);
 
             switch (kv[0]) {
                 case "type":
@@ -154,11 +157,13 @@ public class TransferOrder extends StandingOrder {
                     break;
                 case "chargeAccount":
                     fromAccount = AccountManager.getInstance().findByIban(kv[1]);
-                    if (fromAccount == null) throw new UnMarshalingException("Unknown IBAN: " + kv[1]);
+                    if (fromAccount == null)
+                        throw new UnMarshalingException("Unknown IBAN: " + kv[1]);
                     break;
                 case "creditAccount":
                     toAccount = AccountManager.getInstance().findByIban(kv[1]);
-                    if (toAccount == null) throw new UnMarshalingException("Unknown IBAN: " + kv[1]);
+                    if (toAccount == null)
+                        throw new UnMarshalingException("Unknown IBAN: " + kv[1]);
                     break;
                 case "frequencyInMonths":
                     frequencyInMonths = Integer.parseInt(kv[1]);
@@ -171,6 +176,7 @@ public class TransferOrder extends StandingOrder {
             }
         }
 
-        if (customer == null) throw new UnMarshalingException("Unknown customer for order: " + id);
+        if (customer == null)
+            throw new UnMarshalingException("Unknown customer for order: " + id);
     }
 }

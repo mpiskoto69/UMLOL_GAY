@@ -1,10 +1,9 @@
 package transactions;
 
-import javax.naming.InsufficientResourcesException;
-
 import accounts.BankAccount;
-import managers.AccountManager;
 import bank.storage.Bill;
+import javax.naming.InsufficientResourcesException;
+import managers.AccountManager;
 import users.Customer;
 
 public class Payment extends Transaction {
@@ -33,30 +32,30 @@ public class Payment extends Transaction {
 		getAccount2().credit(amount);
 
 		// 2) DEBIT statement on the payer
-AccountStatement debitStmt = AccountStatement.builder()
-    .transactionId(getId())
-    .transactor(getTransactor().getUsername())
-    .account(getAccount1().getIban())
-    .counterparty(getAccount2().getIban())
-    .reason(getReason1())
-    .amount(amount)
-    .balanceAfter(getAccount1().getBalance())
-    .type(AccountStatement.MovementType.DEBIT)
-    .build();
-getAccount1().addStatement(debitStmt);
+		AccountStatement debitStmt = AccountStatement.builder()
+				.transactionId(getId())
+				.transactor(getTransactor().getUsername())
+				.account(getAccount1().getIban())
+				.counterparty(getAccount2().getIban())
+				.reason(getReason1())
+				.amount(amount)
+				.balanceAfter(getAccount1().getBalance())
+				.type(AccountStatement.MovementType.DEBIT)
+				.build();
+		getAccount1().addStatement(debitStmt);
 
-// 3) CREDIT statement on the business
-AccountStatement creditStmt = AccountStatement.builder()
-    .transactionId(getId())
-    .transactor(getTransactor().getUsername())
-    .account(getAccount2().getIban())
-    .counterparty(getAccount1().getIban())
-    .reason(getReason2())
-    .amount(amount)
-    .balanceAfter(getAccount2().getBalance())
-    .type(AccountStatement.MovementType.CREDIT)
-    .build();
-getAccount2().addStatement(creditStmt);
+		// 3) CREDIT statement on the business
+		AccountStatement creditStmt = AccountStatement.builder()
+				.transactionId(getId())
+				.transactor(getTransactor().getUsername())
+				.account(getAccount2().getIban())
+				.counterparty(getAccount1().getIban())
+				.reason(getReason2())
+				.amount(amount)
+				.balanceAfter(getAccount2().getBalance())
+				.type(AccountStatement.MovementType.CREDIT)
+				.build();
+		getAccount2().addStatement(creditStmt);
 
 		System.out.println(
 				"Payment of " + amount + "euros by " + transactor.getLegalName() + ", from " + getAccount1().getIban()

@@ -1,7 +1,7 @@
 package users;
 
-import java.util.ArrayList;
 import accounts.BankAccount;
+import java.util.ArrayList;
 
 public abstract class Customer extends User {
 
@@ -23,7 +23,8 @@ public abstract class Customer extends User {
 	}
 
 	public void addAccount(BankAccount acc) {
-    if (!accounts.contains(acc)) accounts.add(acc);
-}
+		if (!accounts.contains(acc))
+			accounts.add(acc);
+	}
 
 }

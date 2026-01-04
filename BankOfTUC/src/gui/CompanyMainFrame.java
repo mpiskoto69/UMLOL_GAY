@@ -4,11 +4,10 @@ import app.BankingFacade;
 import gui.panels.AccountsPanel;
 import gui.panels.CompanyBillsPanel;
 import gui.panels.StandingOrdersPanel;
-import users.Company;
 import gui.panels.StatementsPanel;
-
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
+import users.Company;
 
 public class CompanyMainFrame extends JFrame {
 
@@ -36,7 +35,7 @@ public class CompanyMainFrame extends JFrame {
         setSize(900, 560);
         setLocationRelativeTo(null);
 
-        // Header 
+        // Header
         JPanel header = new JPanel(new BorderLayout(10, 10));
         header.setBorder(BorderFactory.createEmptyBorder(12, 12, 6, 12));
 
@@ -46,35 +45,33 @@ public class CompanyMainFrame extends JFrame {
         JButton logoutBtn = new JButton("Logout");
         logoutBtn.addActionListener(e -> {
 
-    int r = JOptionPane.showConfirmDialog(
-            CompanyMainFrame.this,
-            "Save changes before logout?",
-            "Logout",
-            JOptionPane.YES_NO_CANCEL_OPTION,
-            JOptionPane.QUESTION_MESSAGE
-    );
-
-    if (r == JOptionPane.CANCEL_OPTION) {
-        return; 
-    }
-
-    if (r == JOptionPane.YES_OPTION) {
-        try {
-            facade.saveAll(); 
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(
+            int r = JOptionPane.showConfirmDialog(
                     CompanyMainFrame.this,
-                    "Failed to save data:\n" + ex.getMessage(),
-                    "Save Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            return; 
-        }
-    }
+                    "Save changes before logout?",
+                    "Logout",
+                    JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
 
-    dispose();
-    SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
-});
+            if (r == JOptionPane.CANCEL_OPTION) {
+                return;
+            }
+
+            if (r == JOptionPane.YES_OPTION) {
+                try {
+                    facade.saveAll();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(
+                            CompanyMainFrame.this,
+                            "Failed to save data:\n" + ex.getMessage(),
+                            "Save Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
+            dispose();
+            SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
+        });
 
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         right.add(dateLabel);
@@ -83,7 +80,7 @@ public class CompanyMainFrame extends JFrame {
         header.add(welcomeLabel, BorderLayout.WEST);
         header.add(right, BorderLayout.EAST);
 
-        // Tabs 
+        // Tabs
         JTabbedPane tabs = new JTabbedPane();
 
         accountsPanel = new AccountsPanel(facade);
@@ -94,17 +91,16 @@ public class CompanyMainFrame extends JFrame {
 
         billsPanel = new CompanyBillsPanel(facade);
         billsPanel.setCompany(user);
-       
+
         StatementsPanel stPanel = new StatementsPanel(facade);
         stPanel.setCustomer(user);
-
 
         tabs.addTab("Accounts", accountsPanel);
         tabs.addTab("Standing Orders", soPanel);
         tabs.addTab("Bills", billsPanel);
         tabs.addTab("Statements", stPanel);
 
-        //  Root 
+        // Root
         JPanel root = new JPanel(new BorderLayout());
         root.add(header, BorderLayout.NORTH);
         root.add(tabs, BorderLayout.CENTER);

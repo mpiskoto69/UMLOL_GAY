@@ -1,9 +1,7 @@
 package accounts;
 
-import java.time.LocalDate;
-
-
 import bank.storage.UnMarshalingException;
+import java.time.LocalDate;
 import managers.TransactionManager;
 import managers.UserManager;
 import users.Company;
@@ -12,12 +10,10 @@ import users.Customer;
 public class BusinessAccount extends BankAccount {
     protected static final double MAINTENANCE_FEE = 10.00;
 
-  public BusinessAccount(Company holder, double interestRate, LocalDate dateCreated) {
-    super(holder, interestRate, "200");
-    this.dateCreated = dateCreated; 
-}
-
-
+    public BusinessAccount(Company holder, double interestRate, LocalDate dateCreated) {
+        super(holder, interestRate, "200");
+        this.dateCreated = dateCreated;
+    }
 
     public BusinessAccount() {
         super();
@@ -28,10 +24,10 @@ public class BusinessAccount extends BankAccount {
         // Interest
         TransactionManager tm = TransactionManager.getInstance();
         if (thisMonthsInterest > 0) {
-         tm.eofInterestPayment(this, thisMonthsInterest);
-           resetMonthsInterest();
-           }
-          tm.chargeMaintenanceFee(this);
+            tm.eofInterestPayment(this, thisMonthsInterest);
+            resetMonthsInterest();
+        }
+        tm.chargeMaintenanceFee(this);
 
         System.out.print("Interest paid ");
         System.out.printf("%.2f", thisMonthsInterest);
@@ -39,7 +35,7 @@ public class BusinessAccount extends BankAccount {
         resetMonthsInterest();
 
         // Maintenace Fee
-    
+
         System.out.print("Maintenance fee paid ");
         System.out.printf("%.2f", MAINTENANCE_FEE);
         System.out.println(" euros from " + iban);
@@ -93,7 +89,6 @@ public class BusinessAccount extends BankAccount {
                     this.balance = Double.parseDouble(val);
                     break;
                 default:
-                    // ignore any unexpected key
                     break;
             }
         }

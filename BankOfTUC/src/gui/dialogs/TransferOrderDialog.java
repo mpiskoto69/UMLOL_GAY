@@ -1,12 +1,11 @@
 package gui.dialogs;
 
 import accounts.BankAccount;
-import users.Customer;
-
-import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.List;
+import javax.swing.*;
+import users.Customer;
 
 public class TransferOrderDialog extends JDialog {
 
@@ -33,11 +32,11 @@ public class TransferOrderDialog extends JDialog {
 
     private final JSpinner amountSpinner = new JSpinner(new SpinnerNumberModel(10.00, 0.01, 1_000_000.00, 1.00));
     private final JSpinner freqSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 24, 1));
-    private final JSpinner daySpinner  = new JSpinner(new SpinnerNumberModel(1, 1, 31, 1));
-    private final JSpinner feeSpinner  = new JSpinner(new SpinnerNumberModel(0.00, 0.00, 1_000_000.00, 0.50));
+    private final JSpinner daySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 31, 1));
+    private final JSpinner feeSpinner = new JSpinner(new SpinnerNumberModel(0.00, 0.00, 1_000_000.00, 0.50));
 
-    private final JTextField startDateField = new JTextField(10); // yyyy-mm-dd
-    private final JTextField endDateField   = new JTextField(10); // yyyy-mm-dd
+    private final JTextField startDateField = new JTextField(10);
+    private final JTextField endDateField = new JTextField(10);
 
     private final JButton cancelBtn = new JButton("Cancel");
     private final JButton createBtn = new JButton("Create");
@@ -58,7 +57,10 @@ public class TransferOrderDialog extends JDialog {
         }
 
         // wire
-        cancelBtn.addActionListener(e -> { result = null; dispose(); });
+        cancelBtn.addActionListener(e -> {
+            result = null;
+            dispose();
+        });
         createBtn.addActionListener(e -> onCreate());
 
         pack();
@@ -82,44 +84,84 @@ public class TransferOrderDialog extends JDialog {
         int y = 0;
 
         // title
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("Title:"), c);
-        c.gridx = 1; form.add(titleField, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("Title:"), c);
+        c.gridx = 1;
+        form.add(titleField, c);
+        y++;
 
         // description
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("Description:"), c);
-        c.gridx = 1; form.add(descField, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("Description:"), c);
+        c.gridx = 1;
+        form.add(descField, c);
+        y++;
 
         // from
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("From (IBAN):"), c);
-        c.gridx = 1; form.add(fromIbanCombo, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("From (IBAN):"), c);
+        c.gridx = 1;
+        form.add(fromIbanCombo, c);
+        y++;
 
         // to
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("To (IBAN):"), c);
-        c.gridx = 1; form.add(toIbanField, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("To (IBAN):"), c);
+        c.gridx = 1;
+        form.add(toIbanField, c);
+        y++;
 
         // amount
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("Amount (€):"), c);
-        c.gridx = 1; form.add(amountSpinner, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("Amount (€):"), c);
+        c.gridx = 1;
+        form.add(amountSpinner, c);
+        y++;
 
         // frequency
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("Every N months:"), c);
-        c.gridx = 1; form.add(freqSpinner, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("Every N months:"), c);
+        c.gridx = 1;
+        form.add(freqSpinner, c);
+        y++;
 
         // day of month
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("Day of month (1-31):"), c);
-        c.gridx = 1; form.add(daySpinner, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("Day of month (1-31):"), c);
+        c.gridx = 1;
+        form.add(daySpinner, c);
+        y++;
 
         // start date
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("Start date (yyyy-mm-dd):"), c);
-        c.gridx = 1; form.add(startDateField, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("Start date (yyyy-mm-dd):"), c);
+        c.gridx = 1;
+        form.add(startDateField, c);
+        y++;
 
         // end date
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("End date (yyyy-mm-dd):"), c);
-        c.gridx = 1; form.add(endDateField, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("End date (yyyy-mm-dd):"), c);
+        c.gridx = 1;
+        form.add(endDateField, c);
+        y++;
 
         // fee
-        c.gridx = 0; c.gridy = y; form.add(new JLabel("Fee (€):"), c);
-        c.gridx = 1; form.add(feeSpinner, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("Fee (€):"), c);
+        c.gridx = 1;
+        form.add(feeSpinner, c);
+        y++;
 
         // buttons
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -135,9 +177,9 @@ public class TransferOrderDialog extends JDialog {
 
     private void onCreate() {
         try {
-            // basic validation
             String title = titleField.getText().trim();
-            if (title.isEmpty()) title = "Standing Transfer";
+            if (title.isEmpty())
+                title = "Standing Transfer";
 
             String fromIban = (String) fromIbanCombo.getSelectedItem();
             if (fromIban == null || fromIban.isBlank()) {
@@ -145,23 +187,29 @@ public class TransferOrderDialog extends JDialog {
             }
 
             String toIban = toIbanField.getText().trim();
-            if (toIban.isEmpty()) throw new IllegalArgumentException("Target IBAN is required.");
+            if (toIban.isEmpty())
+                throw new IllegalArgumentException("Target IBAN is required.");
 
             double amount = ((Number) amountSpinner.getValue()).doubleValue();
-            if (amount <= 0) throw new IllegalArgumentException("Amount must be > 0.");
+            if (amount <= 0)
+                throw new IllegalArgumentException("Amount must be > 0.");
 
             int freq = ((Number) freqSpinner.getValue()).intValue();
-            if (freq < 1) throw new IllegalArgumentException("Frequency must be >= 1.");
+            if (freq < 1)
+                throw new IllegalArgumentException("Frequency must be >= 1.");
 
             int day = ((Number) daySpinner.getValue()).intValue();
-            if (day < 1 || day > 31) throw new IllegalArgumentException("Day of month must be 1..31.");
+            if (day < 1 || day > 31)
+                throw new IllegalArgumentException("Day of month must be 1..31.");
 
             LocalDate start = LocalDate.parse(startDateField.getText().trim());
             LocalDate end = LocalDate.parse(endDateField.getText().trim());
-            if (end.isBefore(start)) throw new IllegalArgumentException("End date must be after start date.");
+            if (end.isBefore(start))
+                throw new IllegalArgumentException("End date must be after start date.");
 
             double fee = ((Number) feeSpinner.getValue()).doubleValue();
-            if (fee < 0) throw new IllegalArgumentException("Fee must be >= 0.");
+            if (fee < 0)
+                throw new IllegalArgumentException("Fee must be >= 0.");
 
             Result r = new Result();
             r.title = title;
@@ -183,8 +231,7 @@ public class TransferOrderDialog extends JDialog {
                     this,
                     ex.getMessage(),
                     "Validation",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
         }
     }
 }

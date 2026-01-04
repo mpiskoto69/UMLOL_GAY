@@ -1,27 +1,26 @@
 package gui.panels;
 
+import accounts.BankAccount;
 import app.BankingFacade;
 import gui.dialogs.DepositDialog;
 import gui.dialogs.PayBillDialog;
 import gui.dialogs.TransferDialog;
 import gui.dialogs.WithdrawDialog;
+import java.awt.*;
+import java.util.List;
+import javax.swing.*;
 import transactions.protocol.IntraBankProtocol;
 import transactions.protocol.SepaTransferProtocol;
 import transactions.protocol.SwiftTransferProtocol;
 import transactions.protocol.TransferProtocol;
-import accounts.BankAccount;
 import users.Customer;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.List;
 
 public class AccountsPanel extends JPanel {
 
     private final BankingFacade facade;
     private Customer customer;
     private String selectedIban = null;
-    
+
     private final DefaultListModel<String> model = new DefaultListModel<>();
     private final JList<String> list = new JList<>(model);
 
@@ -33,9 +32,6 @@ public class AccountsPanel extends JPanel {
     private final JButton transferBtn = new JButton("Transfer");
     private final JButton payBillBtn = new JButton("Pay Bill");
     private final JButton depositBtn = new JButton("Deposit");
-
-
-
 
     public AccountsPanel(BankingFacade facade) {
         this.facade = facade;
@@ -56,15 +52,14 @@ public class AccountsPanel extends JPanel {
         actions.add(payBillBtn);
         actions.add(depositBtn);
 
-
-
         add(top, BorderLayout.NORTH);
         add(new JScrollPane(list), BorderLayout.CENTER);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-list.addListSelectionListener(e -> {
-    if (e.getValueIsAdjusting()) return;
-    selectedIban = parseIbanFromLine(list.getSelectedValue());
-});
+        list.addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting())
+                return;
+            selectedIban = parseIbanFromLine(list.getSelectedValue());
+        });
 
         add(actions, BorderLayout.SOUTH);
 
@@ -82,16 +77,17 @@ list.addListSelectionListener(e -> {
     }
 
     private void onWithdraw() {
-        if (customer == null) return;
+        if (customer == null)
+            return;
 
         WithdrawDialog dlg = new WithdrawDialog(
                 SwingUtilities.getWindowAncestor(this),
                 customer,
-                facade.accountsFor(customer)
-        );
+                facade.accountsFor(customer));
 
         WithdrawDialog.Result res = dlg.showDialog();
-        if (res == null) return;
+        if (res == null)
+            return;
 
         try {
             facade.withdraw(customer, res.fromIban, res.amount, res.reason);
@@ -101,50 +97,54 @@ list.addListSelectionListener(e -> {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Withdraw failed", JOptionPane.ERROR_MESSAGE);
         }
     }
+
     private void onDeposit() {
-    if (customer == null) return;
+        if (customer == null)
+            return;
 
-    DepositDialog dlg = new DepositDialog(
-        SwingUtilities.getWindowAncestor(this),
-        customer,
-        facade.accountsFor(customer)
-    );
+        DepositDialog dlg = new DepositDialog(
+                SwingUtilities.getWindowAncestor(this),
+                customer,
+                facade.accountsFor(customer));
 
-    DepositDialog.Result res = dlg.showDialog();
-    if (res == null) return;
+        DepositDialog.Result res = dlg.showDialog();
+        if (res == null)
+            return;
 
-    try {
-        facade.deposit(customer, res.toIban, res.amount, res.reason);
-        refresh();
-        JOptionPane.showMessageDialog(this, "Deposit completed.", "OK", JOptionPane.INFORMATION_MESSAGE);
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, ex.getMessage(), "Deposit failed", JOptionPane.ERROR_MESSAGE);
+        try {
+            facade.deposit(customer, res.toIban, res.amount, res.reason);
+            refresh();
+            JOptionPane.showMessageDialog(this, "Deposit completed.", "OK", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Deposit failed", JOptionPane.ERROR_MESSAGE);
+        }
     }
-}
+
     private void onPayBill() {
-    if (customer == null) return;
+        if (customer == null)
+            return;
 
-    PayBillDialog dlg = new PayBillDialog(
-        SwingUtilities.getWindowAncestor(this),
-        customer,
-        facade.accountsFor(customer)
-    );
+        PayBillDialog dlg = new PayBillDialog(
+                SwingUtilities.getWindowAncestor(this),
+                customer,
+                facade.accountsFor(customer));
 
-    PayBillDialog.Result res = dlg.showDialog();
-    if (res == null) return;
+        PayBillDialog.Result res = dlg.showDialog();
+        if (res == null)
+            return;
 
-    try {
-        facade.payBill(customer, res.fromIban, res.rfCode);
-        refresh();
-        JOptionPane.showMessageDialog(this, "Bill paid successfully.", "OK", JOptionPane.INFORMATION_MESSAGE);
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, ex.getMessage(), "Payment failed", JOptionPane.ERROR_MESSAGE);
+        try {
+            facade.payBill(customer, res.fromIban, res.rfCode);
+            refresh();
+            JOptionPane.showMessageDialog(this, "Bill paid successfully.", "OK", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Payment failed", JOptionPane.ERROR_MESSAGE);
+        }
     }
-}
-
 
     public void refresh() {
-        if (customer == null) return;
+        if (customer == null)
+            return;
 
         model.clear();
         List<BankAccount> accs = facade.accountsFor(customer);
@@ -154,8 +154,7 @@ list.addListSelectionListener(e -> {
                     "%s | Balance: %.2f€ | Owner VAT: %s",
                     a.getIban(),
                     a.getBalance(),
-                    a.getPrimaryHolder().getVatNumber()
-            ));
+                    a.getPrimaryHolder().getVatNumber()));
         }
 
         if (accs.isEmpty()) {
@@ -165,45 +164,49 @@ list.addListSelectionListener(e -> {
         updateDate();
     }
 
-private void onTransfer() {
-    if (customer == null) return;
+    private void onTransfer() {
+        if (customer == null)
+            return;
 
-    TransferDialog dlg = new TransferDialog(
-            SwingUtilities.getWindowAncestor(this),
-            customer,
-            facade.accountsFor(customer),
-            selectedIban
-    );
+        TransferDialog dlg = new TransferDialog(
+                SwingUtilities.getWindowAncestor(this),
+                customer,
+                facade.accountsFor(customer),
+                selectedIban);
 
-    TransferDialog.Result res = dlg.showDialog();
-    if (res == null) return;
+        TransferDialog.Result res = dlg.showDialog();
+        if (res == null)
+            return;
 
-    try {
-        TransferProtocol protocol;
-        switch (res.network) {
-            case SEPA -> protocol = new SepaTransferProtocol();
-            case SWIFT -> protocol = new SwiftTransferProtocol();
-            default -> protocol = new IntraBankProtocol();
+        try {
+            TransferProtocol protocol;
+            switch (res.network) {
+                case SEPA -> protocol = new SepaTransferProtocol();
+                case SWIFT -> protocol = new SwiftTransferProtocol();
+                default -> protocol = new IntraBankProtocol();
+            }
+
+            facade.transfer(customer, res.fromIban, res.toIban, res.amount, res.reason, protocol);
+
+            refresh();
+            JOptionPane.showMessageDialog(this, "Transfer completed.", "OK", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Transfer failed", JOptionPane.ERROR_MESSAGE);
         }
-
-        facade.transfer(customer, res.fromIban, res.toIban, res.amount, res.reason, protocol);
-
-        refresh();
-        JOptionPane.showMessageDialog(this, "Transfer completed.", "OK", JOptionPane.INFORMATION_MESSAGE);
-
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, ex.getMessage(), "Transfer failed", JOptionPane.ERROR_MESSAGE);
     }
-}
 
     private void updateDate() {
         dateLabel.setText("Today: " + facade.getCurrentDate());
     }
+
     private String parseIbanFromLine(String line) {
-    if (line == null) return null;
-    int idx = line.indexOf(" |");
-    if (idx <= 0) return null;
-    return line.substring(0, idx).trim();
-}
+        if (line == null)
+            return null;
+        int idx = line.indexOf(" |");
+        if (idx <= 0)
+            return null;
+        return line.substring(0, idx).trim();
+    }
 
 }

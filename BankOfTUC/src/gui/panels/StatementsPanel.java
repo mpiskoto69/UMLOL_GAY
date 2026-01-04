@@ -1,14 +1,13 @@
 package gui.panels;
 
-import app.BankingFacade;
 import accounts.BankAccount;
-import transactions.AccountStatement;
-import users.Customer;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import app.BankingFacade;
 import java.awt.*;
 import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import transactions.AccountStatement;
+import users.Customer;
 
 public class StatementsPanel extends JPanel {
 
@@ -19,18 +18,20 @@ public class StatementsPanel extends JPanel {
     private final JButton refreshBtn = new JButton("Refresh");
 
     private final DefaultTableModel model = new DefaultTableModel(
-            new Object[]{"Time", "Type", "Amount", "Balance After", "Reason", "Counterparty", "TxId"},
-            0
-    ) {
-        @Override public boolean isCellEditable(int r, int c) { return false; }
+            new Object[] { "Time", "Type", "Amount", "Balance After", "Reason", "Counterparty", "TxId" },
+            0) {
+        @Override
+        public boolean isCellEditable(int r, int c) {
+            return false;
+        }
     };
     private final JTable table = new JTable(model);
 
     public StatementsPanel(BankingFacade facade) {
         this.facade = facade;
 
-        setLayout(new BorderLayout(10,10));
-        setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        setLayout(new BorderLayout(10, 10));
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JLabel title = new JLabel("Statements");
         title.setFont(title.getFont().deriveFont(Font.BOLD, 16f));
@@ -62,7 +63,8 @@ public class StatementsPanel extends JPanel {
 
     private void reloadAccounts() {
         ibanCombo.removeAllItems();
-        if (customer == null) return;
+        if (customer == null)
+            return;
 
         List<BankAccount> accs = facade.accountsFor(customer);
         for (BankAccount a : accs) {
@@ -72,19 +74,25 @@ public class StatementsPanel extends JPanel {
 
     public void refresh() {
         model.setRowCount(0);
-        if (customer == null) return;
+        if (customer == null)
+            return;
 
         String iban = (String) ibanCombo.getSelectedItem();
-        if (iban == null || iban.isBlank()) return;
+        if (iban == null || iban.isBlank())
+            return;
 
         BankAccount acct = null;
         for (BankAccount a : facade.accountsFor(customer)) {
-            if (iban.equals(a.getIban())) { acct = a; break; }
+            if (iban.equals(a.getIban())) {
+                acct = a;
+                break;
+            }
         }
-        if (acct == null) return;
+        if (acct == null)
+            return;
 
         for (AccountStatement s : acct.getStatements()) {
-            model.addRow(new Object[]{
+            model.addRow(new Object[] {
                     s.getTimestamp(),
                     s.getMovementType(),
                     String.format("%.2f", s.getAmount()),

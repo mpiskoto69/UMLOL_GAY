@@ -2,12 +2,11 @@ package gui.panels;
 
 import app.BankingFacade;
 import bank.storage.Bill;
-import users.Company;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import users.Company;
 
 public class CompanyBillsPanel extends JPanel {
 
@@ -18,25 +17,33 @@ public class CompanyBillsPanel extends JPanel {
 
     // Issued
     private final DefaultTableModel issuedModel = new DefaultTableModel(
-            new Object[]{"RF", "Amount", "Issue Date", "Due Date", "Status", "Customer(VAT)"}, 0
-    ) { @Override public boolean isCellEditable(int r, int c) { return false; } };
+            new Object[] { "RF", "Amount", "Issue Date", "Due Date", "Status", "Customer(VAT)" }, 0) {
+        @Override
+        public boolean isCellEditable(int r, int c) {
+            return false;
+        }
+    };
     private final JTable issuedTable = new JTable(issuedModel);
     private final JButton issuedRefreshBtn = new JButton("Refresh");
-    private final JComboBox<String> issuedFilter = new JComboBox<>(new String[]{"All", "Unpaid", "Paid"});
+    private final JComboBox<String> issuedFilter = new JComboBox<>(new String[] { "All", "Unpaid", "Paid" });
 
     // To Pay
     private final DefaultTableModel toPayModel = new DefaultTableModel(
-            new Object[]{"RF", "Amount", "Issue Date", "Due Date", "Status", "Issuer(VAT)"}, 0
-    ) { @Override public boolean isCellEditable(int r, int c) { return false; } };
+            new Object[] { "RF", "Amount", "Issue Date", "Due Date", "Status", "Issuer(VAT)" }, 0) {
+        @Override
+        public boolean isCellEditable(int r, int c) {
+            return false;
+        }
+    };
     private final JTable toPayTable = new JTable(toPayModel);
     private final JButton toPayRefreshBtn = new JButton("Refresh");
-    private final JComboBox<String> toPayFilter = new JComboBox<>(new String[]{"All", "Unpaid", "Paid"});
+    private final JComboBox<String> toPayFilter = new JComboBox<>(new String[] { "All", "Unpaid", "Paid" });
 
     public CompanyBillsPanel(BankingFacade facade) {
         this.facade = facade;
 
-        setLayout(new BorderLayout(10,10));
-        setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        setLayout(new BorderLayout(10, 10));
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JLabel title = new JLabel("Bills");
         title.setFont(title.getFont().deriveFont(Font.BOLD, 16f));
@@ -62,7 +69,7 @@ public class CompanyBillsPanel extends JPanel {
     }
 
     private JPanel buildIssuedPanel() {
-        JPanel p = new JPanel(new BorderLayout(10,10));
+        JPanel p = new JPanel(new BorderLayout(10, 10));
 
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
         top.add(new JLabel("Filter:"));
@@ -78,7 +85,7 @@ public class CompanyBillsPanel extends JPanel {
     }
 
     private JPanel buildToPayPanel() {
-        JPanel p = new JPanel(new BorderLayout(10,10));
+        JPanel p = new JPanel(new BorderLayout(10, 10));
 
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
         top.add(new JLabel("Filter:"));
@@ -95,15 +102,17 @@ public class CompanyBillsPanel extends JPanel {
 
     private void refreshIssued() {
         issuedModel.setRowCount(0);
-        if (company == null) return;
+        if (company == null)
+            return;
 
         List<Bill> bills = facade.issuedBillsFor(company);
         String filter = (String) issuedFilter.getSelectedItem();
 
         for (Bill b : bills) {
-            if (!passesFilter(b, filter)) continue;
+            if (!passesFilter(b, filter))
+                continue;
 
-            issuedModel.addRow(new Object[]{
+            issuedModel.addRow(new Object[] {
                     b.getRfCode(),
                     String.format("%.2f", b.getAmount()),
                     b.getIssueDate(),
@@ -116,15 +125,17 @@ public class CompanyBillsPanel extends JPanel {
 
     private void refreshToPay() {
         toPayModel.setRowCount(0);
-        if (company == null) return;
+        if (company == null)
+            return;
 
         List<Bill> bills = facade.billsToPayFor(company);
         String filter = (String) toPayFilter.getSelectedItem();
 
         for (Bill b : bills) {
-            if (!passesFilter(b, filter)) continue;
+            if (!passesFilter(b, filter))
+                continue;
 
-            toPayModel.addRow(new Object[]{
+            toPayModel.addRow(new Object[] {
                     b.getRfCode(),
                     String.format("%.2f", b.getAmount()),
                     b.getIssueDate(),
@@ -136,7 +147,8 @@ public class CompanyBillsPanel extends JPanel {
     }
 
     private boolean passesFilter(Bill b, String filter) {
-        if (filter == null || filter.equals("All")) return true;
+        if (filter == null || filter.equals("All"))
+            return true;
         return filter.equals("Paid") ? b.isPaid() : !b.isPaid();
     }
 }

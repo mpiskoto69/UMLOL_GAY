@@ -14,10 +14,10 @@ public class BillDao {
         this.folder = folder;
     }
 
-    /** Loads ONLY the canonical files: issued.csv + paid.csv */
     public List<Bill> loadAll() throws IOException {
         List<Bill> result = new ArrayList<>();
-        if (folder == null) return result;
+        if (folder == null)
+            return result;
 
         loadInto(result, folder.resolve("issued.csv"), false);
         loadInto(result, folder.resolve("paid.csv"), true);
@@ -26,18 +26,22 @@ public class BillDao {
     }
 
     private void loadInto(List<Bill> out, Path file, boolean markPaid) throws IOException {
-        if (out == null) return;
-        if (file == null || !Files.exists(file)) return;
+        if (out == null)
+            return;
+        if (file == null || !Files.exists(file))
+            return;
 
         try (BufferedReader r = Files.newBufferedReader(file)) {
             String line;
             while ((line = r.readLine()) != null) {
-                if (line.isBlank()) continue;
+                if (line.isBlank())
+                    continue;
 
                 Bill b = new Bill();
                 try {
                     b.unmarshal(line);
-                    if (markPaid) b.markAsPaid();
+                    if (markPaid)
+                        b.markAsPaid();
                     out.add(b);
                 } catch (Exception ex) {
                     System.err.println("Bad bill line in " + file.getFileName() + ": " + line);
@@ -51,24 +55,23 @@ public class BillDao {
         Files.createDirectories(folder);
 
         Path issued = folder.resolve("issued.csv");
-        Path paid   = folder.resolve("paid.csv");
+        Path paid = folder.resolve("paid.csv");
 
         try (
                 BufferedWriter iw = Files.newBufferedWriter(
                         issued,
                         StandardOpenOption.CREATE,
-                        StandardOpenOption.TRUNCATE_EXISTING
-                );
+                        StandardOpenOption.TRUNCATE_EXISTING);
                 BufferedWriter pw = Files.newBufferedWriter(
                         paid,
                         StandardOpenOption.CREATE,
-                        StandardOpenOption.TRUNCATE_EXISTING
-                )
-        ) {
-            if (bills == null) return;
+                        StandardOpenOption.TRUNCATE_EXISTING)) {
+            if (bills == null)
+                return;
 
             for (Bill b : bills) {
-                if (b == null) continue;
+                if (b == null)
+                    continue;
 
                 if (b.isPaid()) {
                     pw.write(b.marshal());
@@ -81,4 +84,3 @@ public class BillDao {
         }
     }
 }
-

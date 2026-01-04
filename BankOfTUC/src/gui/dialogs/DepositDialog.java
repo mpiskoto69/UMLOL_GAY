@@ -1,11 +1,10 @@
 package gui.dialogs;
 
 import accounts.BankAccount;
-import users.Customer;
-
-import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import javax.swing.*;
+import users.Customer;
 
 public class DepositDialog extends JDialog {
 
@@ -42,24 +41,27 @@ public class DepositDialog extends JDialog {
     private void buildUI() {
         JPanel form = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(6,6,6,6);
+        c.insets = new Insets(6, 6, 6, 6);
         c.anchor = GridBagConstraints.WEST;
 
         int y = 0;
 
-        c.gridx = 0; c.gridy = y;
+        c.gridx = 0;
+        c.gridy = y;
         form.add(new JLabel("To account:"), c);
         c.gridx = 1;
         form.add(toCombo, c);
         y++;
 
-        c.gridx = 0; c.gridy = y;
+        c.gridx = 0;
+        c.gridy = y;
         form.add(new JLabel("Amount (€):"), c);
         c.gridx = 1;
         form.add(amountField, c);
         y++;
 
-        c.gridx = 0; c.gridy = y;
+        c.gridx = 0;
+        c.gridy = y;
         form.add(new JLabel("Reason:"), c);
         c.gridx = 1;
         form.add(reasonField, c);
@@ -85,13 +87,16 @@ public class DepositDialog extends JDialog {
     private void onOk() {
         try {
             String to = (String) toCombo.getSelectedItem();
-            if (to == null || to.isBlank()) throw new IllegalArgumentException("Select an account.");
+            if (to == null || to.isBlank())
+                throw new IllegalArgumentException("Select an account.");
 
             double amount = Double.parseDouble(amountField.getText().trim());
-            if (amount <= 0) throw new IllegalArgumentException("Amount must be > 0.");
+            if (amount <= 0)
+                throw new IllegalArgumentException("Amount must be > 0.");
 
             String reason = reasonField.getText().trim();
-            if (reason.isBlank()) reason = "Cash deposit";
+            if (reason.isBlank())
+                reason = "Cash deposit";
 
             result = new Result(to, amount, reason);
             dispose();
@@ -106,4 +111,3 @@ public class DepositDialog extends JDialog {
         return result;
     }
 }
-

@@ -8,9 +8,9 @@ public class Bill implements Storable {
 
     private static final Random RANDOM = new Random();
 
-    private String id;                 // e.g. BIxxxxxxxxxxxxxxxx
-    private String rfCode;             // e.g. RFxxxxxxxx
-    private String issuerVAT;          // επιχείρηση (VAT)
+    private String id; // e.g. BIxxxxxxxxxxxxxxxx
+    private String rfCode; // e.g. RFxxxxxxxx
+    private String issuerVAT; // επιχείρηση (VAT)
     private String recipientCustomerId; // πελάτης (VAT ή id όπως το ορίζετε)
     private double amount;
     private LocalDate issueDate;
@@ -19,7 +19,7 @@ public class Bill implements Storable {
 
     /** Business constructor: creates a NEW bill */
     public Bill(String issuerVAT, String recipientCustomerId, double amount,
-                LocalDate issueDate, LocalDate dueDate) {
+            LocalDate issueDate, LocalDate dueDate) {
         this.id = generateID();
         this.rfCode = generateRFcode();
         this.issuerVAT = issuerVAT;
@@ -37,7 +37,8 @@ public class Bill implements Storable {
         String uniquePart;
         do {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < 8; i++) sb.append(RANDOM.nextInt(10));
+            for (int i = 0; i < 8; i++)
+                sb.append(RANDOM.nextInt(10));
             uniquePart = sb.toString();
         } while (BillManager.getInstance().existsRF(uniquePart));
 
@@ -49,7 +50,8 @@ public class Bill implements Storable {
         String uniquePart;
         do {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < 16; i++) sb.append(RANDOM.nextInt(10));
+            for (int i = 0; i < 16; i++)
+                sb.append(RANDOM.nextInt(10));
             uniquePart = sb.toString();
         } while (BillManager.getInstance().existsBillID(uniquePart));
 
@@ -57,57 +59,75 @@ public class Bill implements Storable {
         return "BI" + uniquePart;
     }
 
-    //  domain methods 
-    public boolean isPaid() { return isPaid; }
+    // domain methods
+    public boolean isPaid() {
+        return isPaid;
+    }
 
-    public void markAsPaid() { this.isPaid = true; }
+    public void markAsPaid() {
+        this.isPaid = true;
+    }
 
-    public String getId() { return id; }
+    public String getId() {
+        return id;
+    }
 
-    public String getRfCode() { return rfCode; }
+    public String getRfCode() {
+        return rfCode;
+    }
 
-    public String getIssuerVAT() { return issuerVAT; }
+    public String getIssuerVAT() {
+        return issuerVAT;
+    }
 
-    public String getRecipientCustomerId() { return recipientCustomerId; }
+    public String getRecipientCustomerId() {
+        return recipientCustomerId;
+    }
 
-    public double getAmount() { return amount; }
+    public double getAmount() {
+        return amount;
+    }
 
-    public LocalDate getIssueDate() { return issueDate; }
+    public LocalDate getIssueDate() {
+        return issueDate;
+    }
 
-    public LocalDate getDueDate() { return dueDate; }
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
 
-public boolean isDue(LocalDate today) {
-    return !isPaid && !today.isBefore(dueDate);
-}
-
-
+    public boolean isDue(LocalDate today) {
+        return !isPaid && !today.isBefore(dueDate);
+    }
 
     // --- storage ---
     @Override
     public String marshal() {
         return String.join(",",
-            "type:Bill",
-            "paymentCode:" + rfCode,
-            "billNumber:" + id,
-            "issuer:" + issuerVAT,
-            "customer:" + recipientCustomerId,
-            "amount:" + amount,
-            "issueDate:" + issueDate,
-            "dueDate:" + dueDate,
-            "isPaid:" + isPaid
-        );
+                "type:Bill",
+                "paymentCode:" + rfCode,
+                "billNumber:" + id,
+                "issuer:" + issuerVAT,
+                "customer:" + recipientCustomerId,
+                "amount:" + amount,
+                "issueDate:" + issueDate,
+                "dueDate:" + dueDate,
+                "isPaid:" + isPaid);
     }
 
     @Override
     public void unmarshal(String data) throws UnMarshalingException {
         String[] parts = data.split(",");
-        if (parts.length == 0) throw new UnMarshalingException("Empty bill line");
+        if (parts.length == 0)
+            throw new UnMarshalingException("Empty bill line");
 
         for (String p : parts) {
-            if (p.isBlank()) continue;
+            if (p.isBlank())
+                continue;
 
             String[] kv = p.split(":", 2);
-            if (kv.length != 2) throw new UnMarshalingException("Bad field: " + p);
+            if (kv.length != 2)
+                throw new UnMarshalingException("Bad field: " + p);
 
             String key = kv[0];
             String val = kv[1];

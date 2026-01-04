@@ -1,11 +1,10 @@
 package gui.dialogs;
 
 import accounts.BankAccount;
-import users.Customer;
-
-import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import javax.swing.*;
+import users.Customer;
 
 public class TransferDialog extends JDialog {
 
@@ -61,25 +60,45 @@ public class TransferDialog extends JDialog {
     private void buildUI() {
         JPanel form = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(6,6,6,6);
+        c.insets = new Insets(6, 6, 6, 6);
         c.anchor = GridBagConstraints.WEST;
 
         int y = 0;
 
-        c.gridx=0; c.gridy=y; form.add(new JLabel("From account:"), c);
-        c.gridx=1; form.add(fromCombo, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("From account:"), c);
+        c.gridx = 1;
+        form.add(fromCombo, c);
+        y++;
 
-        c.gridx=0; c.gridy=y; form.add(new JLabel("To IBAN:"), c);
-        c.gridx=1; form.add(toIbanField, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("To IBAN:"), c);
+        c.gridx = 1;
+        form.add(toIbanField, c);
+        y++;
 
-        c.gridx=0; c.gridy=y; form.add(new JLabel("Amount (€):"), c);
-        c.gridx=1; form.add(amountField, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("Amount (€):"), c);
+        c.gridx = 1;
+        form.add(amountField, c);
+        y++;
 
-        c.gridx=0; c.gridy=y; form.add(new JLabel("Reason:"), c);
-        c.gridx=1; form.add(reasonField, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("Reason:"), c);
+        c.gridx = 1;
+        form.add(reasonField, c);
+        y++;
 
-        c.gridx=0; c.gridy=y; form.add(new JLabel("Network:"), c);
-        c.gridx=1; form.add(networkCombo, c); y++;
+        c.gridx = 0;
+        c.gridy = y;
+        form.add(new JLabel("Network:"), c);
+        c.gridx = 1;
+        form.add(networkCombo, c);
+        y++;
 
         JButton cancelBtn = new JButton("Cancel");
         JButton okBtn = new JButton("Transfer");
@@ -115,7 +134,8 @@ public class TransferDialog extends JDialog {
             if (network == null)
                 network = Network.INTRA;
 
-            if (reason.isBlank()) reason = "Transfer";
+            if (reason.isBlank())
+                reason = "Transfer";
 
             result = new Result(from, to, amount, reason, network);
             dispose();
@@ -125,8 +145,7 @@ public class TransferDialog extends JDialog {
                     this,
                     ex.getMessage(),
                     "Validation error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }
