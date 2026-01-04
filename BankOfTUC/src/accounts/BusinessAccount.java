@@ -35,7 +35,6 @@ public class BusinessAccount extends BankAccount {
         resetMonthsInterest();
 
         // Maintenace Fee
-
         System.out.print("Maintenance fee paid ");
         System.out.printf("%.2f", MAINTENANCE_FEE);
         System.out.println(" euros from " + iban);
@@ -61,8 +60,9 @@ public class BusinessAccount extends BankAccount {
         String[] parts = data.split(",");
         for (String p : parts) {
             String[] kv = p.split(":", 2);
-            if (kv.length != 2)
+            if (kv.length != 2) {
                 throw new UnMarshalingException("Bad field: " + p);
+            }
             String key = kv[0], val = kv[1];
             switch (key) {
                 case "type":
@@ -93,5 +93,4 @@ public class BusinessAccount extends BankAccount {
             }
         }
     }
-
 }

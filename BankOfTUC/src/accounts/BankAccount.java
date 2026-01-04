@@ -15,7 +15,7 @@ public abstract class BankAccount implements Storable {
     protected double interestRate;
     protected Customer primaryHolder;
     protected double thisMonthsInterest;
-    private ArrayList<AccountStatement> statements = new ArrayList<>();
+    private   ArrayList<AccountStatement> statements = new ArrayList<>();
     protected LocalDate dateCreated;
 
     public BankAccount(Customer holder, double interestRate, String accountTypeCode) {
@@ -29,9 +29,7 @@ public abstract class BankAccount implements Storable {
         holder.addAccount(this);
     }
 
-    public BankAccount() {
-
-    }
+    public BankAccount() {}
 
     private static final Random RANDOM = new Random();
 

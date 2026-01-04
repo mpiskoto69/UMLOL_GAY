@@ -6,10 +6,10 @@ import javax.naming.InsufficientResourcesException;
 import managers.AccountManager;
 import users.Customer;
 
-public class Withdrawall extends Transaction {
+public class Withdrawal extends Transaction {
     private final double amount;
 
-    public Withdrawall(Customer transactor, BankAccount account, String reason, double amount) {
+    public Withdrawal(Customer transactor, BankAccount account, String reason, double amount) {
         super(transactor, account, MasterAccount.getInstance(), reason, "Cash withdrawal");
         this.amount = amount;
     }

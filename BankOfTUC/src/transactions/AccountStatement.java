@@ -21,13 +21,13 @@ public class AccountStatement implements Storable {
     private MovementType movementType;
 
     public AccountStatement(String transactionId,
-            String transactorName,
-            String accountIban,
-            String counterpartyIban,
-            String reason,
-            double amount,
-            double balanceAfter,
-            MovementType movementType) {
+                            String transactorName,
+                            String accountIban,
+                            String counterpartyIban,
+                            String reason,
+                            double amount,
+                            double balanceAfter,
+                            MovementType movementType) {
         this.timestamp = LocalDateTime.now();
         this.transactionId = transactionId;
         this.transactorName = transactorName;
@@ -42,7 +42,7 @@ public class AccountStatement implements Storable {
     public AccountStatement() {
     }
 
-    // ---------- Builder pattern ----------
+    // Builder pattern
     public static Builder builder() {
         return new Builder();
     }
@@ -134,7 +134,7 @@ public class AccountStatement implements Storable {
         }
     }
 
-    // ---------- Getters ----------
+    // Getters
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
@@ -171,7 +171,7 @@ public class AccountStatement implements Storable {
         return movementType;
     }
 
-    // ---------- Storage ----------
+    // Storage
     @Override
     public String marshal() {
         return String.join(",",

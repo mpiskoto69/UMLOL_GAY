@@ -65,18 +65,15 @@ public class AccountsAdminPanel extends JPanel {
             try {
                 if (a.getPrimaryHolder() != null)
                     ownerVat = safe(a.getPrimaryHolder().getVatNumber());
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
 
             double bal = 0.0;
             try {
                 bal = a.getBalance();
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
 
             model.addRow(new Object[] { iban, type, ownerVat, String.format("%.2f", bal) });
         }
-
         countLabel.setText("Count: " + all.size());
     }
 

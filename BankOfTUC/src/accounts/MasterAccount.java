@@ -33,8 +33,7 @@ public class MasterAccount extends BusinessAccount {
     }
 
     @Override
-    public void endOfMonth() {
-    }
+    public void endOfMonth() {}
 
     @Override
     public String marshal() {
@@ -76,7 +75,6 @@ public class MasterAccount extends BusinessAccount {
                     this.primaryHolder = (Company) cust;
                     this.primaryHolder.addAccount(this);
                     break;
-
                 case "dateCreated":
                     this.dateCreated = LocalDate.parse(val);
                     break;

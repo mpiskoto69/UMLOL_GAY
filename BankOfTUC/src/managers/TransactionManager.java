@@ -10,14 +10,13 @@ import users.Customer;
 public class TransactionManager {
     private static final TransactionManager instance = new TransactionManager();
 
-    private TransactionManager() {
-    }
+    private TransactionManager() {}
 
     public static TransactionManager getInstance() {
         return instance;
     }
 
-    // ο manager (ως Singleton) είναι ο μοναδικός executor
+    // The manager (as a Singleton) is the sole executor
     public void registerTransaction(Transaction transaction) {
         try {
             transaction.execute();
@@ -28,11 +27,11 @@ public class TransactionManager {
     }
 
     public void newTransfer(Customer transactor,
-            BankAccount fromAccount,
-            BankAccount toAccount,
-            String reasonFrom,
-            String reasonTo,
-            double amount) {
+                            BankAccount fromAccount,
+                            BankAccount toAccount,
+                            String reasonFrom,
+                            String reasonTo,
+                            double amount) {
 
         Transaction transfer = Transfer.builder()
                 .transactor(transactor)
@@ -80,5 +79,4 @@ public class TransactionManager {
 
         registerTransaction(transfer);
     }
-
 }

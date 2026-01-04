@@ -1,4 +1,3 @@
-
 package bank.storage;
 
 import accounts.BankAccount;
@@ -40,8 +39,7 @@ public class StorageManager {
         return "./data/";
     }
 
-    private StorageManager() {
-    }
+    private StorageManager() {}
 
     public static StorageManager getInstance() {
         return instance;
@@ -124,7 +122,7 @@ public class StorageManager {
         StorableList<Bill> issued = new StorableList<>();
         try {
             loadObject(issued, fileName);
-            // leave isPaid==false (default from unmarshal ctor)
+            // leaves isPaid==false (default from unmarshal constructor)
             BillManager.getInstance().addBills(issued);
         } catch (IOException e) {
             System.out.println("Could not open issued file: " + e.getMessage());
@@ -216,8 +214,7 @@ public class StorageManager {
             Files.writeString(f, d.toString(),
                     StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (Exception ignored) {
-        }
+        } catch (Exception ignored) {}
     }
 
     public void saveCurrentDatePublic(LocalDate d) {
@@ -425,5 +422,4 @@ public class StorageManager {
                     }
                 });
     }
-
 }

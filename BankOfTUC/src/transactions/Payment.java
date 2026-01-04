@@ -31,7 +31,7 @@ public class Payment extends Transaction {
 		getAccount1().debit(amount);
 		getAccount2().credit(amount);
 
-		// 2) DEBIT statement on the payer
+		// 2) debit statement on the payer
 		AccountStatement debitStmt = AccountStatement.builder()
 				.transactionId(getId())
 				.transactor(getTransactor().getUsername())
@@ -44,7 +44,7 @@ public class Payment extends Transaction {
 				.build();
 		getAccount1().addStatement(debitStmt);
 
-		// 3) CREDIT statement on the business
+		// 3) credit statement on the business
 		AccountStatement creditStmt = AccountStatement.builder()
 				.transactionId(getId())
 				.transactor(getTransactor().getUsername())
@@ -59,7 +59,6 @@ public class Payment extends Transaction {
 
 		System.out.println(
 				"Payment of " + amount + "euros by " + transactor.getLegalName() + ", from " + getAccount1().getIban()
-						+ ", to " + getAccount2().getIban() + " and reason " + getReason1() + " completed");
+				+ ", to " + getAccount2().getIban() + " and reason " + getReason1() + " completed");
 	}
-
 }

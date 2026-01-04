@@ -17,16 +17,15 @@ public class PaymentOrder extends StandingOrder {
     private double maxAmount;
 
     public PaymentOrder(Customer customer, String id, String title, String description,
-            BankAccount fromAccount, String rfCode, double maxAmount,
-            LocalDate startDate, LocalDate endDate, double fee) {
+                        BankAccount fromAccount, String rfCode, double maxAmount,
+                        LocalDate startDate, LocalDate endDate, double fee) {
         super(customer, id, title, description, startDate, endDate, fee);
         this.fromAccount = fromAccount;
         this.rfCode = rfCode;
         this.maxAmount = maxAmount;
     }
 
-    public PaymentOrder() {
-    }
+    public PaymentOrder() {}
 
     @Override
     public boolean isDue(LocalDate today) {

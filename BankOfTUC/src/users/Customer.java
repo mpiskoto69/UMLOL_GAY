@@ -26,5 +26,4 @@ public abstract class Customer extends User {
 		if (!accounts.contains(acc))
 			accounts.add(acc);
 	}
-
 }

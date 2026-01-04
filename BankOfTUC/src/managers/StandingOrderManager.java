@@ -111,5 +111,4 @@ public class StandingOrderManager {
     public void clearAll() {
         standingOrders.clear();
     }
-
 }

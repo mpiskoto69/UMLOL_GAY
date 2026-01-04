@@ -87,9 +87,6 @@ public class StandingOrdersPanel extends JPanel {
                     so.getFailedAttempts()
             });
         }
-
-        if (mine.isEmpty()) {
-        }
     }
 
     private List<StandingOrder> getOrdersFor(Customer c) {

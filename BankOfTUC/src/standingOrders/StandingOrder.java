@@ -35,8 +35,7 @@ public abstract class StandingOrder implements Storable {
         this.fee = fee;
     }
 
-    protected StandingOrder() {
-    }
+    protected StandingOrder() {}
 
     public String getId() {
         return id;
@@ -88,21 +87,19 @@ public abstract class StandingOrder implements Storable {
 
     public boolean isActive(LocalDate today) {
         return today != null
-                && startDate != null
-                && endDate != null
-                && !today.isBefore(startDate)
-                && !today.isAfter(endDate);
+               && startDate != null
+               && endDate != null
+               && !today.isBefore(startDate)
+               && !today.isAfter(endDate);
     }
 
     public abstract boolean isDue(LocalDate today);
 
     public abstract void execute(LocalDate today);
 
-    /**
-     * Call this when an attempt FAILS.
-     * Keeps failures per due-date attempt; resets automatically when due-date
-     * changes.
-     */
+    /* this is called when an attempt fails,
+       keeps failures per due-date attempt,
+       resets automatically when due-date changes */
     public void onAttemptFailure(LocalDate today) {
         if (today == null) {
             failedAttempts++;
@@ -119,9 +116,8 @@ public abstract class StandingOrder implements Storable {
         failedAttempts++;
     }
 
-    /**
-     * Returns true if we should skip the attempt for this specific due-date.
-     */
+
+     // Returns true if we should skip the attempt for this specific due-date.
     public boolean hasExceededMaxFailuresFor(LocalDate today) {
         if (today == null)
             return failedAttempts >= MAX_ATTEMPTS;

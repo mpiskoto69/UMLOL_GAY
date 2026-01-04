@@ -23,10 +23,11 @@ public class Deposit extends Transaction {
         if (!AccountManager.getInstance().hasAccessToAccount(transactor, account1))
             throw new IllegalAccessException("You don't have access to this account!");
 
-        // 1) Move money: bank -> customer
+        // 1) Move money: bank to customer
         getAccount2().debit(amount); // bank pays out
         getAccount1().credit(amount); // customer receives
-        // 2) CREDIT statement on customer
+
+        // 2) credit statement on customer
         AccountStatement custStmt = AccountStatement.builder()
                 .transactionId(getId())
                 .transactor(getTransactor().getUsername())

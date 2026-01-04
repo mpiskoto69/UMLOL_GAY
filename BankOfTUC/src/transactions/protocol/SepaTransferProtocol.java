@@ -6,7 +6,6 @@ import java.net.http.*;
 import java.time.LocalDate;
 
 public class SepaTransferProtocol implements TransferProtocol {
-
   private static final String URL = "http://147.27.70.44:3020/transfer/sepa";
 
   @Override

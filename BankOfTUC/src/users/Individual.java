@@ -3,7 +3,6 @@ package users;
 import bank.storage.UnMarshalingException;
 
 public class Individual extends Customer {
-
 	public Individual(String vat, String legaName, String username, String password) {
 		super(username, password, vat, legaName);
 	}
@@ -56,5 +55,4 @@ public class Individual extends Customer {
 			}
 		}
 	}
-
 }

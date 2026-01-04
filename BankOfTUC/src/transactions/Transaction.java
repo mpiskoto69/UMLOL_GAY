@@ -38,8 +38,7 @@ public abstract class Transaction {
         this(generateId(), transactor, account1, account2, reason1, reason2);
     }
 
-    // ---------------- getters ----------------
-
+    // getters
     public String getId() {
         return id;
     }
@@ -64,8 +63,7 @@ public abstract class Transaction {
         return reason2;
     }
 
-    // ---------------- helpers ----------------
-
+    // helpers
     protected static String generateId() {
         return UUID.randomUUID().toString();
     }

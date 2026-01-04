@@ -16,8 +16,7 @@ public class BillManager {
 
     private final Set<String> seenKeys = new HashSet<>();
 
-    private BillManager() {
-    }
+    private BillManager() {}
 
     public static BillManager getInstance() {
         return instance;
@@ -39,7 +38,7 @@ public class BillManager {
     }
 
     public void createBill(String issuerVat, String recipientCustomerId, double amount,
-            LocalDate issueDate, LocalDate dueDate) {
+                           LocalDate issueDate, LocalDate dueDate) {
         Bill bill = new Bill(issuerVat, recipientCustomerId, amount, issueDate, dueDate);
         addBill(bill);
     }

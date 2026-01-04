@@ -14,7 +14,7 @@ import standingOrders.TransferOrder;
 import transactions.Deposit;
 import transactions.Payment;
 import transactions.Transfer;
-import transactions.Withdrawall;
+import transactions.Withdrawal;
 import transactions.protocol.TransferProtocol;
 import users.*;
 
@@ -26,7 +26,7 @@ public class BankingFacade {
         return currentDate;
     }
 
-    // --- load/save ---
+    // load/save
     public void loadAll() {
 
         UserManager.getInstance().clearAll();
@@ -69,10 +69,9 @@ public class BankingFacade {
     }
 
     public Bill issueBill(Company company,
-            String customerVat,
-            double amount,
-            LocalDate dueDate) {
-
+                          String customerVat,
+                          double amount,
+                          LocalDate dueDate) {
         if (company == null)
             throw new IllegalArgumentException("Company is required");
         if (customerVat == null || customerVat.isBlank())
@@ -81,11 +80,9 @@ public class BankingFacade {
             throw new IllegalArgumentException("Amount must be > 0");
         if (dueDate == null)
             throw new IllegalArgumentException("Due date is required");
-
         Customer c = UserManager.getInstance().findCustomerByVat(customerVat);
         if (c == null)
             throw new IllegalArgumentException("Unknown customer VAT: " + customerVat);
-
         if (AccountManager.getInstance().findBusinessAccountByVat(company.getVatNumber()) == null) {
             throw new IllegalArgumentException("Company has no business account (cannot issue bills).");
         }
@@ -96,7 +93,6 @@ public class BankingFacade {
                 amount,
                 currentDate,
                 dueDate);
-
         BillManager.getInstance().addBill(bill);
         return bill;
     }
@@ -179,7 +175,7 @@ public class BankingFacade {
             LocalDate endDate,
             double fee) {
 
-        // ---------- basic validation ----------
+        // basic validation
         if (customer == null)
             throw new IllegalArgumentException("Customer is required");
 
@@ -198,7 +194,7 @@ public class BankingFacade {
         if (startDate == null || endDate == null || endDate.isBefore(startDate))
             throw new IllegalArgumentException("Invalid start/end date");
 
-        // ---------- find accounts ----------
+        // find accounts
         BankAccount fromAccount = AccountManager.getInstance().findByIban(fromIban);
         if (fromAccount == null)
             throw new IllegalArgumentException("Source account not found");
@@ -207,11 +203,11 @@ public class BankingFacade {
         if (toAccount == null)
             throw new IllegalArgumentException("Target account not found");
 
-        // ---------- access check ----------
+        // access check
         if (!AccountManager.getInstance().hasAccessToAccount(customer, fromAccount))
             throw new IllegalArgumentException("No access to source account");
 
-        // ---------- create order ----------
+        // create order
         String id = UUID.randomUUID().toString();
 
         TransferOrder order = new TransferOrder(
@@ -228,11 +224,11 @@ public class BankingFacade {
                 endDate,
                 fee);
 
-        // ---------- register ----------
+        // register
         StandingOrderManager.getInstance().addOrder(order);
     }
 
-    // --- queries ---
+    // queries
     public List<BankAccount> accountsFor(Customer c) {
         return new ArrayList<>(c.getAccounts());
     }
@@ -284,7 +280,7 @@ public class BankingFacade {
             throw new IllegalArgumentException("No access to this account");
 
         TransactionManager.getInstance().registerTransaction(
-                new Withdrawall(customer, from, reason, amount));
+                new Withdrawal(customer, from, reason, amount));
     }
 
     public void transfer(Customer customer,
@@ -379,7 +375,7 @@ public class BankingFacade {
         return BillManager.getInstance().getBillsToPayBy(c.getVatNumber());
     }
 
-    // --- simulation ---
+    // simulation
     public StandingOrderManager.ExecutionReport nextDayWithReport() {
         currentDate = currentDate.plusDays(1);
         StorageManager.getInstance().loadIssuedBills("bills/" + currentDate + ".csv");

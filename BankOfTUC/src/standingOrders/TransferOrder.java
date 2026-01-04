@@ -29,8 +29,7 @@ public class TransferOrder extends StandingOrder {
         this.executionDay = executionDay;
     }
 
-    public TransferOrder() {
-    }
+    public TransferOrder() {}
 
     @Override
     public boolean isDue(LocalDate today) {
@@ -59,19 +58,16 @@ public class TransferOrder extends StandingOrder {
 
         if (customer == null || fromAccount == null || toAccount == null) {
             onAttemptFailure(today);
-
             return;
         }
 
         if (!AccountManager.getInstance().hasAccessToAccount(customer, fromAccount)) {
             System.out.println("You don't have access to this account!");
             onAttemptFailure(today);
-
             return;
         }
 
         try {
-
             TransactionManager.getInstance().registerTransaction(
                     Transfer.builder()
                             .transactor(customer)
@@ -80,10 +76,8 @@ public class TransferOrder extends StandingOrder {
                             .reason("Πάγια Εντολή Μεταφοράς")
                             .amount(amount + fee)
                             .build());
-
         } catch (Exception e) {
             onAttemptFailure(today);
-
         }
     }
 

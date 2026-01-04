@@ -10,14 +10,14 @@ public class Bill implements Storable {
 
     private String id; // e.g. BIxxxxxxxxxxxxxxxx
     private String rfCode; // e.g. RFxxxxxxxx
-    private String issuerVAT; // επιχείρηση (VAT)
-    private String recipientCustomerId; // πελάτης (VAT ή id όπως το ορίζετε)
+    private String issuerVAT; // company VAT
+    private String recipientCustomerId; // customer id
     private double amount;
     private LocalDate issueDate;
     private LocalDate dueDate;
     private boolean isPaid;
 
-    /** Business constructor: creates a NEW bill */
+    // Business constructor: creates a new bill
     public Bill(String issuerVAT, String recipientCustomerId, double amount,
             LocalDate issueDate, LocalDate dueDate) {
         this.id = generateID();
@@ -30,8 +30,7 @@ public class Bill implements Storable {
         this.isPaid = false;
     }
 
-    public Bill() {
-    }
+    public Bill() {}
 
     private String generateRFcode() {
         String uniquePart;
@@ -100,7 +99,7 @@ public class Bill implements Storable {
         return !isPaid && !today.isBefore(dueDate);
     }
 
-    // --- storage ---
+    // storage
     @Override
     public String marshal() {
         return String.join(",",
@@ -124,11 +123,9 @@ public class Bill implements Storable {
         for (String p : parts) {
             if (p.isBlank())
                 continue;
-
             String[] kv = p.split(":", 2);
             if (kv.length != 2)
                 throw new UnMarshalingException("Bad field: " + p);
-
             String key = kv[0];
             String val = kv[1];
 

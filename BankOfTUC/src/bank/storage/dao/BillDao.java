@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BillDao {
-
     private final Path folder;
 
     public BillDao(Path folder) {
@@ -36,7 +35,6 @@ public class BillDao {
             while ((line = r.readLine()) != null) {
                 if (line.isBlank())
                     continue;
-
                 Bill b = new Bill();
                 try {
                     b.unmarshal(line);
@@ -57,22 +55,20 @@ public class BillDao {
         Path issued = folder.resolve("issued.csv");
         Path paid = folder.resolve("paid.csv");
 
-        try (
-                BufferedWriter iw = Files.newBufferedWriter(
-                        issued,
-                        StandardOpenOption.CREATE,
-                        StandardOpenOption.TRUNCATE_EXISTING);
-                BufferedWriter pw = Files.newBufferedWriter(
-                        paid,
-                        StandardOpenOption.CREATE,
-                        StandardOpenOption.TRUNCATE_EXISTING)) {
+        try (BufferedWriter iw = Files.newBufferedWriter(
+                issued,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING);
+             BufferedWriter pw = Files.newBufferedWriter(
+                paid,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING)) {
             if (bills == null)
                 return;
 
             for (Bill b : bills) {
                 if (b == null)
                     continue;
-
                 if (b.isPaid()) {
                     pw.write(b.marshal());
                     pw.newLine();

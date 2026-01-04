@@ -147,5 +147,4 @@ public class SimulationPanel extends JPanel {
             afterAdvance.run();
         refresh();
     }
-
 }

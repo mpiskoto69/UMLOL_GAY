@@ -85,8 +85,6 @@ public class LoginFrame extends JFrame {
 
         root.add(form, BorderLayout.CENTER);
 
-        // JPanel buttons = new JPanel(new BorderLayout());
-
         JPanel leftBtns = new JPanel(new FlowLayout(FlowLayout.LEFT));
         leftBtns.add(forgotBtn);
 
@@ -192,5 +190,4 @@ public class LoginFrame extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
     }
-
 }

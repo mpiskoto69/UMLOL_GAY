@@ -1,4 +1,3 @@
-//bridge:)
 package transactions.protocol;
 
 import accounts.BankAccount;

@@ -57,7 +57,6 @@ public class StorableList<T extends Storable> extends ArrayList<T> implements St
 				case "MasterAccount":
 					inst = MasterAccount.getInstance();
 					break;
-
 				default:
 					throw new UnMarshalingException("Unknown type: " + type);
 			}

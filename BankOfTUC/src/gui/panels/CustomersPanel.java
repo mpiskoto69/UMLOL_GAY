@@ -67,7 +67,6 @@ public class CustomersPanel extends JPanel {
                     c.getUsername()
             });
         }
-
         countLabel.setText("Count: " + customers.size());
     }
 

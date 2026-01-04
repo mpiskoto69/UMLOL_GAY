@@ -14,20 +14,20 @@ public class Transfer extends Transaction {
     private final TransferProtocol protocol;
 
     public Transfer(Customer transactor, BankAccount fromAccount, BankAccount toAccount,
-            String reasonFrom, String reasonTo, double amount,
-            TransferProtocol protocol) {
+                    String reasonFrom, String reasonTo, double amount,
+                    TransferProtocol protocol) {
         super(transactor, fromAccount, toAccount, reasonFrom, reasonTo);
         this.amount = amount;
         this.protocol = (protocol != null) ? protocol : new IntraBankProtocol();
     }
 
     public Transfer(Customer transactor, BankAccount fromAccount, BankAccount toAccount,
-            String reasonFrom, String reasonTo, double amount) {
+                    String reasonFrom, String reasonTo, double amount) {
         this(transactor, fromAccount, toAccount, reasonFrom, reasonTo, amount, new IntraBankProtocol());
     }
 
     public Transfer(Customer transactor, BankAccount fromAccount, BankAccount toAccount,
-            double amount, String reason) {
+                    double amount, String reason) {
         this(transactor, fromAccount, toAccount, reason, reason, amount, new IntraBankProtocol());
     }
 
@@ -118,7 +118,7 @@ public class Transfer extends Transaction {
             e.printStackTrace();
         }
 
-        // 2) DEBIT on sender
+        // 2) debit on sender
         AccountStatement debitStmt = AccountStatement.builder()
                 .transactionId(getId())
                 .transactor(getTransactor().getUsername())
@@ -131,7 +131,7 @@ public class Transfer extends Transaction {
                 .build();
         getAccount1().addStatement(debitStmt);
 
-        // 3) CREDIT on receiver
+        // 3) credit on receiver
         AccountStatement creditStmt = AccountStatement.builder()
                 .transactionId(getId())
                 .transactor(getTransactor().getUsername())

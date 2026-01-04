@@ -86,7 +86,6 @@ public class AccountManager {
     }
 
     public boolean hasAccessToAccount(Customer customer, BankAccount account) {
-
         if (customer.equals(MasterAccount.getInstance().getPrimaryHolder()))
             return true;
 
@@ -96,7 +95,6 @@ public class AccountManager {
         }
 
         return false;
-
     }
 
     public void addIban(String iban) throws IllegalArgumentException {
@@ -131,11 +129,10 @@ public class AccountManager {
         } else {
             System.out.println("VAT " + vat + " does not belong to an individual!");
         }
-
     }
 
     public void createBusinessAccount(String vat, double interestRate,
-            LocalDate dateCreated, double balance) {
+                                      LocalDate dateCreated, double balance) {
         Customer cust = UserManager.getInstance().findCustomerByVat(vat);
         if (cust instanceof Company) {
             Company comp = (Company) cust;
@@ -201,8 +198,7 @@ public class AccountManager {
                     if (!existsIban(uniquePart))
                         addIban(uniquePart);
                 }
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
         }
     }
 
@@ -212,7 +208,6 @@ public class AccountManager {
                 BusinessAccount bacc = (BusinessAccount) acc;
                 if (acc.getPrimaryHolder().getVatNumber().equals(vat))
                     return bacc;
-
             }
         }
         return null;
@@ -222,5 +217,4 @@ public class AccountManager {
         accounts.clear();
         ibanList.clear();
     }
-
 }

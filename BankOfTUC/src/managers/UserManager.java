@@ -10,8 +10,7 @@ public class UserManager {
     private static final UserManager instance = new UserManager();
     private StorableList<User> users = new StorableList<>();
 
-    private UserManager() {
-    }
+    private UserManager() {}
 
     public static UserManager getInstance() {
         return instance;
@@ -69,5 +68,4 @@ public class UserManager {
     public void clearAll() {
         users.clear();
     }
-
 }

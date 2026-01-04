@@ -208,5 +208,4 @@ public class AccountsPanel extends JPanel {
             return null;
         return line.substring(0, idx).trim();
     }
-
 }

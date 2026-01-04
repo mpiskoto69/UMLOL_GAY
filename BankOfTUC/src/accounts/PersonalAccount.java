@@ -30,7 +30,6 @@ public class PersonalAccount extends BankAccount {
     }
 
     @Override
-
     public void endOfMonth() {
         System.out.print("Interest paid ");
         System.out.printf("%.2f", thisMonthsInterest);
@@ -102,5 +101,4 @@ public class PersonalAccount extends BankAccount {
             }
         }
     }
-
 }

@@ -66,5 +66,4 @@ public class Company extends Customer {
 			}
 		}
 	}
-
 }

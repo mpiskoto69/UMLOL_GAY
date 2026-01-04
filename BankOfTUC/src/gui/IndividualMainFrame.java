@@ -33,7 +33,7 @@ public class IndividualMainFrame extends JFrame {
         setSize(900, 560);
         setLocationRelativeTo(null);
 
-        // ---------- Header ----------
+        // Header
         JPanel header = new JPanel(new BorderLayout(10, 10));
         header.setBorder(BorderFactory.createEmptyBorder(12, 12, 6, 12));
 
@@ -78,7 +78,7 @@ public class IndividualMainFrame extends JFrame {
         header.add(welcomeLabel, BorderLayout.WEST);
         header.add(right, BorderLayout.EAST);
 
-        // ---------- Tabs ----------
+        // Tabs
         JTabbedPane tabs = new JTabbedPane();
 
         accountsPanel = new AccountsPanel(facade);
@@ -93,7 +93,7 @@ public class IndividualMainFrame extends JFrame {
         tabs.addTab("Standing Orders", soPanel);
         tabs.addTab("Statements", stPanel);
 
-        // ---------- Root ----------
+        // Root
         JPanel root = new JPanel(new BorderLayout());
         root.add(header, BorderLayout.NORTH);
         root.add(tabs, BorderLayout.CENTER);
