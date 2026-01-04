@@ -59,6 +59,7 @@ public class LoginFrame extends JFrame {
         statusLabel.setForeground(new Color(70, 70, 70));
         root.add(statusLabel, BorderLayout.NORTH);
 
+        // form
         JPanel form = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(6, 6, 6, 6);
