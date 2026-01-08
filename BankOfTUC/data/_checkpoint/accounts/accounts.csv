@@ -1,0 +1,11 @@
+type:PersonalAccount,iban:GR100202503111546001,primaryOwner:067688302,dateCreated:2026-01-01,rate:0.02,balance:834.6600074219403,coOwner:067688304
+type:PersonalAccount,iban:GR100202503111546002,primaryOwner:067688303,dateCreated:2026-01-01,rate:0.02,balance:2055.7315127585207
+type:PersonalAccount,iban:GR100202503111546003,primaryOwner:067688304,dateCreated:2026-01-01,rate:0.02,balance:3134.9905569567454
+type:PersonalAccount,iban:GR100202503111546004,primaryOwner:067688302,dateCreated:2026-01-01,rate:0.02,balance:1790.5421476126721,coOwner:067688303
+type:PersonalAccount,iban:GR100202503111546005,primaryOwner:067688307,dateCreated:2026-01-01,rate:0.02,balance:55.83366788652144
+type:PersonalAccount,iban:GR100202503111546006,primaryOwner:067688306,dateCreated:2026-01-01,rate:0.02,balance:642.5805562580586,coOwner:067688303,coOwner:067688302
+type:PersonalAccount,iban:GR100202503111546007,primaryOwner:067688303,dateCreated:2026-01-01,rate:0.02,balance:25.696643909481516
+type:BusinessAccount,iban:GR200202503131719401,primaryOwner:090800700,dateCreated:2026-01-01,rate:0.03,balance:10227.278718367514
+type:BusinessAccount,iban:GR200202503131719402,primaryOwner:090800800,dateCreated:2026-01-01,rate:0.03,balance:21352.732381025304
+type:BusinessAccount,iban:GR200202503131719403,primaryOwner:090800900,dateCreated:2026-01-01,rate:0.03,balance:104033.81450722308
+type:BusinessAccount,iban:GR200202503131719404,primaryOwner:090800600,dateCreated:2026-01-01,rate:0.03,balance:7360.878518938072

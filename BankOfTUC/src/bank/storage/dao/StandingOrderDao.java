@@ -17,7 +17,7 @@ public class StandingOrderDao {
     public StandingOrderDao(Path folder) {
         this.folder = folder;
     }
-
+    
     public StorableList<StandingOrder> loadFile(String fileName) throws IOException, UnMarshalingException {
         Path file = folder.resolve(fileName);
         StorableList<StandingOrder> list = new StorableList<>();

@@ -6,12 +6,20 @@ import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BillDao {
+
+
+public class BillDao implements Dao<List<Bill>>{
     private final Path folder;
 
     public BillDao(Path folder) {
         this.folder = folder;
     }
+  
+    @Override
+    public List<Bill> load() throws IOException { return loadAll(); }
+    
+    @Override
+   public void save(List<Bill> data) throws IOException { saveAll(data); }
 
     public List<Bill> loadAll() throws IOException {
         List<Bill> result = new ArrayList<>();
@@ -79,4 +87,7 @@ public class BillDao {
             }
         }
     }
+
+    
+
 }

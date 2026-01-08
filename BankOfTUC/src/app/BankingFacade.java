@@ -69,9 +69,9 @@ public class BankingFacade {
     }
 
     public Bill issueBill(Company company,
-                          String customerVat,
-                          double amount,
-                          LocalDate dueDate) {
+            String customerVat,
+            double amount,
+            LocalDate dueDate) {
         if (company == null)
             throw new IllegalArgumentException("Company is required");
         if (customerVat == null || customerVat.isBlank())
