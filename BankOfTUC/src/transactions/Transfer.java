@@ -19,6 +19,7 @@ public class Transfer extends Transaction {
         super(transactor, fromAccount, toAccount, reasonFrom, reasonTo);
         this.amount = amount;
         this.protocol = (protocol != null) ? protocol : new IntraBankProtocol();
+        
     }
 
     public Transfer(Customer transactor, BankAccount fromAccount, BankAccount toAccount,

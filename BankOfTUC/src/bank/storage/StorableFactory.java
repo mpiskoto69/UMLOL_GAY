@@ -3,15 +3,12 @@ package bank.storage;
 import accounts.BusinessAccount;
 import accounts.MasterAccount;
 import accounts.PersonalAccount;
-import standingOrders.PaymentOrder;
-import standingOrders.TransferOrder;
-import users.Admin;
-import users.Company;
-import users.Individual;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
+import users.Admin;
+import users.Company;
+import users.Individual;
 
 public class StorableFactory {
 
@@ -28,8 +25,7 @@ public class StorableFactory {
 
         registry.put("Bill", Bill::new);
 
-        registry.put("TransferOrder", TransferOrder::new);
-        registry.put("PaymentOrder", PaymentOrder::new);
+       
     }
 
     public Storable createByType(String type) throws UnMarshalingException {

@@ -14,12 +14,12 @@ public class BillDao implements Dao<List<Bill>>{
     public BillDao(Path folder) {
         this.folder = folder;
     }
-  
+    
     @Override
     public List<Bill> load() throws IOException { return loadAll(); }
     
     @Override
-   public void save(List<Bill> data) throws IOException { saveAll(data); }
+    public void save(List<Bill> data) throws IOException { saveAll(data); }
 
     public List<Bill> loadAll() throws IOException {
         List<Bill> result = new ArrayList<>();
@@ -67,7 +67,7 @@ public class BillDao implements Dao<List<Bill>>{
                 issued,
                 StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING);
-             BufferedWriter pw = Files.newBufferedWriter(
+                BufferedWriter pw = Files.newBufferedWriter(
                 paid,
                 StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING)) {
@@ -87,7 +87,5 @@ public class BillDao implements Dao<List<Bill>>{
             }
         }
     }
-
-    
 
 }

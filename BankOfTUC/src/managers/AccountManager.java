@@ -132,7 +132,7 @@ public class AccountManager {
     }
 
     public void createBusinessAccount(String vat, double interestRate,
-                                      LocalDate dateCreated, double balance) {
+            LocalDate dateCreated, double balance) {
         Customer cust = UserManager.getInstance().findCustomerByVat(vat);
         if (cust instanceof Company) {
             Company comp = (Company) cust;
@@ -198,7 +198,8 @@ public class AccountManager {
                     if (!existsIban(uniquePart))
                         addIban(uniquePart);
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
     }
 
